@@ -3,10 +3,12 @@ module net.cruhland.Analysis.Chapter2 where
 open import Agda.Builtin.FromNat using (Number)
 open import Data.Unit using (⊤)
 open import Relation.Binary.PropositionalEquality using (_≢_)
-open import net.cruhland.axiomatic.Peano using (Peano)
+open import net.cruhland.axiomatic.Peano using (PeanoBundle)
+import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
 
-module _ {ℕ : Set} {{P : Peano ℕ}} where
-  open Peano P
+module _ (PB : PeanoBundle) where
+  open PeanoBundle PB
+  open PeanoLiterals PB
 
   -- Proposition 2.1.4
   threeProof : ℕ
