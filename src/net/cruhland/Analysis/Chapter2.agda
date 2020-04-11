@@ -3,7 +3,7 @@ module net.cruhland.Analysis.Chapter2 where
 open import Agda.Builtin.FromNat using (Number)
 open import Data.Unit using (⊤)
 open import Relation.Binary.PropositionalEquality using (_≢_)
-open import net.cruhland.axiomatic.Peano using (Peano; numberPeano)
+open import net.cruhland.axiomatic.Peano using (Peano)
 
 module _ {ℕ : Set} {{P : Peano ℕ}} where
   open Peano P
