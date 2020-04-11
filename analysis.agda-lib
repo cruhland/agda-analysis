@@ -1,0 +1,5 @@
+name: analysis
+depend:
+  standard-library
+  agda-axiomatic
+include: src
