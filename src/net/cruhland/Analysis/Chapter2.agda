@@ -3,7 +3,7 @@ module net.cruhland.Analysis.Chapter2 where
 open import Agda.Builtin.FromNat using (Number)
 open import Data.Unit using (⊤)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; _≢_; cong)
+open Eq using (_≡_; _≢_; sym; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 
@@ -68,3 +68,19 @@ module _ (PB : PeanoBundle) where
   -- Lemma 2.2.3
   n+sm≡s[n+m] : ∀ {n m} → n + succ m ≡ succ (n + m)
   n+sm≡s[n+m] = +-succᴿ
+
+  sn≡n+1 : ∀ {n} → succ n ≡ n + 1
+  sn≡n+1 {n} =
+    begin
+      succ n
+    ≡⟨ cong succ (sym n+0≡n) ⟩
+      succ (n + 0)
+    ≡⟨ sym n+sm≡s[n+m] ⟩
+      n + succ 0
+    ≡⟨⟩
+      n + 1
+    ∎
+
+  -- Proposition 2.2.4
+  n+m≡m+n : ∀ {n m} → n + m ≡ m + n
+  n+m≡m+n = +-comm
