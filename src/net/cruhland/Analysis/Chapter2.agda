@@ -63,7 +63,7 @@ module _ (PB : PeanoBundle) where
 
   -- Lemma 2.2.2
   n+0≡n : ∀ {n} → n + 0 ≡ n
-  n+0≡n = +-identityᴿ
+  n+0≡n = +-zeroᴿ
 
   -- Lemma 2.2.3
   n+sm≡s[n+m] : ∀ {n m} → n + succ m ≡ succ (n + m)
@@ -82,9 +82,13 @@ module _ (PB : PeanoBundle) where
     ∎
 
   -- Proposition 2.2.4
-  n+m≡m+n : ∀ {n m} → n + m ≡ m + n
-  n+m≡m+n = +-comm
+  addition-is-commutative : ∀ {n m} → n + m ≡ m + n
+  addition-is-commutative = +-comm
 
   -- Proposition 2.2.5 / Exercise 2.2.1
-  [a+b]+c≡a+[b+c] : ∀ {a b c} → (a + b) + c ≡ a + (b + c)
-  [a+b]+c≡a+[b+c] = +-assoc
+  addition-is-associative : ∀ {a b c} → (a + b) + c ≡ a + (b + c)
+  addition-is-associative = +-assoc
+
+  -- Proposition 2.2.6
+  cancellation-law : ∀ {a b c} → a + b ≡ a + c → b ≡ c
+  cancellation-law = +-cancelᴸ
