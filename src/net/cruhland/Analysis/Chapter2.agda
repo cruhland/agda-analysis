@@ -60,3 +60,7 @@ module _ (PB : PeanoBundle) where
     ≡⟨ rec-zero ⟩
       5
     ∎
+
+  -- Lemma 2.2.2
+  n+0≡n : ∀ {n} → n + 0 ≡ n
+  n+0≡n = +-identityᴿ
