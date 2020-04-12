@@ -64,3 +64,7 @@ module _ (PB : PeanoBundle) where
   -- Lemma 2.2.2
   n+0≡n : ∀ {n} → n + 0 ≡ n
   n+0≡n = +-identityᴿ
+
+  -- Lemma 2.2.3
+  n+sm≡s[n+m] : ∀ {n m} → n + succ m ≡ succ (n + m)
+  n+sm≡s[n+m] = +-succᴿ
