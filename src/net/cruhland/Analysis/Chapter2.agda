@@ -84,3 +84,7 @@ module _ (PB : PeanoBundle) where
   -- Proposition 2.2.4
   n+m≡m+n : ∀ {n m} → n + m ≡ m + n
   n+m≡m+n = +-comm
+
+  -- Proposition 2.2.5 / Exercise 2.2.1
+  [a+b]+c≡a+[b+c] : ∀ {a b c} → (a + b) + c ≡ a + (b + c)
+  [a+b]+c≡a+[b+c] = +-assoc
