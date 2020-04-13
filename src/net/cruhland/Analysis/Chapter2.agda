@@ -1,9 +1,12 @@
 module net.cruhland.Analysis.Chapter2 where
 
 open import Agda.Builtin.FromNat using (Number)
+open import Data.Empty using (⊥-elim)
+open import Data.Product using (_×_; _,_)
+open import Data.Sum renaming (inj₁ to left; inj₂ to right)
 open import Data.Unit using (⊤)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; _≢_; sym; cong)
+open Eq using (_≡_; _≢_; sym; trans; subst; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 
@@ -92,3 +95,31 @@ module _ (PB : PeanoBundle) where
   -- Proposition 2.2.6
   cancellation-law : ∀ {a b c} → a + b ≡ a + c → b ≡ c
   cancellation-law = +-cancelᴸ
+
+  -- Definition 2.2.7
+  Positive : ℕ → Set
+  Positive n = n ≢ 0
+
+  -- Proposition 2.2.8
+  pos+n≡pos : ∀ {a b} → Positive a → Positive (a + b)
+  pos+n≡pos {a} {b} pos-a = ind P Pz Ps b
+    where
+      P = λ x → Positive (a + x)
+
+      Pz : P 0
+      Pz = subst Positive (sym +-zeroᴿ) pos-a
+
+      Ps : succProp P
+      Ps {k} _ = λ a+sk≡0 → succ≢zero (trans (sym +-succᴿ) a+sk≡0)
+
+  -- Corollary 2.2.9
+  -- This can't be proven by the method the book uses, because Agda
+  -- uses constructive logic.
+  a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 × b ≡ 0
+  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 with case a
+  ... | left a≡0 = a≡0 , trans (sym +-zeroᴸ) 0+b≡0
+    where
+      0+b≡0 = subst (λ x → x + b ≡ 0) a≡0 a+b≡0
+  ... | right (p , a≡sp) = ⊥-elim (succ≢zero (trans (sym +-succᴸ) sp+b≡0))
+    where
+      sp+b≡0 = subst (λ x → x + b ≡ 0) a≡sp a+b≡0
