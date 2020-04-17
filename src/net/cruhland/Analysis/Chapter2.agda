@@ -1,12 +1,9 @@
 module net.cruhland.Analysis.Chapter2 where
 
 open import Agda.Builtin.FromNat using (Number)
-open import Data.Empty using (⊥-elim)
-open import Data.Product using (_×_; _,_)
-open import Data.Sum renaming (inj₁ to left; inj₂ to right)
 open import Data.Unit using (⊤)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; _≢_; sym; trans; subst; cong)
+open Eq using (_≡_; sym; trans; subst; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 
@@ -23,11 +20,11 @@ module _ (PB : PeanoBundle) where
   threeDigit = 3
 
   -- Proposition 2.1.6
-  4≢0 : 4 ≢ 0
+  4≢0 : ¬ (4 ≡ 0)
   4≢0 = succ≢zero
 
   -- Proposition 2.1.8
-  6≢2 : 6 ≢ 2
+  6≢2 : ¬ (6 ≡ 2)
   6≢2 = λ 6≡2 → 4≢0 (succ-inj (succ-inj 6≡2))
 
   -- Definition 2.2.1
@@ -98,7 +95,7 @@ module _ (PB : PeanoBundle) where
 
   -- Definition 2.2.7
   Positive : ℕ → Set
-  Positive n = n ≢ 0
+  Positive n = ¬ (n ≡ 0)
 
   -- Proposition 2.2.8
   pos+n≡pos : ∀ {a b} → Positive a → Positive (a + b)
@@ -115,11 +112,17 @@ module _ (PB : PeanoBundle) where
   -- Corollary 2.2.9
   -- This can't be proven by the method the book uses, because Agda
   -- uses constructive logic.
-  a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 × b ≡ 0
-  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 with case a
-  ... | left a≡0 = a≡0 , trans (sym +-zeroᴸ) 0+b≡0
+  a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
+  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 = ∨-elim case-a≡0 case-a≡succ-p (case a)
     where
-      0+b≡0 = subst (λ x → x + b ≡ 0) a≡0 a+b≡0
-  ... | right (p , a≡sp) = ⊥-elim (succ≢zero (trans (sym +-succᴸ) sp+b≡0))
-    where
-      sp+b≡0 = subst (λ x → x + b ≡ 0) a≡sp a+b≡0
+      case-a≡0 : a ≡ 0 → a ≡ 0 ∧ b ≡ 0
+      case-a≡0 a≡0 = ∧-intro a≡0 (trans (sym +-zeroᴸ) 0+b≡0)
+        where
+          0+b≡0 = subst (λ x → x + b ≡ 0) a≡0 a+b≡0
+
+      case-a≡succ-p : Σ ℕ (λ p → a ≡ succ p) → a ≡ 0 ∧ b ≡ 0
+      case-a≡succ-p p∧a≡succ-p = ⊥-elim (succ≢zero s[p+b]≡0)
+        where
+          a≡succ-p = snd p∧a≡succ-p
+          succ-p+b≡0 = subst (λ x → x + b ≡ 0) a≡succ-p a+b≡0
+          s[p+b]≡0 = trans (sym +-succᴸ) succ-p+b≡0
