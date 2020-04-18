@@ -20,11 +20,11 @@ module _ (PB : PeanoBundle) where
   threeDigit = 3
 
   -- Proposition 2.1.6
-  4≢0 : ¬ (4 ≡ 0)
+  4≢0 : 4 ≢ 0
   4≢0 = succ≢zero
 
   -- Proposition 2.1.8
-  6≢2 : ¬ (6 ≡ 2)
+  6≢2 : 6 ≢ 2
   6≢2 = λ 6≡2 → 4≢0 (succ-inj (succ-inj 6≡2))
 
   -- Definition 2.2.1
@@ -95,7 +95,7 @@ module _ (PB : PeanoBundle) where
 
   -- Definition 2.2.7
   Positive : ℕ → Set
-  Positive n = ¬ (n ≡ 0)
+  Positive n = n ≢ 0
 
   -- Proposition 2.2.8
   pos+n≡pos : ∀ {a b} → Positive a → Positive (a + b)
