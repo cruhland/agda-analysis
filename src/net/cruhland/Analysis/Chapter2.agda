@@ -5,12 +5,14 @@ open import Data.Unit using (⊤)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; sym; trans; subst; cong)
 open Eq.≡-Reasoning
+open import net.cruhland.axiomatic.Logic using (LogicBundle)
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 
-module _ (PB : PeanoBundle) where
+module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
+  open LogicBundle LB
   open PeanoBundle PB
-  open import net.cruhland.axiomatic.Peano.Addition PB
-  open import net.cruhland.axiomatic.Peano.Literals PB
+  open import net.cruhland.axiomatic.Peano.Addition LB PB
+  open import net.cruhland.axiomatic.Peano.Literals LB PB
 
   -- Proposition 2.1.4
   threeProof : ℕ
