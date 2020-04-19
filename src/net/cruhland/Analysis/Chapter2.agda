@@ -15,6 +15,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   open import net.cruhland.axiomatic.Logic.Decidable LB
   open import net.cruhland.axiomatic.Peano.Addition LB PB
   open import net.cruhland.axiomatic.Peano.Literals LB PB
+  open import net.cruhland.axiomatic.Peano.Ordering LB PB
 
   -- Proposition 2.1.4
   threeProof : ℕ
@@ -162,3 +163,41 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
 
       a≡0→goal = λ a≡0 → ⊥-elim (a≢0 a≡0)
       a≡s→goal = Σ-map-snd a≡sb∧b-unique
+
+  -- Using Definition 2.2.11 on some examples
+  8>5 : 8 > 5
+  8>5 = ∧-intro 5≤8 5≢8
+    where
+      5+3≡8 =
+        begin
+          5 + 3
+        ≡⟨⟩
+          5 + succ (succ (succ zero))
+        ≡⟨ +-succᴿ⃗ᴸ ⟩
+          succ 5 + succ (succ zero)
+        ≡⟨ +-succᴿ⃗ᴸ ⟩
+          succ (succ 5) + succ zero
+        ≡⟨ +-succᴿ⃗ᴸ ⟩
+          succ (succ (succ 5)) + zero
+        ≡⟨ +-zeroᴿ ⟩
+          succ (succ (succ 5))
+        ≡⟨⟩
+          8
+        ∎
+      5≤8 = Σ-intro 3 5+3≡8
+      si = succ-inj
+      5≢8 = λ 5≡8 → succ≢zero (si (si (si (si (si (sym 5≡8))))))
+
+  n≢sn : ∀ {n} → n ≢ succ n
+  n≢sn {n} = ind P Pz Ps n
+    where
+      P = λ x → x ≢ succ x
+      Pz = λ z≡sz → succ≢zero (sym z≡sz)
+
+      Ps : succProp P
+      Ps k≢sk = λ sk≡ssk → k≢sk (succ-inj sk≡ssk)
+
+  n<sn : ∀ {n} → n < succ n
+  n<sn = ∧-intro n≤sn n≢sn
+    where
+      n≤sn = Σ-intro 1 (sym sn≡n+1)
