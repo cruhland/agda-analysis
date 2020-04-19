@@ -147,3 +147,18 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       a≢0→⊥ = λ a≢0 → pos+n≡pos a≢0 a+b≡0
       b≢0→⊥ = λ b≢0 → pos+n≡pos b≢0 (trans +-comm a+b≡0)
       ¬[a≢0∨b≢0] = ∨-elim a≢0→⊥ b≢0→⊥
+
+  -- Lemma 2.2.10
+  -- Exercise 2.2.2
+  _HasUniquePredecessor_ : ℕ → ℕ → Set
+  a HasUniquePredecessor b = a ≡ succ b ∧ ∀ b′ → a ≡ succ b′ → b ≡ b′
+
+  unique-predecessor : ∀ a → Positive a → Σ ℕ (a HasUniquePredecessor_)
+  unique-predecessor a a≢0 = ∨-elim a≡0→goal a≡s→goal (case a)
+    where
+      a≡sb∧b-unique : ∀ {b} → a ≡ succ b → a HasUniquePredecessor b
+      a≡sb∧b-unique a≡sb =
+        ∧-intro a≡sb λ b′ a≡sb′ → succ-inj (trans (sym a≡sb) a≡sb′)
+
+      a≡0→goal = λ a≡0 → ⊥-elim (a≢0 a≡0)
+      a≡s→goal = Σ-map-snd a≡sb∧b-unique
