@@ -99,26 +99,18 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   cancellation-law = +-cancelᴸ
 
   -- Definition 2.2.7
-  Positive : ℕ → Set
-  Positive n = n ≢ 0
+  _ : ℕ → Set
+  _ = Positive
 
   -- Proposition 2.2.8
-  pos+n≡pos : ∀ {a b} → Positive a → Positive (a + b)
-  pos+n≡pos {a} {b} pos-a = ind P Pz Ps b
-    where
-      P = λ x → Positive (a + x)
-
-      Pz : P 0
-      Pz = subst Positive (sym +-zeroᴿ) pos-a
-
-      Ps : succProp P
-      Ps {k} _ = λ a+sk≡0 → succ≢zero (trans (sym +-succᴿ) a+sk≡0)
+  _ : ∀ {a b} → Positive a → Positive (a + b)
+  _ = +-positive
 
   -- Corollary 2.2.9
   -- My first proof uses a direct argument instead of the book's approach of
   -- proof by contradicition, because the latter is nonconstructive.
   a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
-  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 = ∨-elim case-a≡0 case-a≡succ-p (case a)
+  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 = ∨-rec case-a≡0 case-a≡succ-p (case a)
     where
       case-a≡0 : a ≡ 0 → a ≡ 0 ∧ b ≡ 0
       case-a≡0 a≡0 = ∧-intro a≡0 (trans (sym +-zeroᴸ) 0+b≡0)
@@ -134,20 +126,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
 
   -- I realized that we could use the book's argument if we showed that
   -- n ≡ 0 is decidable for any n.
-  zero-dec : (n : ℕ) → Decidable (n ≡ 0)
-  zero-dec n = ∨-elim ∨-introᴸ n≡succ→n≢0 (case n)
-    where
-      n≡succ→n≢0 : Σ ℕ (λ p → n ≡ succ p) → Decidable (n ≡ 0)
-      n≡succ→n≢0 p,n≡sp = ∨-introᴿ n≢0
-        where
-          n≢0 = λ n≡0 → succ≢zero (trans (sym (snd p,n≡sp)) n≡0)
-
-  coro229 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
-  coro229 {a} {b} a+b≡0 = ¬[¬a∨¬b]→a∧b (zero-dec a) (zero-dec b) ¬[a≢0∨b≢0]
-    where
-      a≢0→⊥ = λ a≢0 → pos+n≡pos a≢0 a+b≡0
-      b≢0→⊥ = λ b≢0 → pos+n≡pos b≢0 (trans +-comm a+b≡0)
-      ¬[a≢0∨b≢0] = ∨-elim a≢0→⊥ b≢0→⊥
+  _ : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
+  _ = +-both-zero
 
   -- Lemma 2.2.10
   -- Exercise 2.2.2
@@ -155,7 +135,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   a HasUniquePredecessor b = a ≡ succ b ∧ ∀ b′ → a ≡ succ b′ → b ≡ b′
 
   unique-predecessor : ∀ a → Positive a → Σ ℕ (a HasUniquePredecessor_)
-  unique-predecessor a a≢0 = ∨-elim a≡0→goal a≡s→goal (case a)
+  unique-predecessor a a≢0 = ∨-rec a≡0→goal a≡s→goal (case a)
     where
       a≡sb∧b-unique : ∀ {b} → a ≡ succ b → a HasUniquePredecessor b
       a≡sb∧b-unique a≡sb =
