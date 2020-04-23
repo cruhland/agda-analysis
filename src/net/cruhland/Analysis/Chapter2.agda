@@ -2,9 +2,9 @@ module net.cruhland.Analysis.Chapter2 where
 
 open import Agda.Builtin.FromNat using (Number)
 open import Data.Unit using (⊤)
-open import Function using (id)
+open import Function using (id; const)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; sym; trans; subst; cong)
+open Eq using (_≡_; refl; sym; trans; subst; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
@@ -17,22 +17,88 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   open import net.cruhland.axiomatic.Peano.Literals LB PB
   open import net.cruhland.axiomatic.Peano.Ordering LB PB
 
-  -- Proposition 2.1.4
-  threeProof : ℕ
-  threeProof = succ (succ (succ zero))
+  {- 2.1 The Peano Axioms -}
 
-  threeDigit : ℕ
-  threeDigit = 3
+  -- Axiom 2.1. 0 is a natural number.
+  _ : ℕ
+  _ = 0
 
-  -- Proposition 2.1.6
+  -- Axiom 2.2. If n is a natural number, then (succ n) is also a
+  -- natural number
+  _ : ℕ → ℕ
+  _ = succ
+
+  _ : ℕ
+  _ = succ (succ zero)
+
+  -- Definition 2.1.3
+  -- The digit-based representation is provided by the Peano.Literals module
+  _ : 1 ≡ succ zero
+  _ = refl
+
+  _ : 2 ≡ succ (succ zero)
+  _ = refl
+
+  _ : 3 ≡ succ (succ (succ zero))
+  _ = refl
+
+  _ : 1 ≡ succ 0
+  _ = refl
+
+  _ : 2 ≡ succ 1
+  _ = refl
+
+  _ : 3 ≡ succ 2
+  _ = refl
+
+  -- Proposition 2.1.4. 3 is a natural number.
+  _ : ℕ
+  _ = succ (succ (succ zero))
+
+  _ : ℕ
+  _ = succ 2
+
+  _ : ℕ
+  _ = 3
+
+  -- Axiom 2.3. 0 is not the successor of any natural number.
+  _ : ∀ {n} → succ n ≢ 0
+  _ = succ≢zero
+
+  -- Proposition 2.1.6. 4 is not equal to 0.
   4≢0 : 4 ≢ 0
   4≢0 = succ≢zero
 
-  -- Proposition 2.1.8
+  -- Axiom 2.4. Different natural numbers must have different successors.
+  _ : ∀ {n m} → succ n ≡ succ m → n ≡ m
+  _ = succ-inj
+
+  -- Proposition 2.1.8. 6 is not equal to 2.
   6≢2 : 6 ≢ 2
   6≢2 = λ 6≡2 → 4≢0 (succ-inj (succ-inj 6≡2))
 
-  -- Definition 2.2.1
+  -- Axiom 2.5 (Principle of mathematical induction).
+  _ : (P : ℕ → Set) → P 0 → (∀ {k} → P k → P (succ k)) → ∀ n → P n
+  _ = ind
+
+  -- Proposition 2.1.16 (Recursive definitions).
+  -- There's something not quite right here, but it's hard for me to
+  -- pin it down. I think because the book doesn't have the ind-zero
+  -- and ind-succ axioms that I defined. Essentially, those β-reduction
+  -- rules are equivalent to the book's argument that recursive definitions
+  -- exist. It makes me wonder whether ind-zero and ind-succ are necessary.
+  rec-def :
+    (f : {ℕ} → (ℕ → ℕ)) →
+    (c : ℕ) →
+    Σ (ℕ → ℕ) (λ a → a 0 ≡ c ∧ ∀ n → a (succ n) ≡ f {n} (a n))
+  rec-def f c = Σ-intro (ind (const ℕ) c f) (∧-intro ind-zero (λ n → ind-succ))
+
+  {- 2.2 Addition -}
+
+  -- Definition 2.2.1 (Addition of natural numbers).
+  _ : ℕ → ℕ → ℕ
+  _ = _+_
+
   0+m : ∀ {m} → 0 + m ≡ m
   0+m = rec-zero
 
@@ -66,47 +132,50 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       5
     ∎
 
-  -- Lemma 2.2.2
-  n+0≡n : ∀ {n} → n + 0 ≡ n
-  n+0≡n = +-zeroᴿ
+  -- Lemma 2.2.2. For any natural number n, n + 0 = n.
+  _ : ∀ {n} → n + 0 ≡ n
+  _ = +-zeroᴿ
 
-  -- Lemma 2.2.3
-  n+sm≡s[n+m] : ∀ {n m} → n + succ m ≡ succ (n + m)
-  n+sm≡s[n+m] = +-succᴿ
+  -- Lemma 2.2.3. For any natural numbers n and m, n + succ m = succ (n + m).
+  _ : ∀ {n m} → n + succ m ≡ succ (n + m)
+  _ = +-succᴿ
 
   sn≡n+1 : ∀ {n} → succ n ≡ n + 1
   sn≡n+1 {n} =
     begin
       succ n
-    ≡⟨ cong succ (sym n+0≡n) ⟩
+    ≡⟨ cong succ (sym +-zeroᴿ) ⟩
       succ (n + 0)
-    ≡⟨ sym n+sm≡s[n+m] ⟩
+    ≡⟨ sym +-succᴿ ⟩
       n + succ 0
     ≡⟨⟩
       n + 1
     ∎
 
-  -- Proposition 2.2.4
-  addition-is-commutative : ∀ {n m} → n + m ≡ m + n
-  addition-is-commutative = +-comm
+  -- Proposition 2.2.4 (Addition is commutative).
+  _ : ∀ {n m} → n + m ≡ m + n
+  _ = +-comm
 
-  -- Proposition 2.2.5 / Exercise 2.2.1
-  addition-is-associative : ∀ {a b c} → (a + b) + c ≡ a + (b + c)
-  addition-is-associative = +-assoc
+  -- Proposition 2.2.5 (Addition is associative).
+  -- Exercise 2.2.1
+  _ : ∀ {a b c} → (a + b) + c ≡ a + (b + c)
+  _ = +-assoc
 
-  -- Proposition 2.2.6
-  cancellation-law : ∀ {a b c} → a + b ≡ a + c → b ≡ c
-  cancellation-law = +-cancelᴸ
+  -- Proposition 2.2.6 (Cancellation law).
+  _ : ∀ {a b c} → a + b ≡ a + c → b ≡ c
+  _ = +-cancelᴸ
 
-  -- Definition 2.2.7
+  -- Definition 2.2.7 (Positive natural numbers).
   _ : ℕ → Set
   _ = Positive
 
-  -- Proposition 2.2.8
+  -- Proposition 2.2.8. If a is positive and b is a natural number,
+  -- then a + b is positive.
   _ : ∀ {a b} → Positive a → Positive (a + b)
   _ = +-positive
 
-  -- Corollary 2.2.9
+  -- Corollary 2.2.9. If a and b are natural numbers such that a + b = 0,
+  -- then a = 0 and b = 0.
   -- My first proof uses a direct argument instead of the book's approach of
   -- proof by contradicition, because the latter is nonconstructive.
   a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
@@ -129,7 +198,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
   _ = +-both-zero
 
-  -- Lemma 2.2.10
+  -- Lemma 2.2.10. Let a be a positive natural number. Then there exists
+  -- exactly one natural number b such that succ b = a.
   -- Exercise 2.2.2
   _HasUniquePredecessor_ : ℕ → ℕ → Set
   a HasUniquePredecessor b = a ≡ succ b ∧ ∀ b′ → a ≡ succ b′ → b ≡ b′
@@ -143,6 +213,10 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
 
       a≡0→goal = λ a≡0 → ⊥-elim (a≢0 a≡0)
       a≡s→goal = Σ-map-snd a≡sb∧b-unique
+
+  -- Definition 2.2.11 (Ordering of the natural numbers).
+  _ : ℕ → ℕ → Set
+  _ = _≤_
 
   -- Using Definition 2.2.11 on some examples
   8>5 : 8 > 5
@@ -181,3 +255,6 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   n<sn = ∧-intro n≤sn n≢sn
     where
       n≤sn = Σ-intro 1 (sym sn≡n+1)
+
+  -- Proposition 2.2.12 (Basic properties of order for natural numbers).
+  -- Exercise 2.2.3
