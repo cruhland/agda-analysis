@@ -256,5 +256,26 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
     where
       n≤sn = Σ-intro 1 (sym sn≡n+1)
 
+  _↔_ : Set → Set → Set
+  A ↔ B = (A → B) ∧ (B → A)
+
+  infixl 0 _↔_
+
   -- Proposition 2.2.12 (Basic properties of order for natural numbers).
   -- Exercise 2.2.3
+
+  -- (a) (Order is reflexive)
+  _ : ∀ {a} → a ≤ a
+  _ = ≤-refl
+
+  -- (b) (Order is transitive)
+  _ : ∀ {a b c} → a ≤ b → b ≤ c → a ≤ c
+  _ = ≤-trans
+
+  -- (c) (Order is anti-symmetric)
+  _ : ∀ {a b} → a ≤ b → b ≤ a → a ≡ b
+  _ = ≤-antisym
+
+  -- (d) (Addition preserves order)
+  _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
+  _ = ∧-intro ≤-compat-+ᵁᴿ ≤-compat-+ᴰᴿ
