@@ -140,17 +140,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ : ∀ {n m} → n + succ m ≡ succ (n + m)
   _ = +-succᴿ
 
-  sn≡n+1 : ∀ {n} → succ n ≡ n + 1
-  sn≡n+1 {n} =
-    begin
-      succ n
-    ≡⟨ cong succ (sym +-zeroᴿ) ⟩
-      succ (n + 0)
-    ≡⟨ sym +-succᴿ ⟩
-      n + succ 0
-    ≡⟨⟩
-      n + 1
-    ∎
+  _ : ∀ {n} → succ n ≡ n + 1
+  _ = succ≡+
 
   -- Proposition 2.2.4 (Addition is commutative).
   _ : ∀ {n m} → n + m ≡ m + n
@@ -205,14 +196,11 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   a HasUniquePredecessor b = a ≡ succ b ∧ ∀ b′ → a ≡ succ b′ → b ≡ b′
 
   unique-predecessor : ∀ a → Positive a → Σ ℕ (a HasUniquePredecessor_)
-  unique-predecessor a a≢0 = ∨-rec a≡0→goal a≡s→goal (case a)
+  unique-predecessor a a≢0 = Σ-map-snd use-pred (pred a≢0)
     where
-      a≡sb∧b-unique : ∀ {b} → a ≡ succ b → a HasUniquePredecessor b
-      a≡sb∧b-unique a≡sb =
+      use-pred : ∀ {b} → a ≡ succ b → a HasUniquePredecessor b
+      use-pred a≡sb =
         ∧-intro a≡sb λ b′ a≡sb′ → succ-inj (trans (sym a≡sb) a≡sb′)
-
-      a≡0→goal = λ a≡0 → ⊥-elim (a≢0 a≡0)
-      a≡s→goal = Σ-map-snd a≡sb∧b-unique
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
   _ : ℕ → ℕ → Set
@@ -243,18 +231,19 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       5≢8 = λ 5≡8 → succ≢zero (si (si (si (si (si (sym 5≡8))))))
 
   n≢sn : ∀ {n} → n ≢ succ n
-  n≢sn {n} = ind P Pz Ps n
+  n≢sn {n} n≡sn = succ≢zero (+-cancelᴸ n+1≡n+0)
     where
-      P = λ x → x ≢ succ x
-      Pz = λ z≡sz → succ≢zero (sym z≡sz)
-
-      Ps : succProp P
-      Ps k≢sk = λ sk≡ssk → k≢sk (succ-inj sk≡ssk)
+      n+1≡n+0 =
+        begin
+          n + 1
+        ≡⟨ +-succᴿ⃗ᴸ ⟩
+          succ n + 0
+        ≡⟨ cong (_+ 0) (sym n≡sn) ⟩
+          n + 0
+        ∎
 
   n<sn : ∀ {n} → n < succ n
   n<sn = ∧-intro n≤sn n≢sn
-    where
-      n≤sn = Σ-intro 1 (sym sn≡n+1)
 
   _↔_ : Set → Set → Set
   A ↔ B = (A → B) ∧ (B → A)
@@ -279,3 +268,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- (d) (Addition preserves order)
   _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
   _ = ∧-intro ≤-compat-+ᵁᴿ ≤-compat-+ᴰᴿ
+
+  -- (e)
+  _ : ∀ {a b} → a < b ↔ succ a ≤ b
+  _ = ∧-intro <→≤ ≤→<
