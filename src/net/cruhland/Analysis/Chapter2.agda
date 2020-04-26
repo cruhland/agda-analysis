@@ -160,6 +160,9 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ : ℕ → Set
   _ = Positive
 
+  positive-succ : ∀ {n} → Positive (succ n)
+  positive-succ = succ≢zero
+
   -- Proposition 2.2.8. If a is positive and b is a natural number,
   -- then a + b is positive.
   _ : ∀ {a b} → Positive a → Positive (a + b)
@@ -272,3 +275,39 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- (e)
   _ : ∀ {a b} → a < b ↔ succ a ≤ b
   _ = ∧-intro <→≤ ≤→<
+
+  -- (f)
+  <↔positive-diff : ∀ {a b} → a < b ↔ Σ ℕ λ d → Positive d ∧ b ≡ a + d
+  <↔positive-diff {a} {b} = ∧-intro <→positive-diff positive-diff→<
+    where
+      <→positive-diff : a < b → Σ ℕ λ d → Positive d ∧ b ≡ a + d
+      <→positive-diff a<b = Σ-rec use-sa≤b (<→≤ a<b)
+        where
+          use-sa≤b :
+            (c : ℕ) → succ a + c ≡ b → Σ ℕ λ d → Positive d ∧ b ≡ a + d
+          use-sa≤b c sa+c≡b = Σ-intro (succ c) (∧-intro positive-succ b≡a+sc)
+            where
+              b≡a+sc = trans (sym sa+c≡b) +-succᴸ⃗ᴿ
+
+      positive-diff→< : Σ ℕ (λ d → Positive d ∧ b ≡ a + d) → a < b
+      positive-diff→< Σpd = ≤→< (Σ-rec use-Σpd Σpd)
+        where
+          use-Σpd : (d : ℕ) → Positive d ∧ b ≡ a + d → succ a ≤ b
+          use-Σpd d d≢0∧b≡a+d = Σ-rec use-pred (pred d≢0)
+            where
+              d≢0 = ∧-elimᴸ d≢0∧b≡a+d
+              b≡a+d = ∧-elimᴿ d≢0∧b≡a+d
+
+              use-pred : (p : ℕ) → d ≡ succ p → succ a ≤ b
+              use-pred p d≡sp = Σ-intro p sa+p≡b
+                where
+                  sa+p≡b =
+                    begin
+                      succ a + p
+                    ≡⟨ +-succᴸ⃗ᴿ ⟩
+                      a + succ p
+                    ≡⟨ cong (a +_) (sym d≡sp) ⟩
+                      a + d
+                    ≡⟨ sym b≡a+d ⟩
+                      b
+                    ∎
