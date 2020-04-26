@@ -233,21 +233,6 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       si = succ-inj
       5≢8 = λ 5≡8 → succ≢zero (si (si (si (si (si (sym 5≡8))))))
 
-  n≢sn : ∀ {n} → n ≢ succ n
-  n≢sn {n} n≡sn = succ≢zero (+-cancelᴸ n+1≡n+0)
-    where
-      n+1≡n+0 =
-        begin
-          n + 1
-        ≡⟨ +-succᴿ⃗ᴸ ⟩
-          succ n + 0
-        ≡⟨ cong (_+ 0) (sym n≡sn) ⟩
-          n + 0
-        ∎
-
-  n<sn : ∀ {n} → n < succ n
-  n<sn = ∧-intro n≤sn n≢sn
-
   _↔_ : Set → Set → Set
   A ↔ B = (A → B) ∧ (B → A)
 
@@ -278,36 +263,19 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
 
   -- (f)
   <↔positive-diff : ∀ {a b} → a < b ↔ Σ ℕ λ d → Positive d ∧ b ≡ a + d
-  <↔positive-diff {a} {b} = ∧-intro <→positive-diff positive-diff→<
+  <↔positive-diff = ∧-intro <→positive-diff positive-diff→<
+
+  -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
+  _ :
+    ∀ {a b} →
+    (a < b ∨ a ≡ b ∨ a > b) ∧
+      ¬ (a < b ∧ a ≡ b ∨ a > b ∧ a ≡ b ∨ a < b ∧ a > b)
+  _ = ∧-intro trichotomy any-pair-absurd
     where
-      <→positive-diff : a < b → Σ ℕ λ d → Positive d ∧ b ≡ a + d
-      <→positive-diff a<b = Σ-rec use-sa≤b (<→≤ a<b)
-        where
-          use-sa≤b :
-            (c : ℕ) → succ a + c ≡ b → Σ ℕ λ d → Positive d ∧ b ≡ a + d
-          use-sa≤b c sa+c≡b = Σ-intro (succ c) (∧-intro positive-succ b≡a+sc)
-            where
-              b≡a+sc = trans (sym sa+c≡b) +-succᴸ⃗ᴿ
-
-      positive-diff→< : Σ ℕ (λ d → Positive d ∧ b ≡ a + d) → a < b
-      positive-diff→< Σpd = ≤→< (Σ-rec use-Σpd Σpd)
-        where
-          use-Σpd : (d : ℕ) → Positive d ∧ b ≡ a + d → succ a ≤ b
-          use-Σpd d d≢0∧b≡a+d = Σ-rec use-pred (pred d≢0)
-            where
-              d≢0 = ∧-elimᴸ d≢0∧b≡a+d
-              b≡a+d = ∧-elimᴿ d≢0∧b≡a+d
-
-              use-pred : (p : ℕ) → d ≡ succ p → succ a ≤ b
-              use-pred p d≡sp = Σ-intro p sa+p≡b
-                where
-                  sa+p≡b =
-                    begin
-                      succ a + p
-                    ≡⟨ +-succᴸ⃗ᴿ ⟩
-                      a + succ p
-                    ≡⟨ cong (a +_) (sym d≡sp) ⟩
-                      a + d
-                    ≡⟨ sym b≡a+d ⟩
-                      b
-                    ∎
+      use-<≡ = λ <≡ → ∧-elimᴿ (∧-elimᴸ <≡) (∧-elimᴿ <≡)
+      use->≡ = λ >≡ → ∧-elimᴿ (∧-elimᴸ >≡) (sym (∧-elimᴿ >≡))
+      use-<> = λ <> →
+        ∧-elimᴿ
+          (∧-elimᴸ <>)
+          (≤-antisym (∧-elimᴸ (∧-elimᴸ <>)) (∧-elimᴸ (∧-elimᴿ <>)))
+      any-pair-absurd = λ pairs → ∨-rec use-<≡ (∨-rec use->≡ use-<>) pairs
