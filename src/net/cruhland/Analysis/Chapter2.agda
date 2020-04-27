@@ -279,3 +279,11 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
           (∧-elimᴸ <>)
           (≤-antisym (∧-elimᴸ (∧-elimᴸ <>)) (∧-elimᴸ (∧-elimᴿ <>)))
       any-pair-absurd = λ pairs → ∨-rec use-<≡ (∨-rec use->≡ use-<>) pairs
+
+  -- Proposition 2.2.14
+  -- Exercise 2.2.5
+  _ :
+    (P : ℕ → Set) (b : ℕ) →
+    (∀ m → b ≤ m → (∀ k → b ≤ k → k < m → P k) → P m) →
+    ∀ n → b ≤ n → P n
+  _ = strong-ind
