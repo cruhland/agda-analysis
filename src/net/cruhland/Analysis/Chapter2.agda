@@ -290,14 +290,18 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
 
   -- Exercise 2.2.6
   backwards-ind :
-    (P : ℕ → Set) → ∀ n → P n → (∀ k → P (succ k) → P k) → ∀ m → m ≤ n → P m
-  backwards-ind P n Pn Pk m m≤n = ind Q Qz Qs n Pn m m≤n
+    (P : ℕ → Set) → ∀ {n} → P n →
+    (∀ {k} → P (succ k) → P k) →
+    ∀ {m} → m ≤ n → P m
+  backwards-ind P {n} Pn Pk m≤n = ind Q Qz Qs n Pn m≤n
     where
-      Q = λ x → P x → ∀ y → y ≤ x → P y
-      Qz = λ Pz y y≤z → subst P (sym (∨-forceᴿ <-zero (≤→<∨≡ y≤z))) Pz
+      Q = λ x → P x → ∀ {y} → y ≤ x → P y
+
+      Qz : Q 0
+      Qz Pz y≤z = subst P (sym (∨-forceᴿ <-zero (≤→<∨≡ y≤z))) Pz
 
       Qs : succProp Q
-      Qs {k} Qk Psk y y≤sk = ∨-rec use-y≤k use-y≡sk (≤s→≤∨≡s y≤sk)
+      Qs Qk Psk y≤sk = ∨-rec use-y≤k use-y≡sk (≤s→≤∨≡s y≤sk)
         where
-          use-y≤k = λ y≤k → Qk (Pk k Psk) y y≤k
+          use-y≤k = λ y≤k → Qk (Pk Psk) y≤k
           use-y≡sk = λ y≡sk → subst P (sym y≡sk) Psk
