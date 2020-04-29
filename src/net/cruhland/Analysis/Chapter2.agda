@@ -15,6 +15,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   open import net.cruhland.axiomatic.Logic.Decidable LB
   open import net.cruhland.axiomatic.Peano.Addition LB PB
   open import net.cruhland.axiomatic.Peano.Literals LB PB
+  open import net.cruhland.axiomatic.Peano.Multiplication LB PB
   open import net.cruhland.axiomatic.Peano.Ordering LB PB
 
   {- 2.1 The Peano Axioms -}
@@ -305,3 +306,23 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
         where
           use-y≤k = λ y≤k → Qk (Pk Psk) y≤k
           use-y≡sk = λ y≡sk → subst P (sym y≡sk) Psk
+
+  {- 2.3 Multiplication -}
+
+  -- Definition 2.3.1 (Multiplication of natural numbers).
+  _ : ℕ → ℕ → ℕ
+  _ = _*_
+
+  0*m : ∀ {m} → 0 * m ≡ 0
+  0*m = *-zeroᴸ
+
+  1*m : ∀ {m} → 1 * m ≡ 0 + m
+  1*m {m} = trans *-succᴸ (cong (_+ m) 0*m)
+
+  2*m : ∀ {m} → 2 * m ≡ 0 + m + m
+  2*m {m} = trans *-succᴸ (cong (_+ m) 1*m)
+
+  -- Lemma 2.3.2 (Multiplication is commutative).
+  -- Exercise 2.3.1
+  _ : ∀ {n m} → n * m ≡ m * n
+  _ = *-comm
