@@ -330,25 +330,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- Lemma 2.3.3 (Positive natural numbers have no zero divisors).
   -- Exercise 2.3.2
   no-zero-divs : ∀ {n m} → n * m ≡ 0 ↔ n ≡ 0 ∨ m ≡ 0
-  no-zero-divs {n} {m} = ∧-intro forward backward
+  no-zero-divs {n} {m} = ∧-intro *-either-zero backward
     where
       use-n≡0 = λ n≡0 → trans (cong (_* m) n≡0) *-zeroᴸ
       use-m≡0 = λ m≡0 → trans (cong (n *_) m≡0) *-zeroᴿ
       backward = ∨-rec use-n≡0 use-m≡0
-
-      forward : n * m ≡ 0 → n ≡ 0 ∨ m ≡ 0
-      forward n*m≡0 = ∨-mapᴿ (Σ-rec use-pred) (case n)
-        where
-          use-pred : ∀ p → n ≡ succ p → m ≡ zero
-          use-pred p n≡sp = ∧-elimᴿ (+-both-zero p*m+m≡0)
-            where
-              p*m+m≡0 =
-                begin
-                  p * m + m
-                ≡⟨ sym *-succᴸ ⟩
-                  succ p * m
-                ≡⟨ cong (_* m) (sym n≡sp) ⟩
-                  n * m
-                ≡⟨ n*m≡0 ⟩
-                  0
-                ∎
