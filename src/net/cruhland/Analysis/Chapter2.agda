@@ -335,3 +335,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       use-n≡0 = λ n≡0 → trans (cong (_* m) n≡0) *-zeroᴸ
       use-m≡0 = λ m≡0 → trans (cong (n *_) m≡0) *-zeroᴿ
       backward = ∨-rec use-n≡0 use-m≡0
+
+  -- Proposition 2.3.4 (Distributive law).
+  _ : ∀ {a b c} → a * (b + c) ≡ a * b + a * c
+  _ = *-distrib-+
