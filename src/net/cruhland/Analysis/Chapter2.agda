@@ -337,10 +337,10 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       backward = ∨-rec use-n≡0 use-m≡0
 
       forward : n * m ≡ 0 → n ≡ 0 ∨ m ≡ 0
-      forward n*m≡0 = ∨-mapᴿ (Σ-rec use-Σp) (case n)
+      forward n*m≡0 = ∨-mapᴿ (Σ-rec use-pred) (case n)
         where
-          use-Σp : ∀ p → n ≡ succ p → m ≡ zero
-          use-Σp p n≡sp = ∧-elimᴿ (+-both-zero p*m+m≡0)
+          use-pred : ∀ p → n ≡ succ p → m ≡ zero
+          use-pred p n≡sp = ∧-elimᴿ (+-both-zero p*m+m≡0)
             where
               p*m+m≡0 =
                 begin
