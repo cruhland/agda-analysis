@@ -338,4 +338,9 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
 
   -- Proposition 2.3.4 (Distributive law).
   _ : ∀ {a b c} → a * (b + c) ≡ a * b + a * c
-  _ = *-distrib-+
+  _ = *-distrib-+ᴸ
+
+  -- Proposition 2.3.5 (Multiplication is associative).
+  -- Exercise 2.3.3
+  _ : ∀ {a b c} → (a * b) * c ≡ a * (b * c)
+  _ = *-assoc
