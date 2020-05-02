@@ -348,3 +348,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- Proposition 2.3.6 (Multiplication preserves order).
   _ : ∀ {a b c} → a < b → c ≢ 0 → a * c < b * c
   _ = *-preserves-<
+
+  -- Corollary 2.3.7 (Cancellation law).
+  _ : ∀ {a b c} → c ≢ 0 → a * c ≡ b * c → a ≡ b
+  _ = *-cancelᴿ
