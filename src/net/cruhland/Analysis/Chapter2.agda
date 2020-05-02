@@ -403,6 +403,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _^_ : ℕ → ℕ → ℕ
   n ^ m = rec 1 (_* n) m
 
+  infixr 8 _^_
+
   -- Examples 2.3.12
   x^0≡1 : ∀ {x} → x ^ 0 ≡ 1
   x^0≡1 = rec-zero
@@ -437,4 +439,45 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       x ^ 2 * x
     ≡⟨ cong (_* x) x^2≡xx ⟩
       x * x * x
+    ∎
+
+  2x≡x+x : ∀ {x} → 2 * x ≡ x + x
+  2x≡x+x {x} =
+    begin
+      2 * x
+    ≡⟨⟩
+      succ 1 * x
+    ≡⟨ *-succᴸ ⟩
+      1 * x + x
+    ≡⟨ cong (_+ x) *-oneᴸ ⟩
+      x + x
+    ∎
+
+  -- Exercise 2.3.4
+  ex234 : ∀ {a b} → (a + b) ^ 2 ≡ a ^ 2 + 2 * a * b + b ^ 2
+  ex234 {a} {b} =
+    begin
+      (a + b) ^ 2
+    ≡⟨ x^2≡xx ⟩
+      (a + b) * (a + b)
+    ≡⟨ *-distrib-+ᴿ ⟩
+      a * (a + b) + b * (a + b)
+    ≡⟨ cong (_+ b * (a + b)) *-distrib-+ᴸ ⟩
+      a * a + a * b + b * (a + b)
+    ≡⟨ cong (a * a + a * b +_) *-distrib-+ᴸ ⟩
+      a * a + a * b + (b * a + b * b)
+    ≡⟨ cong (λ x → a * a + a * b + (x + b * b)) *-comm ⟩
+      a * a + a * b + (a * b + b * b)
+    ≡⟨ sym +-assoc ⟩
+      a * a + a * b + a * b + b * b
+    ≡⟨ cong (_+ b * b) +-assoc ⟩
+      a * a + (a * b + a * b) + b * b
+    ≡⟨ cong (λ x → a * a + x + b * b) (sym 2x≡x+x) ⟩
+      a * a + 2 * (a * b) + b * b
+    ≡⟨ cong (λ x → a * a + x + b * b) (sym *-assoc) ⟩
+      a * a + 2 * a * b + b * b
+    ≡⟨ cong (λ x → x + 2 * a * b + b * b) (sym x^2≡xx) ⟩
+      a ^ 2 + 2 * a * b + b * b
+    ≡⟨ cong (a ^ 2 + 2 * a * b +_) (sym x^2≡xx) ⟩
+      a ^ 2 + 2 * a * b + b ^ 2
     ∎
