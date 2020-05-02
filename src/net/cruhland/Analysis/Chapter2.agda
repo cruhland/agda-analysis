@@ -352,3 +352,49 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- Corollary 2.3.7 (Cancellation law).
   _ : ∀ {a b c} → c ≢ 0 → a * c ≡ b * c → a ≡ b
   _ = *-cancelᴿ
+
+  -- Proposition 2.3.9 (Euclidean algorithm).
+  -- Exercise 2.3.5
+  euclid : ∀ n m → m ≢ 0 → Σ ℕ λ q → Σ ℕ λ r → r < m ∧ n ≡ m * q + r
+  euclid n m m≢0 = ind P Pz Ps n
+    where
+      P = λ x → Σ ℕ λ q → Σ ℕ λ r → r < m ∧ x ≡ m * q + r
+
+      Pz : P 0
+      Pz = Σ-intro q (Σ-intro r (∧-intro r<m n≡mq+r))
+        where
+          q = 0
+          r = 0
+          r<m = ∧-intro ≤-zero (¬sym m≢0)
+          n≡mq+r = sym (trans +-zeroᴿ *-zeroᴿ)
+
+      Ps : succProp P
+      Ps {k} Pk = Σ-rec (λ q Σr → Σ-rec (use-qr q) Σr) Pk
+        where
+          use-qr : ∀ q r → r < m ∧ k ≡ m * q + r → P (succ k)
+          use-qr q r props = ∨-rec use-sr<m use-sr≡m (≤→<∨≡ (<→≤ r<m))
+            where
+              r<m = ∧-elimᴸ props
+              k≡mq+r = ∧-elimᴿ props
+
+              sk≡mq+sr = trans (cong succ k≡mq+r) (sym +-succᴿ)
+              use-sr<m = λ sr<m →
+                Σ-intro q (Σ-intro (succ r) (∧-intro sr<m sk≡mq+sr))
+
+              0<m = ∧-intro ≤-zero (¬sym m≢0)
+              use-sr≡m = λ sr≡m →
+                let sk≡m[sq]+0 =
+                      begin
+                        succ k
+                      ≡⟨ cong succ k≡mq+r ⟩
+                        succ (m * q + r)
+                      ≡⟨ sym +-succᴿ ⟩
+                        m * q + succ r
+                      ≡⟨ cong (m * q +_) sr≡m ⟩
+                        m * q + m
+                      ≡⟨ sym *-succᴿ ⟩
+                        m * succ q
+                      ≡⟨ sym +-zeroᴿ ⟩
+                        m * succ q + 0
+                      ∎
+                 in Σ-intro (succ q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
