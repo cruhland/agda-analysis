@@ -344,3 +344,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- Exercise 2.3.3
   _ : ∀ {a b c} → (a * b) * c ≡ a * (b * c)
   _ = *-assoc
+
+  -- Proposition 2.3.6 (Multiplication preserves order).
+  _ : ∀ {a b c} → a < b → c ≢ 0 → a * c < b * c
+  _ = *-preserves-<
