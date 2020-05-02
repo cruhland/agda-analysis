@@ -398,3 +398,43 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
                         m * succ q + 0
                       ∎
                  in Σ-intro (succ q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
+
+  -- Definition 2.3.11 (Exponentiation for natural numbers).
+  _^_ : ℕ → ℕ → ℕ
+  n ^ m = rec 1 (_* n) m
+
+  -- Examples 2.3.12
+  x^0≡1 : ∀ {x} → x ^ 0 ≡ 1
+  x^0≡1 = rec-zero
+
+  x^1≡x : ∀ {x} → x ^ 1 ≡ x
+  x^1≡x {x} =
+    begin
+      x ^ 1
+    ≡⟨ rec-succ ⟩
+      x ^ 0 * x
+    ≡⟨ cong (_* x) x^0≡1 ⟩
+      1 * x
+    ≡⟨ *-oneᴸ ⟩
+      x
+    ∎
+
+  x^2≡xx : ∀ {x} → x ^ 2 ≡ x * x
+  x^2≡xx {x} =
+    begin
+      x ^ 2
+    ≡⟨ rec-succ ⟩
+      x ^ 1 * x
+    ≡⟨ cong (_* x) x^1≡x ⟩
+      x * x
+    ∎
+
+  x^3≡xxx : ∀ {x} → x ^ 3 ≡ x * x * x
+  x^3≡xxx {x} =
+    begin
+      x ^ 3
+    ≡⟨ rec-succ ⟩
+      x ^ 2 * x
+    ≡⟨ cong (_* x) x^2≡xx ⟩
+      x * x * x
+    ∎
