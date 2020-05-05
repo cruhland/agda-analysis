@@ -234,11 +234,6 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       si = succ-inj
       5≢8 = λ 5≡8 → succ≢zero (si (si (si (si (si (sym 5≡8))))))
 
-  _↔_ : Set → Set → Set
-  A ↔ B = (A → B) ∧ (B → A)
-
-  infixl 0 _↔_
-
   -- Proposition 2.2.12 (Basic properties of order for natural numbers).
   -- Exercise 2.2.3
 
