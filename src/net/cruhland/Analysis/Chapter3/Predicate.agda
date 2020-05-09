@@ -1,5 +1,4 @@
 open import Function using (id; _∘_; const)
-open import Level using (_⊔_) renaming (zero to lzero; suc to lsuc)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 
 module net.cruhland.Analysis.Chapter3.Predicate (LB : LogicBundle) where
@@ -87,12 +86,19 @@ module _ {𝒰} {eq : Eq 𝒰} where
   singleton : 𝒰 → PSet 𝒰
   singleton x y = y ≡ x
 
+  pair : 𝒰 → 𝒰 → PSet 𝒰
+  pair x y z = z ≡ x ∨ z ≡ y
+
+  -- Remarks 3.1.9
   singleton-unique :
     ∀ {S S′ a} → S ≗ singleton a → S′ ≗ singleton a → S ≗ S′
   singleton-unique = ≗-same
 
-  pair : 𝒰 → 𝒰 → PSet 𝒰
-  pair x y z = z ≡ x ∨ z ≡ y
-
   pair-unique : ∀ {P P′ a b} → P ≗ pair a b → P′ ≗ pair a b → P ≗ P′
   pair-unique = ≗-same
+
+  pair-comm : ∀ {a b} → pair a b ≗ pair b a
+  pair-comm = mk≗ λ {_} → ∧-intro ∨-comm ∨-comm
+
+  pair-singleton : ∀ {a} → pair a a ≗ singleton a
+  pair-singleton = mk≗ λ {_} → ∧-intro ∨-merge ∨-introᴸ
