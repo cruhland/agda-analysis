@@ -25,16 +25,20 @@ record Eq (A : Set) : Set₁ where
 module _ {𝒰} {eq : Eq 𝒰} where
   open Eq eq
 
-  _∈_ : (x : 𝒰) → PSet 𝒰 → Set
+  _∈_ : 𝒰 → PSet 𝒰 → Set
   _∈_ x P = P x
 
-  _∉_ : (x : 𝒰) → PSet 𝒰 → Set
+  _∉_ : 𝒰 → PSet 𝒰 → Set
   x ∉ P = ¬ (x ∈ P)
 
   infix 9 _∈_ _∉_
 
-  _≗_ : PSet 𝒰 → PSet 𝒰 → Set
-  A ≗ B = {x : 𝒰} → (x ∈ A → x ∈ B) ∧ (x ∈ B → x ∈ A)
+  record _≗_ (A : PSet 𝒰) (B : PSet 𝒰) : Set where
+    constructor mk≗
+    field
+      prf : ∀ {x} → x ∈ A ↔ x ∈ B
+
+  open _≗_
 
   _≗̸_ : PSet 𝒰 → PSet 𝒰 → Set
   A ≗̸ B = ¬ (A ≗ B)
@@ -42,28 +46,37 @@ module _ {𝒰} {eq : Eq 𝒰} where
   infix 4 _≗_ _≗̸_
 
   ≗-refl : ∀ {A} → A ≗ A
-  ≗-refl {_} = ∧-intro id id
+  ≗-refl = mk≗ (∧-intro id id)
 
   ≗-sym : ∀ {A B} → A ≗ B → B ≗ A
-  ≗-sym A≗B {_} = ∧-intro (∧-elimᴿ A≗B) (∧-elimᴸ A≗B)
+  ≗-sym A≗B = mk≗ (∧-intro (∧-elimᴿ A↔B) (∧-elimᴸ A↔B))
+    where
+      A↔B = prf A≗B
 
   ≗-trans : ∀ {A B C} → A ≗ B → B ≗ C → A ≗ C
-  ≗-trans A≗B B≗C {_} =
-    ∧-intro (∧-elimᴸ B≗C ∘ ∧-elimᴸ A≗B) (∧-elimᴿ A≗B ∘ ∧-elimᴿ B≗C)
+  ≗-trans A≗B B≗C =
+    mk≗ (∧-intro (∧-elimᴸ B↔C ∘ ∧-elimᴸ A↔B) (∧-elimᴿ A↔B ∘ ∧-elimᴿ B↔C))
+      where
+        A↔B = prf A≗B
+        B↔C = prf B≗C
 
-  ∈-subst : ∀ {A B} {x : 𝒰} → A ≗ B → x ∈ A → x ∈ B
-  ∈-subst A≗B x∈A = ∧-elimᴸ A≗B x∈A
+  ≗-same : ∀ {A B C} → A ≗ C → B ≗ C → A ≗ B
+  ≗-same A≗C B≗C = ≗-trans A≗C (≗-sym B≗C)
+
+  ∈-subst : ∀ {A B x} → A ≗ B → x ∈ A → x ∈ B
+  ∈-subst A≗B x∈A = ∧-elimᴸ (prf A≗B) x∈A
 
   -- Axiom 3.2 (Empty set)
   ∅ : PSet 𝒰
   ∅ = const ⊥
 
-  x∉∅ : {x : 𝒰} → x ∉ ∅
+  x∉∅ : ∀ {x} → x ∉ ∅
   x∉∅ = id
 
   ∅-unique : ∀ {∅′} → (∀ {x} → x ∉ ∅′) → ∅ ≗ ∅′
-  ∅-unique x∉∅′ {x} =
-    ∧-intro (λ x∈∅ → ⊥-elim (x∉∅ {x = x} x∈∅)) (λ x∈∅′ → ⊥-elim (x∉∅′ x∈∅′))
+  ∅-unique x∉∅′ =
+    mk≗ (λ {x} →
+      ∧-intro (λ x∈∅ → ⊥-elim (x∉∅ {x} x∈∅)) (λ x∈∅′ → ⊥-elim (x∉∅′ x∈∅′)))
 
   -- Lemma 3.1.6 (Single choice)
   -- This is not provable in Agda because it's nonconstructive.
@@ -74,30 +87,12 @@ module _ {𝒰} {eq : Eq 𝒰} where
   singleton : 𝒰 → PSet 𝒰
   singleton x y = y ≡ x
 
-  is-singleton-of : PSet 𝒰 → 𝒰 → Set
-  is-singleton-of S a = ∀ x → x ∈ S ↔ x ≡ a
-
-  singleton-exists : ∀ {a} → is-singleton-of (singleton a) a
-  singleton-exists x = ∧-intro id id
-
   singleton-unique :
-    ∀ {S S′ a} → is-singleton-of S a → is-singleton-of S′ a → S ≗ S′
-  singleton-unique pS pS′ {x} =
-    ∧-intro
-      (∧-elimᴿ (pS′ x) ∘ ∧-elimᴸ (pS x))
-      (∧-elimᴿ (pS x) ∘ ∧-elimᴸ (pS′ x))
+    ∀ {S S′ a} → S ≗ singleton a → S′ ≗ singleton a → S ≗ S′
+  singleton-unique = ≗-same
 
   pair : 𝒰 → 𝒰 → PSet 𝒰
   pair x y z = z ≡ x ∨ z ≡ y
 
-  is-pair-of : PSet 𝒰 → 𝒰 → 𝒰 → Set
-  is-pair-of P a b = ∀ x → x ∈ P ↔ x ≡ a ∨ x ≡ b
-
-  pair-exists : ∀ {a b} → is-pair-of (pair a b) a b
-  pair-exists x = ∧-intro id id
-
-  pair-unique : ∀ {P P′ a b} → is-pair-of P a b → is-pair-of P′ a b → P ≗ P′
-  pair-unique pP pP′ {x} =
-      ∧-intro
-        (∧-elimᴿ (pP′ x) ∘ ∧-elimᴸ (pP x))
-        (∧-elimᴿ (pP x) ∘ ∧-elimᴸ (pP′ x))
+  pair-unique : ∀ {P P′ a b} → P ≗ pair a b → P′ ≗ pair a b → P ≗ P′
+  pair-unique = ≗-same
