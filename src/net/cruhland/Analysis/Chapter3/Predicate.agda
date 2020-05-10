@@ -1,4 +1,5 @@
 open import Function using (id; _∘_; const)
+open import Level using (_⊔_) renaming (zero to lzero; suc to lsuc)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 
 module net.cruhland.Analysis.Chapter3.Predicate (LB : LogicBundle) where
@@ -9,9 +10,25 @@ open LogicBundle LB
 
 {- 3.1 Fundamentals -}
 
-PSet : Set → Set₁
+-- Definition 3.1.1 (Informal).
+-- A set is defined as a predicate on some universe of objects 𝒰.
+PSet : ∀ {α} → Set α → Set (lsuc lzero ⊔ α)
 PSet 𝒰 = 𝒰 → Set
 
+-- We can ask if an object is an element of a predicate-set
+_∈_ : ∀ {α} {A : Set α} → A → PSet A → Set
+_∈_ x P = P x
+
+_∉_ : ∀ {α} {A : Set α} → A → PSet A → Set
+x ∉ P = ¬ (x ∈ P)
+
+infix 9 _∈_ _∉_
+
+-- Axiom 3.1 (Sets are objects).
+set-in-set? : ∀ {α} {A : Set α} → PSet A → PSet (PSet A) → Set
+set-in-set? A B = A ∈ B
+
+{-
 record Eq (A : Set) : Set₁ where
   field
     _≡_ : A → A → Set
@@ -102,3 +119,4 @@ module _ {𝒰} {eq : Eq 𝒰} where
 
   pair-singleton : ∀ {a} → pair a a ≗ singleton a
   pair-singleton = mk≗ λ {_} → ∧-intro ∨-merge ∨-introᴸ
+-}
