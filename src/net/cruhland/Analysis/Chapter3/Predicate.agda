@@ -10,21 +10,30 @@ open LogicBundle LB
 
 {- 3.1 Fundamentals -}
 
--- Definition 3.1.1 (Informal).
--- A set is defined as a predicate on some universe of objects 𝒰.
+-- Definition 3.1.1
+-- We define a set A to be any unordered collection of objects
+-- [note] A set is defined as a predicate on some universe of objects 𝒰.
 PSet : ∀ {α} → Set α → Set (lsuc lzero ⊔ α)
 PSet 𝒰 = 𝒰 → Set
 
--- We can ask if an object is an element of a predicate-set
+-- [todo] e.g. {3,8,5,2} is a set
+
+-- If x is an object, we say that x is an element of A or x ∈ A if x
+-- lies in the collection
 _∈_ : ∀ {α} {A : Set α} → A → PSet A → Set
 _∈_ x P = P x
 
+-- Otherwise we say that x ∉ A
 _∉_ : ∀ {α} {A : Set α} → A → PSet A → Set
 x ∉ P = ¬ (x ∈ P)
 
 infix 9 _∈_ _∉_
 
--- Axiom 3.1 (Sets are objects).
+-- [todo] For instance, 3 ∈ {1,2,3,4,5} but 7 ∉ {1,2,3,4,5}
+
+-- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
+-- object. In particular, given two sets A and B, it is meaningful to
+-- ask whether A is also an element of B.
 set-in-set? : ∀ {α} {A : Set α} → PSet A → PSet (PSet A) → Set
 set-in-set? A B = A ∈ B
 
