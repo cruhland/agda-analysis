@@ -35,3 +35,15 @@ x ∉ S = ¬ (x ∈ S)
 -- ask whether A is also an element of B.
 set-in-set? : SSet → SSet → Set
 set-in-set? A B = A ∈ B
+
+-- [todo] The set {3, {3,4}, 4} is a set of three distinct elements,
+-- one of which happens to itself be a set of two elements.
+
+-- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
+-- A = B, iff every element of A is an element of B and vice versa.
+_≗_ : SSet → SSet → {𝒰 : Set} → 𝒰 → Set
+(A ≗ B) x = x ∈ A ↔ x ∈ B
+
+-- Example 3.1.5
+-- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
+-- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}

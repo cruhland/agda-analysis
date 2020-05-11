@@ -13,18 +13,18 @@ open LogicBundle LB
 -- Definition 3.1.1
 -- We define a set A to be any unordered collection of objects
 -- [note] A set is defined as a predicate on some universe of objects 𝒰.
-PSet : ∀ {α} → Set α → Set (lsuc lzero ⊔ α)
+PSet : ∀ {υ} → Set υ → Set (lsuc lzero ⊔ υ)
 PSet 𝒰 = 𝒰 → Set
 
 -- [todo] e.g. {3,8,5,2} is a set
 
 -- If x is an object, we say that x is an element of A or x ∈ A if x
 -- lies in the collection
-_∈_ : ∀ {α} {A : Set α} → A → PSet A → Set
+_∈_ : ∀ {υ} {𝒰 : Set υ} → 𝒰 → PSet 𝒰 → Set
 _∈_ x P = P x
 
 -- Otherwise we say that x ∉ A
-_∉_ : ∀ {α} {A : Set α} → A → PSet A → Set
+_∉_ : ∀ {υ} {𝒰 : Set υ} → 𝒰 → PSet 𝒰 → Set
 x ∉ P = ¬ (x ∈ P)
 
 infix 9 _∈_ _∉_
@@ -34,8 +34,20 @@ infix 9 _∈_ _∉_
 -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
 -- object. In particular, given two sets A and B, it is meaningful to
 -- ask whether A is also an element of B.
-set-in-set? : ∀ {α} {A : Set α} → PSet A → PSet (PSet A) → Set
+set-in-set? : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰 → PSet (PSet 𝒰) → Set
 set-in-set? A B = A ∈ B
+
+-- [todo] The set {3, {3,4}, 4} is a set of three distinct elements,
+-- one of which happens to itself be a set of two elements.
+
+-- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
+-- A = B, iff every element of A is an element of B and vice versa.
+_≗_ : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰 → PSet 𝒰 → Set υ
+A ≗ B = ∀ x → x ∈ A ↔ x ∈ B
+
+-- Example 3.1.5
+-- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
+-- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
 
 {-
 record Eq (A : Set) : Set₁ where

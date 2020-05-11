@@ -31,6 +31,17 @@ x ∉ S = ¬ (x ∈ S)
 set-in-set? : ISet → ISet → Set
 set-in-set? A B = A ∈ B
 
+-- [todo] The set {3, {3,4}, 4} is a set of three distinct elements,
+-- one of which happens to itself be a set of two elements.
+
+-- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
+-- A = B, iff every element of A is an element of B and vice versa.
+-- [todo] define once you've made some constructors for the datatype
+
+-- Example 3.1.5
+-- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
+-- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
+
 {-
 data DSet : Set₁ where
   ∅ : DSet
