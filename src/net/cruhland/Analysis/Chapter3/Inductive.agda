@@ -42,6 +42,10 @@ set-in-set? A B = A ∈ B
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
 -- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
 
+-- Exercise 3.1.1
+-- Reflexivity, symmetry, and transitivity of equality
+-- [todo] prove once you've defined equality
+
 {-
 data DSet : Set₁ where
   ∅ : DSet

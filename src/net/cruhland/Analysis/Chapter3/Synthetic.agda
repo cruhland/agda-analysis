@@ -41,9 +41,20 @@ set-in-set? A B = A ∈ B
 
 -- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
 -- A = B, iff every element of A is an element of B and vice versa.
-_≗_ : SSet → SSet → {𝒰 : Set} → 𝒰 → Set
-(A ≗ B) x = x ∈ A ↔ x ∈ B
+_≗_ : SSet → SSet → Set₁
+A ≗ B = {𝒰 : Set} → (x : 𝒰) → x ∈ A ↔ x ∈ B
 
 -- Example 3.1.5
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
 -- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
+
+-- Exercise 3.1.1
+-- Reflexivity, symmetry, and transitivity of equality
+≗-refl : ∀ {A} → A ≗ A
+≗-refl = λ x → ↔-refl
+
+≗-sym : ∀ {A B} → A ≗ B → B ≗ A
+≗-sym A≗B = λ x → ↔-sym (A≗B x)
+
+≗-trans : ∀ {A B C} → A ≗ B → B ≗ C → A ≗ C
+≗-trans A≗B B≗C = λ x → ↔-trans (A≗B x) (B≗C x)

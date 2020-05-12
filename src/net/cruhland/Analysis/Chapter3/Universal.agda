@@ -1,4 +1,5 @@
 open import Level renaming (zero to lzero; suc to lsuc)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 
@@ -55,7 +56,21 @@ set-in-set? {α} A = A ∈ Set α
 -- [note] it doesn't seem possible in Agda to define an equality
 -- relation between two sets. There's no way to "look inside" a
 -- generic value of type Set and see what its elements are.
+-- But we can attempt to use plain propositional equality:
+_≗_ : Set → Set → Set₁
+A ≗ B = A ≡ B
 
 -- Example 3.1.5
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
 -- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
+
+-- Exercise 3.1.1
+-- Reflexivity, symmetry, and transitivity of equality
+≗-refl : ∀ {A} → A ≗ A
+≗-refl = refl
+
+≗-sym : ∀ {A B} → A ≗ B → B ≗ A
+≗-sym = sym
+
+≗-trans : ∀ {A B C} → A ≗ B → B ≗ C → A ≗ C
+≗-trans = trans

@@ -49,6 +49,17 @@ A ≗ B = ∀ x → x ∈ A ↔ x ∈ B
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
 -- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
 
+-- Exercise 3.1.1
+-- Reflexivity, symmetry, and transitivity of equality
+≗-refl : ∀ {υ} {𝒰 : Set υ} {A : PSet 𝒰} → A ≗ A
+≗-refl = λ x → ↔-refl
+
+≗-sym : ∀ {υ} {𝒰 : Set υ} {A B : PSet 𝒰} → A ≗ B → B ≗ A
+≗-sym A≗B = λ x → ↔-sym (A≗B x)
+
+≗-trans : ∀ {υ} {𝒰 : Set υ} {A B C : PSet 𝒰} → A ≗ B → B ≗ C → A ≗ C
+≗-trans A≗B B≗C = λ x → ↔-trans (A≗B x) (B≗C x)
+
 {-
 record Eq (A : Set) : Set₁ where
   field
