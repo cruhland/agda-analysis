@@ -1,5 +1,7 @@
+open import Function using (id)
 open import Level renaming (zero to lzero; suc to lsuc)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans)
+open import Relation.Binary.PropositionalEquality
+  using (_≡_; refl; sym; trans; subst)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 
@@ -74,3 +76,13 @@ A ≗ B = A ≡ B
 
 ≗-trans : ∀ {A B C} → A ≗ B → B ≗ C → A ≗ C
 ≗-trans = trans
+
+-- Substitution property of equality
+∈-subst : ∀ {A B} {x : A} → (A≗B : A ≗ B) → x ∈ A → subst id A≗B x ∈ B
+∈-subst {x = x} A≗B x∈A = ⊤-intro
+
+-- This definition is pretty much useless. We'd like to show that for
+-- every set A is a member of, B is also a member; but in Agda, values
+-- only belong to one set (type).
+subst-∈ : ∀ {A B} → A ≗ B → A ∈ Set → B ∈ Set
+subst-∈ A≗B A∈U = ⊤-intro

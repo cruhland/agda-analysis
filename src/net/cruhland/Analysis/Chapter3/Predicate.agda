@@ -42,8 +42,13 @@ set-in-set? A B = A ∈ B
 
 -- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
 -- A = B, iff every element of A is an element of B and vice versa.
-_≗_ : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰 → PSet 𝒰 → Set υ
-A ≗ B = ∀ x → x ∈ A ↔ x ∈ B
+
+-- [note] Had to add an additional condition to support the
+-- substitution property: A and B must belong to the same sets
+-- (i.e. have the same properties). Otherwise known as the identity of
+-- indiscernibles.
+_≗_ : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰 → PSet 𝒰 → Set
+A ≗ B = (∀ x → x ∈ A ↔ x ∈ B) ∧ (∀ U → A ∈ U ↔ B ∈ U)
 
 -- Example 3.1.5
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
@@ -52,13 +57,24 @@ A ≗ B = ∀ x → x ∈ A ↔ x ∈ B
 -- Exercise 3.1.1
 -- Reflexivity, symmetry, and transitivity of equality
 ≗-refl : ∀ {υ} {𝒰 : Set υ} {A : PSet 𝒰} → A ≗ A
-≗-refl = λ x → ↔-refl
+≗-refl = ∧-intro (λ x → ↔-refl) (λ U → ↔-refl)
 
 ≗-sym : ∀ {υ} {𝒰 : Set υ} {A B : PSet 𝒰} → A ≗ B → B ≗ A
-≗-sym A≗B = λ x → ↔-sym (A≗B x)
+≗-sym A≗B = ∧-intro (λ x → ↔-sym (∧-elimᴸ A≗B x)) (λ U → ↔-sym (∧-elimᴿ A≗B U))
 
 ≗-trans : ∀ {υ} {𝒰 : Set υ} {A B C : PSet 𝒰} → A ≗ B → B ≗ C → A ≗ C
-≗-trans A≗B B≗C = λ x → ↔-trans (A≗B x) (B≗C x)
+≗-trans A≗B B≗C =
+  ∧-intro
+    (λ x → ↔-trans (∧-elimᴸ A≗B x) (∧-elimᴸ B≗C x))
+    (λ U → ↔-trans (∧-elimᴿ A≗B U) (∧-elimᴿ B≗C U))
+
+-- Substitution property of equality
+∈-subst : ∀ {υ} {𝒰 : Set υ} {A B : PSet 𝒰} {x : 𝒰} → A ≗ B → x ∈ A → x ∈ B
+∈-subst {x = x} A≗B x∈A = ∧-elimᴸ (∧-elimᴸ A≗B x) x∈A
+
+subst-∈ :
+  ∀ {υ} {𝒰 : Set υ} {A B : PSet 𝒰} {U : PSet (PSet 𝒰)} → A ≗ B → A ∈ U → B ∈ U
+subst-∈ {U = U} A≗B A∈U = ∧-elimᴸ (∧-elimᴿ A≗B U) A∈U
 
 {-
 record Eq (A : Set) : Set₁ where

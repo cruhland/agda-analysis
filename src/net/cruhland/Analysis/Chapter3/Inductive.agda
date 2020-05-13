@@ -46,6 +46,10 @@ set-in-set? A B = A ∈ B
 -- Reflexivity, symmetry, and transitivity of equality
 -- [todo] prove once you've defined equality
 
+-- Substitution property of equality
+-- [todo] ∈-subst: x ∈ A → A ≗ B → x ∈ B
+-- [todo] subst-∈: A ∈ 𝒰 → A ≗ B → B ∈ 𝒰
+
 {-
 data DSet : Set₁ where
   ∅ : DSet
