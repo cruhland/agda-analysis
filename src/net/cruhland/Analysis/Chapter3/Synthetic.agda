@@ -46,7 +46,7 @@ set-in-set? A B = A ∈ B
 -- substitution property: A and B must belong to the same sets
 -- (i.e. have the same properties). Otherwise known as the identity of
 -- indiscernibles.
-_≗_ : SSet → SSet → Set
+_≗_ : SSet → SSet → Set₁
 A ≗ B = (∀ {𝒰} → (x : 𝒰) → x ∈ A ↔ x ∈ B) ∧ (∀ U → A ∈ U ↔ B ∈ U)
 
 -- Example 3.1.5

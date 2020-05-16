@@ -10,27 +10,122 @@ open LogicBundle LB
 
 {- 3.1 Fundamentals -}
 
+-- [note] We need some preliminary definitions that aren't in the
+-- book, in order to define set theory concepts inside type theory.
+-- These are taken from the paper "Setoids in type theory" by Gilles
+-- Barthe, Venanzio Capretta, and Olivier Pons.
+
+record IsEquivRel {α β} (A : Set α) (_≅_ : A → A → Set β) : Set (α ⊔ β) where
+  field
+    refl : ∀ {x} → x ≅ x
+    sym : ∀ {x y} → x ≅ y → y ≅ x
+    trans : ∀ {x y z} → x ≅ y → y ≅ z → x ≅ z
+
+record Setoid α β : Set (lsuc α ⊔ lsuc β) where
+  field
+    el : Set α
+    _≗_ : el → el → Set β
+    isEquivRel : IsEquivRel el _≗_
+
+open Setoid using (el)
+
+_≐_ : ∀ {A : Set} → A → A → Set₁
+_≐_ {A = A} x y = (P : A → Set) → P x → P y
+
+data _≡_ {A : Set} (x : A) : A → Set where
+  refl : x ≡ x
+
+≡-IsEquivRel : ∀ {A} → IsEquivRel A _≡_
+≡-IsEquivRel = record
+  { refl = refl
+  ; sym = λ { refl → refl }
+  ; trans = λ { refl refl → refl }
+  }
+
+≡-setoid : Set → Setoid lzero lzero
+≡-setoid A = record { el = A ; _≗_ = _≡_ ; isEquivRel = ≡-IsEquivRel }
+
+↔-IsEquivRel : ∀ {α} → IsEquivRel (Set α) _↔_
+↔-IsEquivRel = record
+  { refl = ↔-refl
+  ; sym = ↔-sym
+  ; trans = ↔-trans
+  }
+
+Set-setoid : ∀ {α} → Setoid (lsuc α) α
+Set-setoid {α} = record { el = Set α ; _≗_ = _↔_ ; isEquivRel = ↔-IsEquivRel }
+
+record _⇒_ {α₁ α₂ β₁ β₂} (A : Setoid α₁ α₂) (B : Setoid β₁ β₂)
+    : Set (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) where
+  open Setoid A renaming (_≗_ to _≗ᴬ_)
+  open Setoid B renaming (_≗_ to _≗ᴮ_)
+
+  field
+    ap : el A → el B
+    cong : ∀ {x y} → x ≗ᴬ y → ap x ≗ᴮ ap y
+
+open _⇒_ using (ap)
+
+⇒-setoid :
+  ∀ {α₁ α₂ β₁ β₂} → Setoid α₁ α₂ → Setoid β₁ β₂ →
+  Setoid (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) (α₁ ⊔ β₂)
+⇒-setoid A B = record
+  { el = A ⇒ B
+  ; _≗_ = λ f g → ∀ x → ap f x ≗ᴮ ap g x
+  ; isEquivRel = record
+    { refl = λ {f} x → reflᴮ
+    ; sym = λ {f g} f≗g x → symᴮ (f≗g x)
+    ; trans = λ {f g h} f≗g g≗h x → transᴮ (f≗g x) (g≗h x)
+    }
+  }
+  where
+    open Setoid B renaming (_≗_ to _≗ᴮ_; isEquivRel to eqvᴮ)
+    open IsEquivRel eqvᴮ renaming (refl to reflᴮ; sym to symᴮ; trans to transᴮ)
+
+SP : ∀ {α₁ α₂} → Setoid α₁ α₂ → Set (α₁ ⊔ α₂ ⊔ lsuc lzero)
+SP A = A ⇒ Set-setoid {lzero}
+
+SubSetoid : ∀ {α₁ α₂} (A : Setoid α₁ α₂) → SP A → Setoid α₁ α₂
+SubSetoid A P = record
+  { el = Σ (Setoid.el A) (ap P)
+  ; _≗_ = λ (x y : Σ (Setoid.el A) (ap P)) → fst x ≗ᴬ fst y
+  ; isEquivRel = record
+    { refl = reflᴬ
+    ; sym = symᴬ
+    ; trans = transᴬ
+    }
+  }
+  where
+    open Setoid A renaming (_≗_ to _≗ᴬ_; isEquivRel to eqvᴬ)
+    open IsEquivRel eqvᴬ renaming (refl to reflᴬ; sym to symᴬ; trans to transᴬ)
+
+-- [note] End preliminary definitions, back to the book
+
 -- Definition 3.1.1
--- We define a set A to be any unordered collection of objects
--- [note] A set is defined as a predicate on some universe of objects 𝒰.
-PSet : ∀ {υ} → Set υ → Set (lsuc lzero ⊔ υ)
-PSet 𝒰 = 𝒰 → Set
+-- We define a set A to be any unordered collection of objects.
+
+-- [note] A set is defined as a setoid-predicate on some setoid
+-- "universe" of objects 𝒰.
+PSet : ∀ {υ₁ υ₂} → Setoid υ₁ υ₂ → Set (υ₁ ⊔ υ₂ ⊔ lsuc lzero)
+PSet 𝒰 = SP 𝒰
 
 -- [todo] e.g. {3,8,5,2} is a set
 
 -- If x is an object, we say that x is an element of A or x ∈ A if x
 -- lies in the collection
-_∈_ : ∀ {υ} {𝒰 : Set υ} → 𝒰 → PSet 𝒰 → Set
-_∈_ x P = P x
+_∈_ : ∀ {υ₁ υ₂} {𝒰 : Setoid υ₁ υ₂} → el 𝒰 → PSet 𝒰 → Set
+x ∈ P = ap P x
 
 -- Otherwise we say that x ∉ A
-_∉_ : ∀ {υ} {𝒰 : Set υ} → 𝒰 → PSet 𝒰 → Set
+_∉_ : ∀ {υ₁ υ₂} {𝒰 : Setoid υ₁ υ₂} → el 𝒰 → PSet 𝒰 → Set
 x ∉ P = ¬ (x ∈ P)
 
 infix 9 _∈_ _∉_
 
 -- [todo] For instance, 3 ∈ {1,2,3,4,5} but 7 ∉ {1,2,3,4,5}
 
+-- TODO: Need to figure out the correct types to express this next step
+{-
 -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
 -- object. In particular, given two sets A and B, it is meaningful to
 -- ask whether A is also an element of B.
@@ -76,7 +171,28 @@ subst-∈ :
   ∀ {υ} {𝒰 : Set υ} {A B : PSet 𝒰} {U : PSet (PSet 𝒰)} → A ≗ B → A ∈ U → B ∈ U
 subst-∈ {U = U} A≗B A∈U = ∧-elimᴸ (∧-elimᴿ A≗B U) A∈U
 
-{-
+-- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty
+-- set_, which contains no elements, i.e., for every object x we have
+-- x ∉ ∅.
+∅ : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰
+∅ = const ⊥
+
+is-empty : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰 → Set υ
+is-empty {𝒰 = 𝒰} S = {x : 𝒰} → x ∉ S
+
+x∉∅ : ∀ {υ} {𝒰 : Set υ} → is-empty {𝒰 = 𝒰} ∅
+x∉∅ = id
+
+-- Note that there can only be one empty set
+_ : ∀ {υ} {𝒰 : Set υ} {∅′ : PSet 𝒰} → is-empty ∅′ → ∅ ≗ ∅′
+_ = λ x∉∅′ → ∧-intro
+  (λ x → ∧-intro
+    (λ x∈∅ → ⊥-elim (x∉∅ {x = x} x∈∅))
+    (λ x∈∅′ → ⊥-elim (x∉∅′ x∈∅′)))
+  -- Will need to make PSet some kind of setoid, that quotients over
+  -- the possible different representations of the predicate
+  (λ U → ∧-intro {!!} {!!})
+
 record Eq (A : Set) : Set₁ where
   field
     _≡_ : A → A → Set
