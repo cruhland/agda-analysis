@@ -1,3 +1,4 @@
+open import Function using (id)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 
 module net.cruhland.Analysis.Chapter3.Inductive (LB : LogicBundle) where
@@ -11,19 +12,31 @@ open LogicBundle LB
 -- Definition 3.1.1
 -- We define a set A to be any unordered collection of objects
 data ISet : Set where
+  -- Axiom 3.2 (Empty set).
+  empty : ISet
 
 -- [todo] e.g. {3,8,5,2} is a set
 
 -- If x is an object, we say that x is an element of A or x ∈ A if x
 -- lies in the collection
 _∈_ : {A : Set} → A → ISet → Set
-x ∈ S = ⊤
+x ∈ empty = ⊥
 
 -- Otherwise we say that x ∉ A
 _∉_ : {A : Set} → A → ISet → Set
 x ∉ S = ¬ (x ∈ S)
 
 -- [todo] For instance, 3 ∈ {1,2,3,4,5} but 7 ∉ {1,2,3,4,5}
+
+-- There exists a set ∅, known as the _empty set_, which contains no
+-- elements, i.e., for every object x we have x ∉ ∅.
+∅ : ISet
+∅ = empty
+
+_ : ∀ {A} {x : A} → x ∉ ∅
+_ = id
+
+-- [todo] uniqueness of ∅
 
 -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
 -- object. In particular, given two sets A and B, it is meaningful to
