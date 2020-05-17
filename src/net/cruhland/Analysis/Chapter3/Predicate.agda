@@ -21,13 +21,24 @@ record IsEquivRel {α β} (A : Set α) (_≅_ : A → A → Set β) : Set (α �
     sym : ∀ {x y} → x ≅ y → y ≅ x
     trans : ∀ {x y z} → x ≅ y → y ≅ z → x ≅ z
 
-record Setoid α β : Set (lsuc α ⊔ lsuc β) where
+record SetoidOn β {α} (el : Set α) : Set (lsuc α ⊔ lsuc β) where
   field
-    el : Set α
     _≗_ : el → el → Set β
     isEquivRel : IsEquivRel el _≗_
 
+record Setoid α β : Set (lsuc α ⊔ lsuc β) where
+  field
+    el : Set α
+    setoidOn : SetoidOn β el
+
+  open SetoidOn setoidOn public
+
 open Setoid using (el)
+
+mkSetoid :
+  ∀ {α β} → (e : Set α) → (r : e → e → Set β) → IsEquivRel e r → Setoid α β
+mkSetoid e r eqv =
+  record { el = e; setoidOn = record { _≗_ = r; isEquivRel = eqv } }
 
 _≐_ : ∀ {A : Set} → A → A → Set₁
 _≐_ {A = A} x y = (P : A → Set) → P x → P y
@@ -43,7 +54,7 @@ data _≡_ {A : Set} (x : A) : A → Set where
   }
 
 ≡-setoid : Set → Setoid lzero lzero
-≡-setoid A = record { el = A ; _≗_ = _≡_ ; isEquivRel = ≡-IsEquivRel }
+≡-setoid A = mkSetoid A _≡_ ≡-IsEquivRel
 
 ↔-IsEquivRel : ∀ {α} → IsEquivRel (Set α) _↔_
 ↔-IsEquivRel = record
@@ -53,7 +64,7 @@ data _≡_ {A : Set} (x : A) : A → Set where
   }
 
 Set-setoid : ∀ {α} → Setoid (lsuc α) α
-Set-setoid {α} = record { el = Set α ; _≗_ = _↔_ ; isEquivRel = ↔-IsEquivRel }
+Set-setoid {α} = mkSetoid (Set α) _↔_ ↔-IsEquivRel
 
 record _⇒_ {α₁ α₂ β₁ β₂} (A : Setoid α₁ α₂) (B : Setoid β₁ β₂)
     : Set (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) where
@@ -66,39 +77,51 @@ record _⇒_ {α₁ α₂ β₁ β₂} (A : Setoid α₁ α₂) (B : Setoid β�
 
 open _⇒_ using (ap)
 
+record _>_⇒_
+  {α₁ α₂ β₁ β₂} (elᴬ : Set α₁) (A : SetoidOn α₂ elᴬ) (B : Setoid β₁ β₂)
+    : Set (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) where
+  open SetoidOn A renaming (_≗_ to _≗ᴬ_)
+  open Setoid B renaming (_≗_ to _≗ᴮ_)
+
+  field
+    app : elᴬ → el B
+    congg : ∀ {x y} → x ≗ᴬ y → app x ≗ᴮ app y
+
+open _>_⇒_ using (app)
+
 ⇒-setoid :
   ∀ {α₁ α₂ β₁ β₂} → Setoid α₁ α₂ → Setoid β₁ β₂ →
   Setoid (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) (α₁ ⊔ β₂)
-⇒-setoid A B = record
-  { el = A ⇒ B
-  ; _≗_ = λ f g → ∀ x → ap f x ≗ᴮ ap g x
-  ; isEquivRel = record
-    { refl = λ {f} x → reflᴮ
-    ; sym = λ {f g} f≗g x → symᴮ (f≗g x)
-    ; trans = λ {f g h} f≗g g≗h x → transᴮ (f≗g x) (g≗h x)
-    }
-  }
+⇒-setoid A B = mkSetoid (A ⇒ B) rel eqvRel
   where
     open Setoid B renaming (_≗_ to _≗ᴮ_; isEquivRel to eqvᴮ)
     open IsEquivRel eqvᴮ renaming (refl to reflᴮ; sym to symᴮ; trans to transᴮ)
 
+    rel = λ f g → ∀ x → ap f x ≗ᴮ ap g x
+    eqvRel = record
+      { refl = λ {f} x → reflᴮ
+      ; sym = λ {f g} f≗g x → symᴮ (f≗g x)
+      ; trans = λ {f g h} f≗g g≗h x → transᴮ (f≗g x) (g≗h x)
+      }
+
 SP : ∀ {α₁ α₂} → Setoid α₁ α₂ → Set (α₁ ⊔ α₂ ⊔ lsuc lzero)
 SP A = A ⇒ Set-setoid {lzero}
 
+SQ : ∀ {α₁ α₂} → (elᴬ : Set α₁) → SetoidOn α₂ elᴬ → Set (α₁ ⊔ α₂ ⊔ lsuc lzero)
+SQ elᴬ A = elᴬ > A ⇒ Set-setoid {lzero}
+
 SubSetoid : ∀ {α₁ α₂} (A : Setoid α₁ α₂) → SP A → Setoid α₁ α₂
-SubSetoid A P = record
-  { el = Σ (Setoid.el A) (ap P)
-  ; _≗_ = λ (x y : Σ (Setoid.el A) (ap P)) → fst x ≗ᴬ fst y
-  ; isEquivRel = record
-    { refl = reflᴬ
-    ; sym = symᴬ
-    ; trans = transᴬ
-    }
-  }
+SubSetoid A P = mkSetoid (Σ (Setoid.el A) (ap P)) rel eqvRel
   where
     open Setoid A renaming (_≗_ to _≗ᴬ_; isEquivRel to eqvᴬ)
     open IsEquivRel eqvᴬ renaming (refl to reflᴬ; sym to symᴬ; trans to transᴬ)
 
+    rel = λ (x y : Σ (Setoid.el A) (ap P)) → fst x ≗ᴬ fst y
+    eqvRel = record
+      { refl = reflᴬ
+      ; sym = symᴬ
+      ; trans = transᴬ
+      }
 -- [note] End preliminary definitions, back to the book
 
 -- Definition 3.1.1
@@ -109,6 +132,9 @@ SubSetoid A P = record
 PSet : ∀ {υ₁ υ₂} → Setoid υ₁ υ₂ → Set (υ₁ ⊔ υ₂ ⊔ lsuc lzero)
 PSet 𝒰 = SP 𝒰
 
+QSet : ∀ {υ₁ υ₂} (𝒰 : Set υ₁) → SetoidOn υ₂ 𝒰 → Set (υ₁ ⊔ υ₂ ⊔ lsuc lzero)
+QSet 𝒰 S𝒰 = SQ 𝒰 S𝒰
+
 -- [todo] e.g. {3,8,5,2} is a set
 
 -- If x is an object, we say that x is an element of A or x ∈ A if x
@@ -116,21 +142,29 @@ PSet 𝒰 = SP 𝒰
 _∈_ : ∀ {υ₁ υ₂} {𝒰 : Setoid υ₁ υ₂} → el 𝒰 → PSet 𝒰 → Set
 x ∈ P = ap P x
 
+_∈*_ : ∀ {υ₁ υ₂} {elᵁ : Set υ₁} {𝒰 : SetoidOn υ₂ elᵁ} → elᵁ → QSet elᵁ 𝒰 → Set
+x ∈* Q = app Q x
+
 -- Otherwise we say that x ∉ A
 _∉_ : ∀ {υ₁ υ₂} {𝒰 : Setoid υ₁ υ₂} → el 𝒰 → PSet 𝒰 → Set
 x ∉ P = ¬ (x ∈ P)
 
-infix 9 _∈_ _∉_
+infix 9 _∈_ _∈*_ _∉_
 
 -- [todo] For instance, 3 ∈ {1,2,3,4,5} but 7 ∉ {1,2,3,4,5}
 
--- TODO: Need to figure out the correct types to express this next step
-{-
 -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
 -- object. In particular, given two sets A and B, it is meaningful to
 -- ask whether A is also an element of B.
-set-in-set? : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰 → PSet (PSet 𝒰) → Set
-set-in-set? A B = A ∈ B
+set-in-set? :
+  ∀ {υ₁ υ₂ α₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰}
+    (el𝒜 : QSet el𝒰 𝒰) {𝒜 : SetoidOn α₂ (QSet el𝒰 𝒰)} →
+  QSet (QSet el𝒰 𝒰) 𝒜 → Set
+set-in-set? A B = A ∈* B
+
+-- TODO: Use QSet for the definitions below, if they all seem to work
+-- then we can replace PSet
+{-
 
 -- [todo] The set {3, {3,4}, 4} is a set of three distinct elements,
 -- one of which happens to itself be a set of two elements.
