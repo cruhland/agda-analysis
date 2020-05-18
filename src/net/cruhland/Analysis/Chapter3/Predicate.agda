@@ -104,6 +104,21 @@ open _>_⇒_ using (app)
       ; trans = λ {f g h} f≗g g≗h x → transᴮ (f≗g x) (g≗h x)
       }
 
+>⇒-setoid :
+  ∀ {α₁ α₂ β₁ β₂} {𝒜 : Set α₁} → SetoidOn α₂ 𝒜 → (B : Setoid β₁ β₂) →
+  SetoidOn (α₁ ⊔ β₂) (𝒜 → el B)
+>⇒-setoid A B = record { _≗_ = rel ; isEquivRel = eqvRel }
+  where
+    open Setoid B renaming (_≗_ to _≗ᴮ_; isEquivRel to eqvᴮ)
+    open IsEquivRel eqvᴮ renaming (refl to reflᴮ; sym to symᴮ; trans to transᴮ)
+
+    rel = λ f g → ∀ x → f x ≗ᴮ g x
+    eqvRel = record
+      { refl = λ {f} x → reflᴮ
+      ; sym = λ {f g} f≗g x → symᴮ (f≗g x)
+      ; trans = λ {f g h} f≗g g≗h x → transᴮ (f≗g x) (g≗h x)
+      }
+
 SP : ∀ {α₁ α₂} → Setoid α₁ α₂ → Set (α₁ ⊔ α₂ ⊔ lsuc lzero)
 SP A = A ⇒ Set-setoid {lzero}
 
@@ -162,22 +177,16 @@ set-in-set? :
   QSet (QSet el𝒰 𝒰) 𝒜 → Set
 set-in-set? A B = A ∈* B
 
--- TODO: Use QSet for the definitions below, if they all seem to work
--- then we can replace PSet
-{-
-
 -- [todo] The set {3, {3,4}, 4} is a set of three distinct elements,
 -- one of which happens to itself be a set of two elements.
 
 -- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
 -- A = B, iff every element of A is an element of B and vice versa.
-
--- [note] Had to add an additional condition to support the
--- substitution property: A and B must belong to the same sets
--- (i.e. have the same properties). Otherwise known as the identity of
--- indiscernibles.
-_≗_ : ∀ {υ} {𝒰 : Set υ} → PSet 𝒰 → PSet 𝒰 → Set
-A ≗ B = (∀ x → x ∈ A ↔ x ∈ B) ∧ (∀ U → A ∈ U ↔ B ∈ U)
+_≅_ :
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
+  QSet el𝒰 𝒰 → QSet el𝒰 𝒰 → Set υ₁
+_≅_ {𝒰 = 𝒰} A B = app A ≗ app B
+  where open SetoidOn (>⇒-setoid 𝒰 (Set-setoid {lzero})) using (_≗_)
 
 -- Example 3.1.5
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
@@ -185,9 +194,16 @@ A ≗ B = (∀ x → x ∈ A ↔ x ∈ B) ∧ (∀ U → A ∈ U ↔ B ∈ U)
 
 -- Exercise 3.1.1
 -- Reflexivity, symmetry, and transitivity of equality
-≗-refl : ∀ {υ} {𝒰 : Set υ} {A : PSet 𝒰} → A ≗ A
-≗-refl = ∧-intro (λ x → ↔-refl) (λ U → ↔-refl)
+≅-refl :
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} {A : QSet el𝒰 𝒰} → A ≅ A
+≅-refl {𝒰 = 𝒰} = qset-refl
+  where
+    open SetoidOn (>⇒-setoid 𝒰 (Set-setoid {lzero})) using (isEquivRel)
+    open IsEquivRel isEquivRel renaming (refl to qset-refl)
 
+-- TODO: Use QSet for the definitions below, if they all seem to work
+-- then we can replace PSet
+{-
 ≗-sym : ∀ {υ} {𝒰 : Set υ} {A B : PSet 𝒰} → A ≗ B → B ≗ A
 ≗-sym A≗B = ∧-intro (λ x → ↔-sym (∧-elimᴸ A≗B x)) (λ U → ↔-sym (∧-elimᴿ A≗B U))
 
