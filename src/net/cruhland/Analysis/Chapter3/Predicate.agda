@@ -180,13 +180,16 @@ set-in-set? A B = A ∈* B
 -- [todo] The set {3, {3,4}, 4} is a set of three distinct elements,
 -- one of which happens to itself be a set of two elements.
 
+PSetoid : ∀ {α} → Set α → Set (lsuc (lsuc lzero) ⊔ lsuc α)
+PSetoid {α} A = SetoidOn α (A → Set)
+
 -- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
 -- A = B, iff every element of A is an element of B and vice versa.
 _≅_ :
-  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
-  QSet el𝒰 𝒰 → QSet el𝒰 𝒰 → Set υ₁
-_≅_ {𝒰 = 𝒰} A B = app A ≗ app B
-  where open SetoidOn (>⇒-setoid 𝒰 (Set-setoid {lzero})) using (_≗_)
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} {𝒫 : PSetoid el𝒰} →
+    QSet el𝒰 𝒰 → QSet el𝒰 𝒰 → Set υ₁
+_≅_ {𝒰 = 𝒰} {𝒫 = 𝒫} A B = app A ≗ app B
+  where open SetoidOn 𝒫 using (_≗_)
 
 -- Example 3.1.5
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
@@ -195,18 +198,24 @@ _≅_ {𝒰 = 𝒰} A B = app A ≗ app B
 -- Exercise 3.1.1
 -- Reflexivity, symmetry, and transitivity of equality
 ≅-refl :
-  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} {A : QSet el𝒰 𝒰} → A ≅ A
-≅-refl {𝒰 = 𝒰} = qset-refl
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} {𝒫 : PSetoid el𝒰}
+    {A : QSet el𝒰 𝒰} → _≅_ {𝒫 = 𝒫} A A
+≅-refl {𝒫 = 𝒫} = qset-refl
   where
-    open SetoidOn (>⇒-setoid 𝒰 (Set-setoid {lzero})) using (isEquivRel)
+    open SetoidOn 𝒫 using (isEquivRel)
     open IsEquivRel isEquivRel renaming (refl to qset-refl)
+
+≅-sym :
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} {𝒫 : PSetoid el𝒰}
+    {A B : QSet el𝒰 𝒰} → _≅_ {𝒫 = 𝒫} A B → _≅_ {𝒫 = 𝒫} B A
+≅-sym {𝒫 = 𝒫} A≅B = qset-sym A≅B
+  where
+    open SetoidOn 𝒫 using (isEquivRel)
+    open IsEquivRel isEquivRel renaming (sym to qset-sym)
 
 -- TODO: Use QSet for the definitions below, if they all seem to work
 -- then we can replace PSet
 {-
-≗-sym : ∀ {υ} {𝒰 : Set υ} {A B : PSet 𝒰} → A ≗ B → B ≗ A
-≗-sym A≗B = ∧-intro (λ x → ↔-sym (∧-elimᴸ A≗B x)) (λ U → ↔-sym (∧-elimᴿ A≗B U))
-
 ≗-trans : ∀ {υ} {𝒰 : Set υ} {A B C : PSet 𝒰} → A ≗ B → B ≗ C → A ≗ C
 ≗-trans A≗B B≗C =
   ∧-intro
