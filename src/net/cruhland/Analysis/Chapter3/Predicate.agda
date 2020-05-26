@@ -15,6 +15,7 @@ open LogicBundle LB
 -- These are taken from the paper "Setoids in type theory" by Gilles
 -- Barthe, Venanzio Capretta, and Olivier Pons.
 
+{-
 record IsEquivRel {α β} (A : Set α) (_≅_ : A → A → Set β) : Set (α ⊔ β) where
   field
     refl : ∀ {x} → x ≅ x
@@ -193,12 +194,15 @@ module _ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} where
 
   -- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
   -- A = B, iff every element of A is an element of B and vice versa.
-  _≅_ : ∀ {β} → QSet el𝒰 𝒰 → QSet el𝒰 𝒰 → Set (υ₁ ⊔ β)
+  _≅_ : ∀ {β} → QSet {β = β} el𝒰 𝒰 → QSet {β = β} el𝒰 𝒰 → Set (υ₁ ⊔ β)
   _≅_ {β} A B = A ≗ˢ B
     where
       open SetoidOn (QSet-setoid {β}) renaming (_≗_ to _≗ˢ_)
       open IsEquivRel isEquivRel
         renaming (refl to reflˢ; sym to symˢ; trans to transˢ)
+
+  _≇_ : ∀ {β χ} → QSet {β = β} el𝒰 𝒰 → QSet {β = β} el𝒰 𝒰 → Set (υ₁ ⊔ β ⊔ χ)
+  _≇_ {β} {χ} A B = ¬_ {β = χ} (A ≅ B)
 
   -- Example 3.1.5
   -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
@@ -240,7 +244,7 @@ module _ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} where
   -- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty
   -- set_, which contains no elements, i.e., for every object x we
   -- have x ∉ ∅.
-  ∅ : QSet el𝒰 𝒰
+  ∅ : ∀ {β} → QSet {β = β} el𝒰 𝒰
   ∅ = record { app = const ⊥ ; congg = λ _ → ∧-intro id id }
 
   is-empty : QSet el𝒰 𝒰 → Set υ₁
@@ -261,8 +265,14 @@ module _ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} where
   -- we will need to use direct evidence that an element of a set exists.
 
   -- Axiom 3.3 (Singleton sets and pair sets)
-  singleton : el𝒰 → QSet el𝒰 𝒰
-  singleton a = record { app = _≗ᵁ a ; congg = singleton-congg }
+  singleton : ∀ {β} → el𝒰 → QSet {β = β} el𝒰 𝒰
+  -- TODO: Need to pull all of these definitions out of the module so they
+  -- can be properly parameterized! :(
+  -- Maybe we can go back to using Setoid instead of SetoidOn, and passing
+  -- equality proofs around? Might be easier than parameters...
+  -- The definitions in agda-stdlib make a lot more sense now.
+  -- You should model your setoids after theirs.
+  singleton {β} a = record { app = _≗ᵁ a ; congg = singleton-congg }
     where
       singleton-congg : {x y : el𝒰} → x ≗ᵁ y → x ≗ᵁ a ↔ y ≗ᵁ a
       singleton-congg x≗y =
@@ -293,3 +303,37 @@ module _ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} where
 
   pair-singleton : ∀ {a} → pair a a ≅ singleton a
   pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
+
+
+a∈sa :
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} {a : el𝒰} →
+  _∈*_ {υ₁} {υ₂} {el𝒰} {𝒰} a (singleton {υ₁} {υ₂} {el𝒰} {𝒰} a)
+a∈sa = {!!}
+
+-- Examples 3.1.10
+-- Exercise 3.1.2
+∅₁ : ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} → QSet {β = lzero} el𝒰 𝒰
+∅₁ = ∅
+
+s₁ :
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
+  QSet {β = υ₁} (QSet {β = lzero} el𝒰 𝒰) (QSet-setoid {β = lzero})
+s₁ = singleton ∅₁
+
+∅₂ :
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
+  QSet {β = υ₁} (QSet {β = lzero} el𝒰 𝒰) (QSet-setoid {β = lzero})
+∅₂ = ∅
+
+  -- ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
+  -- QSet (QSet {β = lzero} el𝒰 𝒰) (QSet-setoid {β = lzero})
+∅≇s∅ :
+  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
+  _≇_ {el𝒰 = QSet {β = lzero} el𝒰 𝒰} {𝒰 = QSet-setoid {β = lzero}} {β = υ₁} {χ = lzero} ∅₂ s₁
+∅≇s∅ {υ₁} {el𝒰 = el𝒰} {𝒰 = 𝒰} ∅≅s∅ = x∉∅ {el𝒰 = QSet {β = lzero} el𝒰 𝒰} {𝒰 = QSet-setoid {β = lzero}} {x = ∅₁} {!!} -- (∧-elimᴿ (x∈∅↔x∈s∅ ?) ?)
+  where
+    x∈∅↔x∈s∅ = ∅≅s∅
+    ∅∈s∅→∅∈∅ = ∧-elimᴿ (x∈∅↔x∈s∅ ∅₁)
+    ∅∈∅ = ∅∈s∅→∅∈∅ {!!}
+
+-}
