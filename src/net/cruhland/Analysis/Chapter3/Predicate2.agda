@@ -25,8 +25,8 @@ record IsEquivalence {β α} {A : Set α} (_≅_ : Rel₂ A β) : Set (α ⊔ β
     sym : ∀ {x y} → x ≅ y → y ≅ x
     trans : ∀ {x y z} → x ≅ y → y ≅ z → x ≅ z
 
-↔-IsEquivalence : ∀ {β} → IsEquivalence {β} _↔_
-↔-IsEquivalence = record { refl = ↔-refl ; sym = ↔-sym ; trans = ↔-trans }
+↔-IsEquivalence : ∀ β → IsEquivalence {β} _↔_
+↔-IsEquivalence β = record { refl = ↔-refl ; sym = ↔-sym ; trans = ↔-trans }
 
 -- Setoids (generally following agda-stdlib)
 record Setoid α β : Set (lsuc (α ⊔ β)) where
@@ -38,6 +38,39 @@ record Setoid α β : Set (lsuc (α ⊔ β)) where
 
   open IsEquivalence isEquivalence public
 
+open Setoid using (El)
+
 ↔-Setoid : ∀ α → Setoid (lsuc α) α
 ↔-Setoid α =
-  record { El = Set α ; _≗_ = _↔_ ; isEquivalence = ↔-IsEquivalence }
+  record { El = Set α ; _≗_ = _↔_ ; isEquivalence = ↔-IsEquivalence α }
+
+-- Map between setoids (some syntax taken from agda-stdlib)
+record _⇒_
+  {α₁ α₂ β₁ β₂} (A : Setoid α₁ α₂) (B : Setoid β₁ β₂)
+    : Set (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) where
+  open Setoid A renaming (_≗_ to _≗ᴬ_)
+  open Setoid B renaming (_≗_ to _≗ᴮ_)
+
+  field
+    ap : El A → El B
+    cong : ∀ {x y} → x ≗ᴬ y → ap x ≗ᴮ ap y
+
+  infixl 5 _⟨$⟩_
+  _⟨$⟩_ = ap
+
+open _⇒_ using (_⟨$⟩_)
+
+-- Extensionality setoid (equality of equality-preserving functions)
+ext-Setoid : ∀ {α₁ α₂ β₁ β₂} → Setoid α₁ α₂ → Setoid β₁ β₂ → Setoid _ _
+ext-Setoid A B =
+  record { El = A ⇒ B ; _≗_ = ext ; isEquivalence = ext-IsEquivalence }
+    where
+      open module B = Setoid B renaming (_≗_ to _≗ᴮ_)
+
+      ext = λ f g → ∀ x → f ⟨$⟩ x ≗ᴮ g ⟨$⟩ x
+
+      ext-IsEquivalence = record
+        { refl = λ {f} x → B.refl
+        ; sym = λ {f g} x→fx≗gx x → B.sym (x→fx≗gx x)
+        ; trans = λ {f g h} x→fx≗gx x→gx≗hx x → B.trans (x→fx≗gx x) (x→gx≗hx x)
+        }
