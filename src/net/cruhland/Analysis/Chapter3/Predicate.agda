@@ -5,7 +5,7 @@ open import Level
 open import Relation.Binary.PropositionalEquality using (_≡_; subst)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 
-module net.cruhland.Analysis.Chapter3.Predicate2 (LB : LogicBundle) where
+module net.cruhland.Analysis.Chapter3.Predicate (LB : LogicBundle) where
 
 open LogicBundle LB
 
