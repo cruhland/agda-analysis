@@ -1,4 +1,4 @@
-name: analysis
+name: agda-analysis
 depend:
   standard-library
   agda-axiomatic
