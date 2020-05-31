@@ -1,8 +1,11 @@
-open import Function using (id; _∘_; const)
-open import Level using (_⊔_) renaming (zero to lzero; suc to lsuc)
+open import Function using (const; id; _∘_)
+open import Level
+  using (Level; _⊔_; Lift; lift; lower)
+  renaming (zero to lzero; suc to lsuc)
+open import Relation.Binary.PropositionalEquality using (_≡_; subst)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 
-module net.cruhland.Analysis.Chapter3.Predicate (LB : LogicBundle) where
+module net.cruhland.Analysis.Chapter3.Predicate2 (LB : LogicBundle) where
 
 open LogicBundle LB
 
@@ -15,325 +18,246 @@ open LogicBundle LB
 -- These are taken from the paper "Setoids in type theory" by Gilles
 -- Barthe, Venanzio Capretta, and Olivier Pons.
 
-{-
-record IsEquivRel {α β} (A : Set α) (_≅_ : A → A → Set β) : Set (α ⊔ β) where
+-- Binary relations
+Rel₂ : ∀ {α} → Set α → ∀ β → Set (α ⊔ lsuc β)
+Rel₂ A β = A → A → Set β
+
+-- Equivalence relations (generally following agda-stdlib)
+record IsEquivalence {β α} {A : Set α} (_≅_ : Rel₂ A β) : Set (α ⊔ β) where
   field
     refl : ∀ {x} → x ≅ x
     sym : ∀ {x y} → x ≅ y → y ≅ x
     trans : ∀ {x y z} → x ≅ y → y ≅ z → x ≅ z
 
-record SetoidOn β {α} (el : Set α) : Set (lsuc α ⊔ lsuc β) where
+↔-IsEquivalence : ∀ β → IsEquivalence {β} _↔_
+↔-IsEquivalence β = record { refl = ↔-refl ; sym = ↔-sym ; trans = ↔-trans }
+
+-- Setoids (generally following agda-stdlib)
+record Setoid α β : Set (lsuc (α ⊔ β)) where
+  infix 4 _≗_
   field
-    _≗_ : el → el → Set β
-    isEquivRel : IsEquivRel el _≗_
+    El : Set α
+    _≗_ : Rel₂ El β
+    isEquivalence : IsEquivalence _≗_
 
-record Setoid α β : Set (lsuc α ⊔ lsuc β) where
-  field
-    el : Set α
-    setoidOn : SetoidOn β el
+  open IsEquivalence isEquivalence public
 
-  open SetoidOn setoidOn public
+open Setoid using (El)
 
-open Setoid using (el)
+↔-Setoid : ∀ α → Setoid (lsuc α) α
+↔-Setoid α =
+  record { El = Set α ; _≗_ = _↔_ ; isEquivalence = ↔-IsEquivalence α }
 
-mkSetoid :
-  ∀ {α β} → (e : Set α) → (r : e → e → Set β) → IsEquivRel e r → Setoid α β
-mkSetoid e r eqv =
-  record { el = e; setoidOn = record { _≗_ = r; isEquivRel = eqv } }
-
-_≐_ : ∀ {A : Set} → A → A → Set₁
-_≐_ {A = A} x y = (P : A → Set) → P x → P y
-
-data _≡_ {A : Set} (x : A) : A → Set where
-  refl : x ≡ x
-
-≡-IsEquivRel : ∀ {A} → IsEquivRel A _≡_
-≡-IsEquivRel = record
-  { refl = refl
-  ; sym = λ { refl → refl }
-  ; trans = λ { refl refl → refl }
-  }
-
-≡-setoid : Set → Setoid lzero lzero
-≡-setoid A = mkSetoid A _≡_ ≡-IsEquivRel
-
-↔-IsEquivRel : ∀ {α} → IsEquivRel (Set α) _↔_
-↔-IsEquivRel = record
-  { refl = ↔-refl
-  ; sym = ↔-sym
-  ; trans = ↔-trans
-  }
-
-Set-setoid : ∀ {α} → Setoid (lsuc α) α
-Set-setoid {α} = mkSetoid (Set α) _↔_ ↔-IsEquivRel
-
-record _⇒_ {α₁ α₂ β₁ β₂} (A : Setoid α₁ α₂) (B : Setoid β₁ β₂)
+-- Map between setoids (some syntax taken from agda-stdlib)
+record _⇒_
+  {α₁ α₂ β₁ β₂} (A : Setoid α₁ α₂) (B : Setoid β₁ β₂)
     : Set (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) where
   open Setoid A renaming (_≗_ to _≗ᴬ_)
   open Setoid B renaming (_≗_ to _≗ᴮ_)
 
   field
-    ap : el A → el B
+    ap : El A → El B
     cong : ∀ {x y} → x ≗ᴬ y → ap x ≗ᴮ ap y
 
-open _⇒_ using (ap)
+  infixl 5 _⟨$⟩_
+  _⟨$⟩_ = ap
 
-record _>_⇒_
-  {α₁ α₂ β₁ β₂} (elᴬ : Set α₁) (A : SetoidOn α₂ elᴬ) (B : Setoid β₁ β₂)
-    : Set (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) where
-  open SetoidOn A renaming (_≗_ to _≗ᴬ_)
-  open Setoid B renaming (_≗_ to _≗ᴮ_)
+open _⇒_ using (_⟨$⟩_; cong)
 
-  field
-    app : elᴬ → el B
-    congg : ∀ {x y} → x ≗ᴬ y → app x ≗ᴮ app y
+-- Extensionality setoid (equality of equality-preserving functions)
+ext-Setoid :
+  ∀ {α₁ α₂ β₁ β₂} →
+    Setoid α₁ α₂ → Setoid β₁ β₂ → Setoid (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) (α₁ ⊔ β₂)
+ext-Setoid A B =
+  record { El = A ⇒ B ; _≗_ = ext ; isEquivalence = ext-IsEquivalence }
+    where
+      open module B = Setoid B renaming (_≗_ to _≗ᴮ_)
 
-open _>_⇒_ using (app; congg)
+      ext = λ f g → ∀ x → f ⟨$⟩ x ≗ᴮ g ⟨$⟩ x
 
-⇒-setoid :
-  ∀ {α₁ α₂ β₁ β₂} → Setoid α₁ α₂ → Setoid β₁ β₂ →
-  Setoid (α₁ ⊔ α₂ ⊔ β₁ ⊔ β₂) (α₁ ⊔ β₂)
-⇒-setoid A B = mkSetoid (A ⇒ B) rel eqvRel
-  where
-    open Setoid B renaming (_≗_ to _≗ᴮ_; isEquivRel to eqvᴮ)
-    open IsEquivRel eqvᴮ renaming (refl to reflᴮ; sym to symᴮ; trans to transᴮ)
+      ext-IsEquivalence = record
+        { refl = λ {f} x → B.refl
+        ; sym = λ {f g} x→fx≗gx x → B.sym (x→fx≗gx x)
+        ; trans = λ {f g h} x→fx≗gx x→gx≗hx x → B.trans (x→fx≗gx x) (x→gx≗hx x)
+        }
 
-    rel = λ f g → ∀ x → ap f x ≗ᴮ ap g x
-    eqvRel = record
-      { refl = λ {f} x → reflᴮ
-      ; sym = λ {f g} f≗g x → symᴮ (f≗g x)
-      ; trans = λ {f g h} f≗g g≗h x → transᴮ (f≗g x) (g≗h x)
-      }
-
->⇒-setoid :
-  ∀ {α₁ α₂ β₁ β₂} {𝒜 : Set α₁} → (A : SetoidOn α₂ 𝒜) → (B : Setoid β₁ β₂) →
-  SetoidOn (α₁ ⊔ β₂) (𝒜 > A ⇒ B)
->⇒-setoid A B = record { _≗_ = rel ; isEquivRel = eqvRel }
-  where
-    open Setoid B renaming (_≗_ to _≗ᴮ_; isEquivRel to eqvᴮ)
-    open IsEquivRel eqvᴮ renaming (refl to reflᴮ; sym to symᴮ; trans to transᴮ)
-
-    rel = λ f g → ∀ x → app f x ≗ᴮ app g x
-    eqvRel = record
-      { refl = λ {f} x → reflᴮ
-      ; sym = λ {f g} f≗g x → symᴮ (f≗g x)
-      ; trans = λ {f g h} f≗g g≗h x → transᴮ (f≗g x) (g≗h x)
-      }
-
-SP : ∀ {α₁ α₂ β} → Setoid α₁ α₂ → Set (α₁ ⊔ α₂ ⊔ lsuc β)
-SP {β = β} A = A ⇒ Set-setoid {β}
-
-SubSetoid : ∀ {α₁ α₂ β} (A : Setoid α₁ α₂) → SP {β = β} A → Setoid (α₁ ⊔ β) α₂
-SubSetoid A P = mkSetoid (Σ (Setoid.el A) (ap P)) rel eqvRel
-  where
-    open Setoid A renaming (_≗_ to _≗ᴬ_; isEquivRel to eqvᴬ)
-    open IsEquivRel eqvᴬ renaming (refl to reflᴬ; sym to symᴬ; trans to transᴬ)
-
-    rel = λ (x y : Σ (Setoid.el A) (ap P)) → fst x ≗ᴬ fst y
-    eqvRel = record
-      { refl = reflᴬ
-      ; sym = symᴬ
-      ; trans = transᴬ
-      }
 -- [note] End preliminary definitions, back to the book
+
+private
+  variable
+    υ₁ υ₂ υ : Level
+    U : Setoid υ₁ υ₂
 
 -- Definition 3.1.1
 -- We define a set A to be any unordered collection of objects.
-
--- [note] A set is defined as a setoid-predicate on some setoid
--- "universe" of objects 𝒰.
-PSet : ∀ {υ₁ υ₂ β} → Setoid υ₁ υ₂ → Set (υ₁ ⊔ υ₂ ⊔ lsuc β)
-PSet {β = β} 𝒰 = SP {β = β} 𝒰
-
-QSet : ∀ {υ₁ υ₂ β} (el𝒰 : Set υ₁) → SetoidOn υ₂ el𝒰 → Set (υ₁ ⊔ υ₂ ⊔ lsuc β)
-QSet {β = β} el𝒰 𝒰 = el𝒰 > 𝒰 ⇒ Set-setoid {β}
+-- [note] A set is defined as an (equality-preserving) predicate over
+-- an underlying "universe" setoid.
+PSet : Setoid υ₁ υ₂ → ∀ υ → Set (υ₁ ⊔ υ₂ ⊔ lsuc υ)
+PSet U υ = U ⇒ (↔-Setoid υ)
 
 -- [todo] e.g. {3,8,5,2} is a set
 
 -- If x is an object, we say that x is an element of A or x ∈ A if x
 -- lies in the collection
-_∈_ : ∀ {υ₁ υ₂} {𝒰 : Setoid υ₁ υ₂} → el 𝒰 → PSet 𝒰 → Set
-x ∈ P = ap P x
-
-_∈*_ : ∀ {υ₁ υ₂} {elᵁ : Set υ₁} {𝒰 : SetoidOn υ₂ elᵁ} → elᵁ → QSet elᵁ 𝒰 → Set
-x ∈* Q = app Q x
+_∈_ : El U → PSet U υ → Set υ
+x ∈ A = A ⟨$⟩ x
 
 -- Otherwise we say that x ∉ A
-_∉_ : ∀ {υ₁ υ₂} {𝒰 : Setoid υ₁ υ₂} → el 𝒰 → PSet 𝒰 → Set
-x ∉ P = ¬ (x ∈ P)
+_∉_ : El U → PSet U υ → Set υ
+x ∉ A = ¬ (x ∈ A)
 
-_∉*_ : ∀ {υ₁ υ₂} {elᵁ : Set υ₁} {𝒰 : SetoidOn υ₂ elᵁ} → elᵁ → QSet elᵁ 𝒰 → Set
-x ∉* Q = ¬ (x ∈* Q)
-
-infix 9 _∈_ _∈*_ _∉_ _∉*_
+infix 9 _∈_ _∉_
 
 -- [todo] For instance, 3 ∈ {1,2,3,4,5} but 7 ∉ {1,2,3,4,5}
+
+⇒-Setoid : Setoid υ₁ υ₂ → ∀ υ → Setoid (υ₁ ⊔ υ₂ ⊔ lsuc υ) (υ₁ ⊔ υ)
+⇒-Setoid U υ = ext-Setoid U (↔-Setoid υ)
+
+PSetoid :
+  ∀ {υ₁ υ₂ υ} {U : Setoid υ₁ υ₂} →
+    PSet U υ → Setoid (υ₁ ⊔ υ₂ ⊔ lsuc υ) (υ₁ ⊔ υ)
+PSetoid {υ = υ} {U} _ = ⇒-Setoid U υ
 
 -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
 -- object. In particular, given two sets A and B, it is meaningful to
 -- ask whether A is also an element of B.
-set-in-set? :
-  ∀ {υ₁ υ₂ α₂ β} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰}
-    (el𝒜 : QSet {β = β} el𝒰 𝒰) {𝒜 : SetoidOn α₂ (QSet el𝒰 𝒰)} →
-  QSet (QSet el𝒰 𝒰) 𝒜 → Set
-set-in-set? A B = A ∈* B
+set-in-set? : ∀ {β} → PSet U υ → PSet (⇒-Setoid U υ) β → Set _
+set-in-set? A B = A ∈ B
 
 -- [todo] The set {3, {3,4}, 4} is a set of three distinct elements,
 -- one of which happens to itself be a set of two elements.
 
-PSetoid : ∀ {α} → Set α → Set (lsuc (lsuc lzero) ⊔ lsuc α)
-PSetoid {α} A = SetoidOn α (A → Set)
+-- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
+-- A = B, iff every element of A is an element of B and vice versa.
+_≅_ : PSet U υ → PSet U υ → Set _
+A ≅ B = A ≗ B
+  where open Setoid (PSetoid A) using (_≗_)
 
-module _ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} where
-  QSet-setoid : ∀ {β} → SetoidOn (υ₁ ⊔ β) (QSet {β = β} el𝒰 𝒰)
-  QSet-setoid = >⇒-setoid 𝒰 Set-setoid
+_≇_ : PSet U υ → PSet U υ → Set _
+A ≇ B = ¬ (A ≅ B)
 
-  open SetoidOn 𝒰 renaming (_≗_ to _≗ᵁ_; isEquivRel to eqvRelᵁ)
-  open IsEquivRel eqvRelᵁ
-    renaming (refl to reflᵁ; sym to symᵁ; trans to transᵁ)
+-- Example 3.1.5
+-- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
+-- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
 
-  -- Definition 3.1.4 (Equality of sets). Two sets A and B are _equal_,
-  -- A = B, iff every element of A is an element of B and vice versa.
-  _≅_ : ∀ {β} → QSet {β = β} el𝒰 𝒰 → QSet {β = β} el𝒰 𝒰 → Set (υ₁ ⊔ β)
-  _≅_ {β} A B = A ≗ˢ B
-    where
-      open SetoidOn (QSet-setoid {β}) renaming (_≗_ to _≗ˢ_)
-      open IsEquivRel isEquivRel
-        renaming (refl to reflˢ; sym to symˢ; trans to transˢ)
+-- Exercise 3.1.1
+-- Reflexivity, symmetry, and transitivity of equality
+≅-refl : {A : PSet U υ} → A ≅ A
+≅-refl {A = A} = A.refl {A}
+  where module A = Setoid (PSetoid A)
 
-  _≇_ : ∀ {β χ} → QSet {β = β} el𝒰 𝒰 → QSet {β = β} el𝒰 𝒰 → Set (υ₁ ⊔ β ⊔ χ)
-  _≇_ {β} {χ} A B = ¬_ {β = χ} (A ≅ B)
+≅-sym : {A B : PSet U υ} → A ≅ B → B ≅ A
+≅-sym {A = A} {B} A≅B = A.sym {A} {B} A≅B
+  where module A = Setoid (PSetoid A)
 
-  -- Example 3.1.5
-  -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
-  -- [todo] {3,3,1,5,2,4,2} is equal to {1,2,3,4,5}
+≅-trans : {A B C : PSet U υ} → A ≅ B → B ≅ C → A ≅ C
+≅-trans {A = A} {B} {C} A≅B B≅C = A.trans {A} {B} {C} A≅B B≅C
+  where module A = Setoid (PSetoid A)
 
-  -- Exercise 3.1.1
-  -- Reflexivity, symmetry, and transitivity of equality
-  ≅-refl : ∀ {β} {A : QSet el𝒰 𝒰} → A ≅ A
-  ≅-refl {β} {A} = reflˢ {A}
-    where
-      open SetoidOn (QSet-setoid {β}) using (isEquivRel)
-      open IsEquivRel isEquivRel renaming (refl to reflˢ)
+-- Substitution property of equality
+∈-subst :
+  {U : Setoid υ₁ υ₂} {A B : PSet U υ} {x : El U} → A ≅ B → x ∈ A → x ∈ B
+∈-subst {x = x} A≅B x∈A = ∧-elimᴸ (A≅B x) x∈A
 
-  ≅-sym : ∀ {β} {A B : QSet el𝒰 𝒰} → A ≅ B → B ≅ A
-  ≅-sym {β} {A} {B} A≅B = symˢ {A} {B} A≅B
-    where
-      open SetoidOn (QSet-setoid {β}) using (isEquivRel)
-      open IsEquivRel isEquivRel renaming (sym to symˢ)
+subst-∈ :
+  ∀ {χ} {A B : PSet U υ} {C : PSet (PSetoid A) χ} → A ≅ B → A ∈ C → B ∈ C
+subst-∈ {C = C} A≅B A∈C = ∧-elimᴸ (cong C A≅B) A∈C
 
-  ≅-trans : ∀ {β} {A B C : QSet el𝒰 𝒰} → A ≅ B → B ≅ C → A ≅ C
-  ≅-trans {β} {A} {B} {C} A≅B B≅C = transˢ {A} {B} {C} A≅B B≅C
-    where
-      open SetoidOn (QSet-setoid {β}) using (isEquivRel)
-      open IsEquivRel isEquivRel renaming (trans to transˢ)
+-- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty
+-- set_, which contains no elements, i.e., for every object x we
+-- have x ∉ ∅.
+∅ : ∀ υ → PSet U υ
+∅ υ = record { ap = const (Lift υ ⊥) ; cong = λ _ → ∧-intro id id }
 
-  ≅-same : ∀ {β} {A B C : QSet {β = β} el𝒰 𝒰} → A ≅ C → B ≅ C → A ≅ B
-  ≅-same {β} {A} {B} {C} A≅C B≅C =
-    ≅-trans {β} {A} {C} {B} A≅C (≅-sym {β} {B} {C} B≅C)
+is-empty : PSet U υ → Set _
+is-empty {U = U} S = (x : El U) → x ∉ S
 
-  -- Substitution property of equality
-  ∈*-subst : {A B : QSet el𝒰 𝒰} {x : el𝒰} → A ≅ B → x ∈* A → x ∈* B
-  ∈*-subst {x = x} A≅B x∈A = ∧-elimᴸ (A≅B x) x∈A
+x∉∅ : ∀ υ → is-empty (∅ {U = U} υ)
+x∉∅ υ x = lower
 
-  subst-∈* :
-    ∀ {β} {A B : QSet {β = β} el𝒰 𝒰} {U : QSet (QSet el𝒰 𝒰) QSet-setoid} →
-      A ≅ B → A ∈* U → B ∈* U
-  subst-∈* {U = U} A≅B A∈U = ∧-elimᴸ (congg U A≅B) A∈U
+-- Note that there can only be one empty set; if there were two sets
+-- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
+-- would be equal to each other.
+∅-unique : {U : Setoid υ₁ υ₂} {∅′ : PSet U υ} → is-empty ∅′ → ∅ υ ≅ ∅′
+∅-unique {υ = υ} {U} x∉∅′ x =
+  ∧-intro (⊥-elim ∘ (x∉∅ {U = U} υ x)) (lift ∘ (x∉∅′ x))
 
-  -- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty
-  -- set_, which contains no elements, i.e., for every object x we
-  -- have x ∉ ∅.
-  ∅ : ∀ {β} → QSet {β = β} el𝒰 𝒰
-  ∅ = record { app = const ⊥ ; congg = λ _ → ∧-intro id id }
+-- Lemma 3.1.6 (Single choice)
+-- This is not provable in Agda because it's nonconstructive.  Instead
+-- of using evidence that a set is not equal to the empty set, we will
+-- need to use direct evidence that an element of a set exists.
 
-  is-empty : QSet el𝒰 𝒰 → Set υ₁
-  is-empty S = {x : el𝒰} → x ∉* S
+-- Axiom 3.3 (Singleton sets and pair sets)
+singleton : ∀ {υ₁ υ₂} {U : Setoid υ₁ υ₂} → El U → PSet U υ₂
+singleton {υ₂ = υ₂} {U} a = record { ap = in-set ; cong = singleton-cong }
+  where
+    open module U = Setoid U using () renaming (_≗_ to _≗ᵁ_)
 
-  x∉∅ : is-empty ∅
-  x∉∅ = id
+    in-set = _≗ᵁ a
 
-  -- Note that there can only be one empty set; if there were two sets
-  -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
-  -- would be equal to each other.
-  ∅-unique : {∅′ : QSet el𝒰 𝒰} → is-empty ∅′ → ∅ ≅ ∅′
-  ∅-unique x∉*∅′ x = ∧-intro ⊥-elim x∉*∅′
+    singleton-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
+    singleton-cong x≗y =
+      ∧-intro (λ x≗a → U.trans (U.sym x≗y) x≗a) (λ y≗a → U.trans x≗y y≗a)
 
-  -- Lemma 3.1.6 (Single choice)
-  -- This is not provable in Agda because it's nonconstructive.
-  -- Instead of using evidence that a set is not equal to the empty set,
-  -- we will need to use direct evidence that an element of a set exists.
+is-singleton : PSet U υ → El U → Set _
+is-singleton {U = U} S a = ∀ {x} → x ∈ S ↔ x ≗ᵁ a
+  where open Setoid U using () renaming (_≗_ to _≗ᵁ_)
 
-  -- Axiom 3.3 (Singleton sets and pair sets)
-  singleton : ∀ {β} → el𝒰 → QSet {β = β} el𝒰 𝒰
-  -- TODO: Need to pull all of these definitions out of the module so they
-  -- can be properly parameterized! :(
-  -- Maybe we can go back to using Setoid instead of SetoidOn, and passing
-  -- equality proofs around? Might be easier than parameters...
-  -- The definitions in agda-stdlib make a lot more sense now.
-  -- You should model your setoids after theirs.
-  singleton {β} a = record { app = _≗ᵁ a ; congg = singleton-congg }
-    where
-      singleton-congg : {x y : el𝒰} → x ≗ᵁ y → x ≗ᵁ a ↔ y ≗ᵁ a
-      singleton-congg x≗y =
-        ∧-intro (λ x≗a → transᵁ (symᵁ x≗y) x≗a) (λ y≗a → transᵁ x≗y y≗a)
+a∈sa : {U : Setoid υ₁ υ₂} → (a : El U) → a ∈ singleton {U = U} a
+a∈sa {U = U} a = U.refl
+  where module U = Setoid U
 
-  pair : el𝒰 → el𝒰 → QSet el𝒰 𝒰
-  pair a b = record { app = λ y → y ≗ᵁ a ∨ y ≗ᵁ b ; congg = pair-congg }
-    where
-      pair-eq : {x y : el𝒰} → x ≗ᵁ y → x ≗ᵁ a ∨ x ≗ᵁ b → y ≗ᵁ a ∨ y ≗ᵁ b
-      pair-eq x≗y x≗a∨b = ∨-rec use-x≗a use-x≗b x≗a∨b
-        where
-          use-x≗a = λ x≗a → ∨-introᴸ (transᵁ (symᵁ x≗y) x≗a)
-          use-x≗b = λ x≗b → ∨-introᴿ (transᵁ (symᵁ x≗y) x≗b)
+singleton-unique :
+  {U : Setoid υ₁ υ₂} {S : PSet U υ₂} {a : El U} →
+    is-singleton S a → S ≅ singleton a
+singleton-unique is-S x = is-S
 
-      pair-congg : {x y : el𝒰} → x ≗ᵁ y → x ≗ᵁ a ∨ x ≗ᵁ b ↔ y ≗ᵁ a ∨ y ≗ᵁ b
-      pair-congg x≗y = ∧-intro (pair-eq x≗y) (pair-eq (symᵁ x≗y))
+pair : El U → El U → PSet U _
+pair {U = U} a b = record { ap = in-set ; cong = pair-cong }
+  where
+    open module U = Setoid U using () renaming (_≗_ to _≗ᵁ_)
 
-  -- Remarks 3.1.9
-  singleton-unique :
-    ∀ {S S′ a} → S ≅ singleton a → S′ ≅ singleton a → S ≅ S′
-  singleton-unique {S} {S′} {a} = ≅-same {A = S} {B = S′} {C = singleton a}
+    in-set = λ x → x ≗ᵁ a ∨ x ≗ᵁ b
 
-  pair-unique : ∀ {P P′ a b} → P ≅ pair a b → P′ ≅ pair a b → P ≅ P′
-  pair-unique {P} {P′} {a} {b} = ≅-same {A = P} {B = P′} {C = pair a b}
+    pair-eq : {x y : El U} → x ≗ᵁ y → in-set x → in-set y
+    pair-eq x≗y x≗a∨b = ∨-rec use-x≗a use-x≗b x≗a∨b
+      where
+        use-x≗a = λ x≗a → ∨-introᴸ (U.trans (U.sym x≗y) x≗a)
+        use-x≗b = λ x≗b → ∨-introᴿ (U.trans (U.sym x≗y) x≗b)
 
-  pair-comm : ∀ {a b} → pair a b ≅ pair b a
-  pair-comm x = ∧-intro ∨-comm ∨-comm
+    pair-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
+    pair-cong x≗y = ∧-intro (pair-eq x≗y) (pair-eq (U.sym x≗y))
 
-  pair-singleton : ∀ {a} → pair a a ≅ singleton a
-  pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
+is-pair : PSet U υ → El U → El U → Set _
+is-pair {U = U} S a b = ∀ {x} → x ∈ S ↔ x ≗ᵁ a ∨ x ≗ᵁ b
+  where open Setoid U using () renaming (_≗_ to _≗ᵁ_)
 
+a∈pab : {U : Setoid υ₁ υ₂} {a b : El U} → a ∈ pair {U = U} a b
+a∈pab {U = U} = ∨-introᴸ U.refl
+  where module U = Setoid U
 
-a∈sa :
-  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} {a : el𝒰} →
-  _∈*_ {υ₁} {υ₂} {el𝒰} {𝒰} a (singleton {υ₁} {υ₂} {el𝒰} {𝒰} a)
-a∈sa = {!!}
+b∈pab : {U : Setoid υ₁ υ₂} {a b : El U} → b ∈ pair {U = U} a b
+b∈pab {U = U} = ∨-introᴿ U.refl
+  where module U = Setoid U
+
+pair-unique :
+  {U : Setoid υ₁ υ₂} {S : PSet U υ₂} {a b : El U} →
+    is-pair S a b → S ≅ pair a b
+pair-unique is-pair x = is-pair
+
+pair-comm : {U : Setoid υ₁ υ₂} {a b : El U} → pair {U = U} a b ≅ pair b a
+pair-comm x = ∧-intro ∨-comm ∨-comm
+
+pair-singleton : {U : Setoid υ₁ υ₂} {a : El U} → pair {U = U} a a ≅ singleton a
+pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
 
 -- Examples 3.1.10
 -- Exercise 3.1.2
-∅₁ : ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} → QSet {β = lzero} el𝒰 𝒰
-∅₁ = ∅
-
-s₁ :
-  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
-  QSet {β = υ₁} (QSet {β = lzero} el𝒰 𝒰) (QSet-setoid {β = lzero})
-s₁ = singleton ∅₁
-
-∅₂ :
-  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
-  QSet {β = υ₁} (QSet {β = lzero} el𝒰 𝒰) (QSet-setoid {β = lzero})
-∅₂ = ∅
-
-  -- ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
-  -- QSet (QSet {β = lzero} el𝒰 𝒰) (QSet-setoid {β = lzero})
-∅≇s∅ :
-  ∀ {υ₁ υ₂} {el𝒰 : Set υ₁} {𝒰 : SetoidOn υ₂ el𝒰} →
-  _≇_ {el𝒰 = QSet {β = lzero} el𝒰 𝒰} {𝒰 = QSet-setoid {β = lzero}} {β = υ₁} {χ = lzero} ∅₂ s₁
-∅≇s∅ {υ₁} {el𝒰 = el𝒰} {𝒰 = 𝒰} ∅≅s∅ = x∉∅ {el𝒰 = QSet {β = lzero} el𝒰 𝒰} {𝒰 = QSet-setoid {β = lzero}} {x = ∅₁} {!!} -- (∧-elimᴿ (x∈∅↔x∈s∅ ?) ?)
+∅≇sa : {U : Setoid υ₁ υ₂} → (a : El U) → ∅ {U = U} _ ≇ singleton a
+∅≇sa {U = U} a ∅≅sa = lower (a≗a→⊥ U.refl)
   where
-    x∈∅↔x∈s∅ = ∅≅s∅
-    ∅∈s∅→∅∈∅ = ∧-elimᴿ (x∈∅↔x∈s∅ ∅₁)
-    ∅∈∅ = ∅∈s∅→∅∈∅ {!!}
+    module U = Setoid U
+    a≗a→⊥ = ∧-elimᴿ (∅≅sa a)
 
--}
+∅≇s∅ : ∀ υ → ∅ {U = ⇒-Setoid U υ} _ ≇ singleton (∅ υ)
+∅≇s∅ {U = U} υ = ∅≇sa {U = ⇒-Setoid U υ} (∅ υ)
