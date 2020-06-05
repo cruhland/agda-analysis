@@ -274,3 +274,21 @@ s∅≇ss∅ {U = U} {υ = υ} s∅≅ss∅ = ∅≇s∅ ∅≅s∅
   where
     V = ⇒-Setoid (⇒-Setoid U υ) _
     ∅≅s∅ = singleton-inj {U = V} ∅ (singleton ∅) s∅≅ss∅
+
+s∅≇p∅s∅ :
+  ∀ {υ} → singleton {U = ⇒-Setoid (⇒-Setoid U υ) _} ∅ ≇ pair ∅ (singleton ∅)
+s∅≇p∅s∅ {U = U} {υ = υ} s∅≅p∅s∅ = ∅≇s∅ ∅≅s∅
+  where
+    V = ⇒-Setoid (⇒-Setoid U υ) _
+    s∅∈p∅s∅→s∅∈s∅ = ∧-elimᴿ (s∅≅p∅s∅ (singleton ∅))
+    s∅≅∅ = s∅∈p∅s∅→s∅∈s∅ (b∈pab {U = V} {a = ∅} {b = singleton ∅})
+    ∅≅s∅ = ≅-sym {U = ⇒-Setoid U υ} {A = singleton ∅} {B = ∅} s∅≅∅
+
+ss∅≇p∅s∅ :
+  ∀ {υ} → let V = ⇒-Setoid (⇒-Setoid U υ) _ in
+    singleton {U = V} (singleton ∅) ≇ pair ∅ (singleton ∅)
+ss∅≇p∅s∅ {U = U} {υ = υ} ss∅≅p∅s∅ = ∅≇s∅ ∅≅s∅
+  where
+    V = ⇒-Setoid (⇒-Setoid U υ) _
+    ∅∈p∅s∅→∅∈ss∅ = ∧-elimᴿ (ss∅≅p∅s∅ ∅)
+    ∅≅s∅ = ∅∈p∅s∅→∅∈ss∅ (a∈pab {U = V} {a = ∅} {b = singleton ∅})
