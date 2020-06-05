@@ -166,21 +166,21 @@ subst-∈ {C = C} A≅B A∈C = ∧-elimᴸ (cong C A≅B) A∈C
 -- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty
 -- set_, which contains no elements, i.e., for every object x we
 -- have x ∉ ∅.
-∅ : ∀ υ → PSet U υ
-∅ υ = record { ap = const (Lift υ ⊥) ; cong = λ _ → ∧-intro id id }
+∅ : ∀ {υ} → PSet U υ
+∅ {υ = υ} = record { ap = const (Lift υ ⊥) ; cong = λ _ → ∧-intro id id }
 
 is-empty : PSet U υ → Set _
 is-empty {U = U} S = (x : El U) → x ∉ S
 
-x∉∅ : ∀ υ → is-empty (∅ {U = U} υ)
-x∉∅ υ x = lower
+x∉∅ : ∀ {υ} → is-empty (∅ {U = U} {υ = υ})
+x∉∅ x = lower
 
 -- Note that there can only be one empty set; if there were two sets
 -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
 -- would be equal to each other.
-∅-unique : {U : Setoid υ₁ υ₂} {∅′ : PSet U υ} → is-empty ∅′ → ∅ υ ≅ ∅′
-∅-unique {υ = υ} {U} x∉∅′ x =
-  ∧-intro (⊥-elim ∘ (x∉∅ {U = U} υ x)) (lift ∘ (x∉∅′ x))
+∅-unique : {U : Setoid υ₁ υ₂} {∅′ : PSet U υ} → is-empty ∅′ → ∅ ≅ ∅′
+∅-unique {υ = υ} {U = U} x∉∅′ x =
+  ∧-intro (⊥-elim ∘ (x∉∅ {U = U} x)) (lift ∘ (x∉∅′ x))
 
 -- Lemma 3.1.6 (Single choice)
 -- This is not provable in Agda because it's nonconstructive.  Instead
@@ -253,11 +253,24 @@ pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
 
 -- Examples 3.1.10
 -- Exercise 3.1.2
-∅≇sa : {U : Setoid υ₁ υ₂} → (a : El U) → ∅ {U = U} _ ≇ singleton a
+∅≇sa : {U : Setoid υ₁ υ₂} → (a : El U) → ∅ {U = U} ≇ singleton a
 ∅≇sa {U = U} a ∅≅sa = lower (a≗a→⊥ U.refl)
   where
     module U = Setoid U
     a≗a→⊥ = ∧-elimᴿ (∅≅sa a)
 
-∅≇s∅ : ∀ υ → ∅ {U = ⇒-Setoid U υ} _ ≇ singleton (∅ υ)
-∅≇s∅ {U = U} υ = ∅≇sa {U = ⇒-Setoid U υ} (∅ υ)
+∅≇s∅ : ∀ {υ} → ∅ {U = ⇒-Setoid U υ} ≇ singleton ∅
+∅≇s∅ {U = U} {υ = υ} = ∅≇sa {U = ⇒-Setoid U υ} ∅
+
+singleton-inj :
+  {U : Setoid υ₁ υ₂} → let open Setoid U using (_≗_) in
+    (a b : El U) → singleton {U = U} a ≅ singleton b → a ≗ b
+singleton-inj {U = U} a b sa≅sb = ∧-elimᴸ (sa≅sb a) U.refl
+  where open module U = Setoid U using (_≗_)
+
+s∅≇ss∅ :
+  ∀ {υ} → singleton {U = ⇒-Setoid (⇒-Setoid U υ) _} ∅ ≇ singleton (singleton ∅)
+s∅≇ss∅ {U = U} {υ = υ} s∅≅ss∅ = ∅≇s∅ ∅≅s∅
+  where
+    V = ⇒-Setoid (⇒-Setoid U υ) _
+    ∅≅s∅ = singleton-inj {U = V} ∅ (singleton ∅) s∅≅ss∅
