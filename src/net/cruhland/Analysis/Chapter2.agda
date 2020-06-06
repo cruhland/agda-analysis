@@ -264,8 +264,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
   _ :
     ∀ {a b} →
-    (a < b ∨ a ≡ b ∨ a > b) ∧
-      ¬ (a < b ∧ a ≡ b ∨ a > b ∧ a ≡ b ∨ a < b ∧ a > b)
+    (a < b ∨ (a ≡ b ∨ a > b)) ∧
+      ¬ (a < b ∧ a ≡ b ∨ (a > b ∧ a ≡ b ∨ a < b ∧ a > b))
   _ = ∧-intro trichotomy any-pair-absurd
     where
       use-<≡ = λ <≡ → ∧-elimᴿ (∧-elimᴸ <≡) (∧-elimᴿ <≡)

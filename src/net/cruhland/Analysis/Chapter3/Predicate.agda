@@ -297,7 +297,7 @@ ss∅≇p∅s∅ {U = U} {υ = υ} ss∅≅p∅s∅ = ∅≇s∅ ∅≅s∅
 
 -- Axiom 3.4 (Pairwise union)
 infixl 6 _∪_
-_∪_ : ∀ {α β} → PSet U α → PSet U β → PSet U _
+_∪_ : ∀ {α β} → PSet U α → PSet U β → PSet U (α ⊔ β)
 _∪_ {U = U} A B = record { ap = in-set ; cong = ∪-cong }
   where
     open module U = Setoid U using () renaming (_≗_ to _≗ᵁ_)
@@ -331,3 +331,36 @@ subst-∪ {U = U} {A = A} {A′} {B} A≅A′ x =
     where
       B′≅B = ≅-sym {U = U} {A = B} {B = B′} B≅B′
       x∈A∪X→x∈A∪Y = λ X Y X≅Y → ∨-mapᴿ (∈-subst {A = X} {B = Y} X≅Y)
+
+-- Lemma 3.1.13
+-- Exercise 3.1.3
+pab≅sa∪sb :
+  {U : Setoid υ₁ υ₂} {a b : El U} →
+    pair {U = U} a b ≅ singleton a ∪ singleton b
+pab≅sa∪sb x = ∧-intro id id
+
+∪-comm : {A B : PSet U υ} → A ∪ B ≅ B ∪ A
+∪-comm x = ∧-intro ∨-comm ∨-comm
+
+∪-assoc : {A B C : PSet U υ} → (A ∪ B) ∪ C ≅ A ∪ (B ∪ C)
+∪-assoc x = ∧-intro ∨-assocᴸᴿ ∨-assocᴿᴸ
+
+∪-idemp : {A : PSet U υ} → A ∪ A ≅ A
+∪-idemp x = ∧-intro ∨-merge ∨-introᴸ
+
+-- The consistent level parameter makes the below ∪-ident definitions cleaner
+infixl 6 _∪̂_
+_∪̂_ : PSet U υ → PSet U υ → PSet U υ
+A ∪̂ B = A ∪ B
+
+∪-identᴸ : {A : PSet U υ} → ∅ ∪̂ A ≅ A
+∪-identᴸ x = ∧-intro ∨-identᴸ ∨-introᴿ
+
+∪-identᴿ : {U : Setoid υ₁ υ₂} {A : PSet U υ} → A ∪̂ ∅ ≅ A
+∪-identᴿ x = ∧-intro ∨-identᴿ ∨-introᴸ
+
+triple : El U → El U → El U → PSet U _
+triple a b c = singleton a ∪ singleton b ∪ singleton c
+
+quadruple : El U → El U → El U → El U → PSet U _
+quadruple a b c d = pair a b ∪ pair c d
