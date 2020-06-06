@@ -106,7 +106,7 @@ x ∈ A = A ⟨$⟩ x
 _∉_ : El U → PSet U υ → Set υ
 x ∉ A = ¬ (x ∈ A)
 
-infix 9 _∈_ _∉_
+infix 5 _∈_ _∉_
 
 -- [todo] For instance, 3 ∈ {1,2,3,4,5} but 7 ∉ {1,2,3,4,5}
 
@@ -135,6 +135,8 @@ A ≅ B = A ≗ B
 
 _≇_ : PSet U υ → PSet U υ → Set _
 A ≇ B = ¬ (A ≅ B)
+
+infix 4 _≅_ _≇_
 
 -- Example 3.1.5
 -- [todo] {1,2,3,4,5} and {3,4,2,1,5} are the same set
@@ -292,3 +294,40 @@ ss∅≇p∅s∅ {U = U} {υ = υ} ss∅≅p∅s∅ = ∅≇s∅ ∅≅s∅
     V = ⇒-Setoid (⇒-Setoid U υ) _
     ∅∈p∅s∅→∅∈ss∅ = ∧-elimᴿ (ss∅≅p∅s∅ ∅)
     ∅≅s∅ = ∅∈p∅s∅→∅∈ss∅ (a∈pab {U = V} {a = ∅} {b = singleton ∅})
+
+-- Axiom 3.4 (Pairwise union)
+infixl 6 _∪_
+_∪_ : ∀ {α β} → PSet U α → PSet U β → PSet U _
+_∪_ {U = U} A B = record { ap = in-set ; cong = ∪-cong }
+  where
+    open module U = Setoid U using () renaming (_≗_ to _≗ᵁ_)
+
+    in-set = λ x → x ∈ A ∨ x ∈ B
+
+    ∪-in : {x y : El U} → x ≗ᵁ y → in-set x → in-set y
+    ∪-in {x} {y} x≗y x∈A∨B = ∨-map (use-x∈S A) (use-x∈S B) x∈A∨B
+      where
+        use-x∈S : ∀ {σ} (S : PSet U σ) → x ∈ S → y ∈ S
+        use-x∈S S x∈S = ∧-elimᴸ (cong S x≗y) x∈S
+
+    ∪-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
+    ∪-cong x≗y = ∧-intro (∪-in x≗y) (∪-in (U.sym x≗y))
+
+-- Example 3.1.11
+-- [todo] {1,2} ∪ {2,3} = {1,2,3}
+
+-- Remark 3.1.12
+-- Union obeys the axiom of substitution
+subst-∪ : ∀ {α β} {A A′ : PSet U α} {B : PSet U β} → A ≅ A′ → A ∪ B ≅ A′ ∪ B
+subst-∪ {U = U} {A = A} {A′} {B} A≅A′ x =
+  ∧-intro (x∈X∪B→x∈Y∪B A A′ A≅A′) (x∈X∪B→x∈Y∪B A′ A A′≅A)
+    where
+      A′≅A = ≅-sym {U = U} {A = A} {B = A′} A≅A′
+      x∈X∪B→x∈Y∪B = λ X Y X≅Y → ∨-mapᴸ (∈-subst {A = X} {B = Y} X≅Y)
+
+∪-subst : ∀ {α β} {A : PSet U α} {B B′ : PSet U β} → B ≅ B′ → A ∪ B ≅ A ∪ B′
+∪-subst {U = U} {A = A} {B} {B′} B≅B′ x =
+  ∧-intro (x∈A∪X→x∈A∪Y B B′ B≅B′) (x∈A∪X→x∈A∪Y B′ B B′≅B)
+    where
+      B′≅B = ≅-sym {U = U} {A = B} {B = B′} B≅B′
+      x∈A∪X→x∈A∪Y = λ X Y X≅Y → ∨-mapᴿ (∈-subst {A = X} {B = Y} X≅Y)
