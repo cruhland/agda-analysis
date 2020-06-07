@@ -1,13 +1,20 @@
+open import Agda.Builtin.FromNat using (Number)
+open import Data.Unit renaming (⊤ to Unit)
 open import Function using (const; id; _∘_)
 open import Level
   using (Level; _⊔_; Lift; lift; lower)
   renaming (zero to lzero; suc to lsuc)
-open import Relation.Binary.PropositionalEquality using (_≡_; subst)
+open import Relation.Binary.PropositionalEquality
+  using (_≡_; subst) renaming (refl to ≡-refl; sym to ≡-sym; trans to ≡-trans)
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
+open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 
-module net.cruhland.Analysis.Chapter3.Predicate (LB : LogicBundle) where
+module net.cruhland.Analysis.Chapter3.Predicate
+  (LB : LogicBundle) (PB : PeanoBundle LB) where
 
 open LogicBundle LB
+open PeanoBundle PB
+open import net.cruhland.axiomatic.Peano.Literals LB PB
 
 {-= Chapter 3: Set theory (type theory predicate approach) =-}
 
@@ -32,6 +39,9 @@ record IsEquivalence {β α} {A : Set α} (_≅_ : Rel₂ A β) : Set (α ⊔ β
 ↔-IsEquivalence : ∀ β → IsEquivalence {β} _↔_
 ↔-IsEquivalence β = record { refl = ↔-refl ; sym = ↔-sym ; trans = ↔-trans }
 
+≡-IsEquivalence : ∀ {α} {A : Set α} → IsEquivalence {A = A} _≡_
+≡-IsEquivalence = record { refl = ≡-refl ; sym = ≡-sym ; trans = ≡-trans }
+
 -- Setoids (generally following agda-stdlib)
 record Setoid α β : Set (lsuc (α ⊔ β)) where
   infix 4 _≗_
@@ -47,6 +57,10 @@ open Setoid using (El)
 ↔-Setoid : ∀ α → Setoid (lsuc α) α
 ↔-Setoid α =
   record { El = Set α ; _≗_ = _↔_ ; isEquivalence = ↔-IsEquivalence α }
+
+≡-Setoid : ∀ {α} (A : Set α) → Setoid _ _
+≡-Setoid A =
+  record { El = A ; _≗_ = _≡_ ; isEquivalence = ≡-IsEquivalence }
 
 -- Map between setoids (some syntax taken from agda-stdlib)
 record _⇒_
@@ -364,3 +378,54 @@ triple a b c = singleton a ∪ singleton b ∪ singleton c
 
 quadruple : El U → El U → El U → El U → PSet U _
 quadruple a b c d = pair a b ∪ pair c d
+
+quintuple : El U → El U → El U → El U → El U → PSet U _
+quintuple a b c d e = triple a b c ∪ pair d e
+
+-- Axiom 3.7 (Infinity).
+-- [note] Doing this a bit early so I can formalize more examples.
+ℕ-Setoid : Setoid _ _
+ℕ-Setoid = ≡-Setoid ℕ
+
+ℕ-PSet : PSet ℕ-Setoid lzero
+ℕ-PSet = record { ap = const ⊤ ; cong = const ↔-refl }
+
+-- Definition 3.1.15 (Subsets).
+infix 4 _⊆_ _⊊_
+_⊆_ : PSet U υ → PSet U υ → Set _
+A ⊆ B = ∀ x → x ∈ A → x ∈ B
+
+_⊊_ : PSet U υ → PSet U υ → Set _
+A ⊊ B = A ⊆ B ∧ A ≇ B
+
+-- Remark 3.1.16
+subst-⊆ : {A A′ B : PSet U υ} → A ≅ A′ → A ⊆ B → A′ ⊆ B
+subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (∧-elimᴿ (A≅A′ x))
+
+⊆-subst : {A B B′ : PSet U υ} → B ≅ B′ → A ⊆ B → A ⊆ B′
+⊆-subst B≅B′ A⊆B x = (∧-elimᴸ (B≅B′ x)) ∘ (A⊆B x)
+
+-- Examples 3.1.17
+124⊆12345 : triple {U = ℕ-Setoid} 1 2 4 ⊆ quintuple 1 2 3 4 5
+124⊆12345 n n∈124 = ∨-rec (∨-rec use-1 use-2) use-4 n∈124
+  where
+    use-1 = ∨-introᴸ ∘ ∨-introᴸ ∘ ∨-introᴸ
+    use-2 = ∨-introᴸ ∘ ∨-introᴸ ∘ ∨-introᴿ
+    use-4 = ∨-introᴿ ∘ ∨-introᴸ
+
+124≇12345 : triple {U = ℕ-Setoid} 1 2 4 ≇ quintuple 1 2 3 4 5
+124≇12345 124≅12345 = ∨-rec (∨-rec contra-1 contra-2) contra-4 3∈124
+  where
+    3∈124 = ∧-elimᴿ (124≅12345 3) (∨-introᴸ (∨-introᴿ ≡-refl))
+    contra-1 = succ≢zero ∘ succ-inj
+    contra-2 = succ≢zero ∘ succ-inj ∘ succ-inj
+    contra-4 = succ≢zero ∘ succ-inj ∘ succ-inj ∘ succ-inj ∘ ≡-sym
+
+124⊊12345 : triple {U = ℕ-Setoid} 1 2 4 ⊊ quintuple 1 2 3 4 5
+124⊊12345 = ∧-intro 124⊆12345 124≇12345
+
+A⊆A : {A : PSet U υ} → A ⊆ A
+A⊆A x = id
+
+∅⊆A : {A : PSet U υ} → ∅ ⊆ A
+∅⊆A x = ⊥-elim ∘ lower
