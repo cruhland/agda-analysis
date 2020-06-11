@@ -422,9 +422,9 @@ subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (∧-elimᴿ (A≅A′ x))
 124⊊12345 = ∧-intro 124⊆12345 (Σ-intro 3 (∧-intro 3∈12345 3∉124))
   where
     3∈12345 = ∨-introᴸ (∨-introᴿ ≡-refl)
-    contra-1 = succ≢zero ∘ succ-inj
-    contra-2 = succ≢zero ∘ succ-inj ∘ succ-inj
-    contra-4 = succ≢zero ∘ succ-inj ∘ succ-inj ∘ succ-inj ∘ ≡-sym
+    contra-1 = step≢zero ∘ step-inj
+    contra-2 = step≢zero ∘ step-inj ∘ step-inj
+    contra-4 = step≢zero ∘ step-inj ∘ step-inj ∘ step-inj ∘ ≡-sym
     3∉124 = ∨-rec (∨-rec contra-1 contra-2) contra-4
 
 A⊆A : {A : PSet U υ} → A ⊆ A
@@ -476,14 +476,14 @@ A⊊B→B⊈A A⊊B B⊆A = Σ-rec use-x∈B∧¬A (∧-elimᴿ A⊊B)
 13⊈24 : pair {U = ℕ-Setoid} 1 3 ⊈ pair 2 4
 13⊈24 x∈13→x∈24 = ∨-rec contra-2 contra-4 (x∈13→x∈24 1 (∨-introᴸ ≡-refl))
   where
-    contra-2 = succ≢zero ∘ succ-inj ∘ ≡-sym
-    contra-4 = succ≢zero ∘ succ-inj ∘ ≡-sym
+    contra-2 = step≢zero ∘ step-inj ∘ ≡-sym
+    contra-4 = step≢zero ∘ step-inj ∘ ≡-sym
 
 24⊈13 : pair {U = ℕ-Setoid} 2 4 ⊈ pair 1 3
 24⊈13 x∈24→x∈13 = ∨-rec contra-1 contra-3 (x∈24→x∈13 2 (∨-introᴸ ≡-refl))
   where
-    contra-1 = succ≢zero ∘ succ-inj
-    contra-3 = succ≢zero ∘ succ-inj ∘ succ-inj ∘ ≡-sym
+    contra-1 = step≢zero ∘ step-inj
+    contra-3 = step≢zero ∘ step-inj ∘ step-inj ∘ ≡-sym
 
 -- Remark 3.1.21
 -- Tao provides some examples showing that ∈ is not the same as ⊆.

@@ -24,75 +24,75 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ : ℕ
   _ = 0
 
-  -- Axiom 2.2. If n is a natural number, then (succ n) is also a
+  -- Axiom 2.2. If n is a natural number, then (step n) is also a
   -- natural number
   _ : ℕ → ℕ
-  _ = succ
+  _ = step
 
   _ : ℕ
-  _ = succ (succ zero)
+  _ = step (step zero)
 
   -- Definition 2.1.3
   -- The digit-based representation is provided by the Peano.Literals module
-  _ : 1 ≡ succ zero
+  _ : 1 ≡ step zero
   _ = refl
 
-  _ : 2 ≡ succ (succ zero)
+  _ : 2 ≡ step (step zero)
   _ = refl
 
-  _ : 3 ≡ succ (succ (succ zero))
+  _ : 3 ≡ step (step (step zero))
   _ = refl
 
-  _ : 1 ≡ succ 0
+  _ : 1 ≡ step 0
   _ = refl
 
-  _ : 2 ≡ succ 1
+  _ : 2 ≡ step 1
   _ = refl
 
-  _ : 3 ≡ succ 2
+  _ : 3 ≡ step 2
   _ = refl
 
   -- Proposition 2.1.4. 3 is a natural number.
   _ : ℕ
-  _ = succ (succ (succ zero))
+  _ = step (step (step zero))
 
   _ : ℕ
-  _ = succ 2
+  _ = step 2
 
   _ : ℕ
   _ = 3
 
   -- Axiom 2.3. 0 is not the successor of any natural number.
-  _ : ∀ {n} → succ n ≢ 0
-  _ = succ≢zero
+  _ : ∀ {n} → step n ≢ 0
+  _ = step≢zero
 
   -- Proposition 2.1.6. 4 is not equal to 0.
   4≢0 : 4 ≢ 0
-  4≢0 = succ≢zero
+  4≢0 = step≢zero
 
   -- Axiom 2.4. Different natural numbers must have different successors.
-  _ : ∀ {n m} → succ n ≡ succ m → n ≡ m
-  _ = succ-inj
+  _ : ∀ {n m} → step n ≡ step m → n ≡ m
+  _ = step-inj
 
   -- Proposition 2.1.8. 6 is not equal to 2.
   6≢2 : 6 ≢ 2
-  6≢2 = λ 6≡2 → 4≢0 (succ-inj (succ-inj 6≡2))
+  6≢2 = λ 6≡2 → 4≢0 (step-inj (step-inj 6≡2))
 
   -- Axiom 2.5 (Principle of mathematical induction).
-  _ : (P : ℕ → Set) → P 0 → (∀ {k} → P k → P (succ k)) → ∀ n → P n
+  _ : (P : ℕ → Set) → P 0 → (∀ {k} → P k → P (step k)) → ∀ n → P n
   _ = ind
 
   -- Proposition 2.1.16 (Recursive definitions).
   -- There's something not quite right here, but it's hard for me to
   -- pin it down. I think because the book doesn't have the ind-zero
-  -- and ind-succ axioms that I defined. Essentially, those β-reduction
+  -- and ind-step axioms that I defined. Essentially, those β-reduction
   -- rules are equivalent to the book's argument that recursive definitions
-  -- exist. It makes me wonder whether ind-zero and ind-succ are necessary.
+  -- exist. It makes me wonder whether ind-zero and ind-step are necessary.
   rec-def :
     (f : {ℕ} → (ℕ → ℕ)) →
     (c : ℕ) →
-    Σ (ℕ → ℕ) (λ a → a 0 ≡ c ∧ ∀ n → a (succ n) ≡ f {n} (a n))
-  rec-def f c = Σ-intro (ind (const ℕ) c f) (∧-intro ind-zero (λ n → ind-succ))
+    Σ (ℕ → ℕ) (λ a → a 0 ≡ c ∧ ∀ n → a (step n) ≡ f {n} (a n))
+  rec-def f c = Σ-intro (ind (const ℕ) c f) (∧-intro ind-zero (λ n → ind-step))
 
   {- 2.2 Addition -}
 
@@ -103,18 +103,18 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   0+m : ∀ {m} → 0 + m ≡ m
   0+m = rec-zero
 
-  1+m : ∀ {m} → 1 + m ≡ succ m
+  1+m : ∀ {m} → 1 + m ≡ step m
   1+m {m} =
     begin
       1 + m
     ≡⟨⟩
-      rec m succ 1
+      rec m step 1
     ≡⟨⟩
-      rec m succ (succ zero)
-    ≡⟨ rec-succ-tail ⟩
-      rec (succ m) succ zero
+      rec m step (step zero)
+    ≡⟨ rec-step-tail ⟩
+      rec (step m) step zero
     ≡⟨ rec-zero ⟩
-      succ m
+      step m
     ∎
 
   2+3≡5 : 2 + 3 ≡ 5
@@ -122,13 +122,13 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
     begin
       2 + 3
     ≡⟨⟩
-      rec 3 succ 2
+      rec 3 step 2
     ≡⟨⟩
-      rec 3 succ (succ (succ zero))
-    ≡⟨ rec-succ-tail ⟩
-      rec (succ 3) succ (succ zero)
-    ≡⟨ rec-succ-tail ⟩
-      rec (succ (succ 3)) succ zero
+      rec 3 step (step (step zero))
+    ≡⟨ rec-step-tail ⟩
+      rec (step 3) step (step zero)
+    ≡⟨ rec-step-tail ⟩
+      rec (step (step 3)) step zero
     ≡⟨ rec-zero ⟩
       5
     ∎
@@ -137,12 +137,12 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ : ∀ {n} → n + 0 ≡ n
   _ = +-zeroᴿ
 
-  -- Lemma 2.2.3. For any natural numbers n and m, n + succ m = succ (n + m).
-  _ : ∀ {n m} → n + succ m ≡ succ (n + m)
-  _ = +-succᴿ
+  -- Lemma 2.2.3. For any natural numbers n and m, n + step m = step (n + m).
+  _ : ∀ {n m} → n + step m ≡ step (n + m)
+  _ = +-stepᴿ
 
-  _ : ∀ {n} → succ n ≡ n + 1
-  _ = succ≡+
+  _ : ∀ {n} → step n ≡ n + 1
+  _ = step≡+
 
   -- Proposition 2.2.4 (Addition is commutative).
   _ : ∀ {n m} → n + m ≡ m + n
@@ -161,8 +161,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ : ℕ → Set
   _ = Positive
 
-  positive-succ : ∀ {n} → Positive (succ n)
-  positive-succ = succ≢zero
+  positive-step : ∀ {n} → Positive (step n)
+  positive-step = step≢zero
 
   -- Proposition 2.2.8. If a is positive and b is a natural number,
   -- then a + b is positive.
@@ -174,19 +174,19 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- My first proof uses a direct argument instead of the book's approach of
   -- proof by contradicition, because the latter is nonconstructive.
   a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
-  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 = ∨-rec case-a≡0 case-a≡succ-p (case a)
+  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 = ∨-rec case-a≡0 case-a≡step-p (case a)
     where
       case-a≡0 : a ≡ 0 → a ≡ 0 ∧ b ≡ 0
       case-a≡0 a≡0 = ∧-intro a≡0 (trans (sym +-zeroᴸ) 0+b≡0)
         where
           0+b≡0 = subst (λ x → x + b ≡ 0) a≡0 a+b≡0
 
-      case-a≡succ-p : Σ ℕ (λ p → a ≡ succ p) → a ≡ 0 ∧ b ≡ 0
-      case-a≡succ-p p∧a≡succ-p = ⊥-elim (succ≢zero s[p+b]≡0)
+      case-a≡step-p : Σ ℕ (λ p → a ≡ step p) → a ≡ 0 ∧ b ≡ 0
+      case-a≡step-p p∧a≡step-p = ⊥-elim (step≢zero s[p+b]≡0)
         where
-          a≡succ-p = snd p∧a≡succ-p
-          succ-p+b≡0 = subst (λ x → x + b ≡ 0) a≡succ-p a+b≡0
-          s[p+b]≡0 = trans (sym +-succᴸ) succ-p+b≡0
+          a≡step-p = snd p∧a≡step-p
+          step-p+b≡0 = subst (λ x → x + b ≡ 0) a≡step-p a+b≡0
+          s[p+b]≡0 = trans (sym +-stepᴸ) step-p+b≡0
 
   -- I realized that we could use the book's argument if we showed that
   -- n ≡ 0 is decidable for any n.
@@ -194,17 +194,17 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ = +-both-zero
 
   -- Lemma 2.2.10. Let a be a positive natural number. Then there exists
-  -- exactly one natural number b such that succ b = a.
+  -- exactly one natural number b such that step b = a.
   -- Exercise 2.2.2
   _HasUniquePredecessor_ : ℕ → ℕ → Set
-  a HasUniquePredecessor b = a ≡ succ b ∧ ∀ b′ → a ≡ succ b′ → b ≡ b′
+  a HasUniquePredecessor b = a ≡ step b ∧ ∀ b′ → a ≡ step b′ → b ≡ b′
 
   unique-predecessor : ∀ a → Positive a → Σ ℕ (a HasUniquePredecessor_)
   unique-predecessor a a≢0 = Σ-map-snd use-pred (pred a≢0)
     where
-      use-pred : ∀ {b} → a ≡ succ b → a HasUniquePredecessor b
+      use-pred : ∀ {b} → a ≡ step b → a HasUniquePredecessor b
       use-pred a≡sb =
-        ∧-intro a≡sb λ b′ a≡sb′ → succ-inj (trans (sym a≡sb) a≡sb′)
+        ∧-intro a≡sb λ b′ a≡sb′ → step-inj (trans (sym a≡sb) a≡sb′)
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
   _ : ℕ → ℕ → Set
@@ -218,21 +218,21 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
         begin
           5 + 3
         ≡⟨⟩
-          5 + succ (succ (succ zero))
-        ≡⟨ +-succᴿ⃗ᴸ ⟩
-          succ 5 + succ (succ zero)
-        ≡⟨ +-succᴿ⃗ᴸ ⟩
-          succ (succ 5) + succ zero
-        ≡⟨ +-succᴿ⃗ᴸ ⟩
-          succ (succ (succ 5)) + zero
+          5 + step (step (step zero))
+        ≡⟨ +-stepᴿ⃗ᴸ ⟩
+          step 5 + step (step zero)
+        ≡⟨ +-stepᴿ⃗ᴸ ⟩
+          step (step 5) + step zero
+        ≡⟨ +-stepᴿ⃗ᴸ ⟩
+          step (step (step 5)) + zero
         ≡⟨ +-zeroᴿ ⟩
-          succ (succ (succ 5))
+          step (step (step 5))
         ≡⟨⟩
           8
         ∎
       5≤8 = Σ-intro 3 5+3≡8
-      si = succ-inj
-      5≢8 = λ 5≡8 → succ≢zero (si (si (si (si (si (sym 5≡8))))))
+      si = step-inj
+      5≢8 = λ 5≡8 → step≢zero (si (si (si (si (si (sym 5≡8))))))
 
   -- Proposition 2.2.12 (Basic properties of order for natural numbers).
   -- Exercise 2.2.3
@@ -254,7 +254,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   _ = ∧-intro ≤-compat-+ᵁᴿ ≤-compat-+ᴰᴿ
 
   -- (e)
-  _ : ∀ {a b} → a < b ↔ succ a ≤ b
+  _ : ∀ {a b} → a < b ↔ step a ≤ b
   _ = ∧-intro <→≤ ≤→<
 
   -- (f)
@@ -287,7 +287,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   -- Exercise 2.2.6
   backwards-ind :
     (P : ℕ → Set) → ∀ {n} → P n →
-    (∀ {k} → P (succ k) → P k) →
+    (∀ {k} → P (step k) → P k) →
     ∀ {m} → m ≤ n → P m
   backwards-ind P {n} Pn Pk m≤n = ind Q Qz Qs n Pn m≤n
     where
@@ -296,7 +296,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
       Qz : Q 0
       Qz Pz y≤z = subst P (sym (∨-forceᴿ <-zero (≤→<∨≡ y≤z))) Pz
 
-      Qs : succProp Q
+      Qs : step-case Q
       Qs Qk Psk y≤sk = ∨-rec use-y≤k use-y≡sk (≤s→≤∨≡s y≤sk)
         where
           use-y≤k = λ y≤k → Qk (Pk Psk) y≤k
@@ -312,10 +312,10 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   0*m = *-zeroᴸ
 
   1*m : ∀ {m} → 1 * m ≡ 0 + m
-  1*m {m} = trans *-succᴸ (cong (_+ m) 0*m)
+  1*m {m} = trans *-stepᴸ (cong (_+ m) 0*m)
 
   2*m : ∀ {m} → 2 * m ≡ 0 + m + m
-  2*m {m} = trans *-succᴸ (cong (_+ m) 1*m)
+  2*m {m} = trans *-stepᴸ (cong (_+ m) 1*m)
 
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
@@ -363,36 +363,36 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
           r<m = ∧-intro ≤-zero (¬sym m≢0)
           n≡mq+r = sym (trans +-zeroᴿ *-zeroᴿ)
 
-      Ps : succProp P
+      Ps : step-case P
       Ps {k} Pk = Σ-rec (λ q Σr → Σ-rec (use-qr q) Σr) Pk
         where
-          use-qr : ∀ q r → r < m ∧ k ≡ m * q + r → P (succ k)
+          use-qr : ∀ q r → r < m ∧ k ≡ m * q + r → P (step k)
           use-qr q r props = ∨-rec use-sr<m use-sr≡m (≤→<∨≡ (<→≤ r<m))
             where
               r<m = ∧-elimᴸ props
               k≡mq+r = ∧-elimᴿ props
 
-              sk≡mq+sr = trans (cong succ k≡mq+r) (sym +-succᴿ)
+              sk≡mq+sr = trans (cong step k≡mq+r) (sym +-stepᴿ)
               use-sr<m = λ sr<m →
-                Σ-intro q (Σ-intro (succ r) (∧-intro sr<m sk≡mq+sr))
+                Σ-intro q (Σ-intro (step r) (∧-intro sr<m sk≡mq+sr))
 
               0<m = ∧-intro ≤-zero (¬sym m≢0)
               use-sr≡m = λ sr≡m →
                 let sk≡m[sq]+0 =
                       begin
-                        succ k
-                      ≡⟨ cong succ k≡mq+r ⟩
-                        succ (m * q + r)
-                      ≡⟨ sym +-succᴿ ⟩
-                        m * q + succ r
+                        step k
+                      ≡⟨ cong step k≡mq+r ⟩
+                        step (m * q + r)
+                      ≡⟨ sym +-stepᴿ ⟩
+                        m * q + step r
                       ≡⟨ cong (m * q +_) sr≡m ⟩
                         m * q + m
-                      ≡⟨ sym *-succᴿ ⟩
-                        m * succ q
+                      ≡⟨ sym *-stepᴿ ⟩
+                        m * step q
                       ≡⟨ sym +-zeroᴿ ⟩
-                        m * succ q + 0
+                        m * step q + 0
                       ∎
-                 in Σ-intro (succ q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
+                 in Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
 
   -- Definition 2.3.11 (Exponentiation for natural numbers).
   _^_ : ℕ → ℕ → ℕ
@@ -408,7 +408,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   x^1≡x {x} =
     begin
       x ^ 1
-    ≡⟨ rec-succ ⟩
+    ≡⟨ rec-step ⟩
       x ^ 0 * x
     ≡⟨ cong (_* x) x^0≡1 ⟩
       1 * x
@@ -420,7 +420,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   x^2≡xx {x} =
     begin
       x ^ 2
-    ≡⟨ rec-succ ⟩
+    ≡⟨ rec-step ⟩
       x ^ 1 * x
     ≡⟨ cong (_* x) x^1≡x ⟩
       x * x
@@ -430,7 +430,7 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
   x^3≡xxx {x} =
     begin
       x ^ 3
-    ≡⟨ rec-succ ⟩
+    ≡⟨ rec-step ⟩
       x ^ 2 * x
     ≡⟨ cong (_* x) x^2≡xx ⟩
       x * x * x
@@ -441,8 +441,8 @@ module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
     begin
       2 * x
     ≡⟨⟩
-      succ 1 * x
-    ≡⟨ *-succᴸ ⟩
+      step 1 * x
+    ≡⟨ *-stepᴸ ⟩
       1 * x + x
     ≡⟨ cong (_+ x) *-oneᴸ ⟩
       x + x
