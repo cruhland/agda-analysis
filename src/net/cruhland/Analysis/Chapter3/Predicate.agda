@@ -391,12 +391,17 @@ quintuple a b c d e = triple a b c ∪ pair d e
 ℕ-PSet = record { ap = const ⊤ ; cong = const ↔-refl }
 
 -- Definition 3.1.15 (Subsets).
-infix 4 _⊆_ _⊊_
+infix 4 _⊆_ _⊈_ _⊊_
 _⊆_ : PSet U υ → PSet U υ → Set _
 A ⊆ B = ∀ x → x ∈ A → x ∈ B
 
+_⊈_ : PSet U υ → PSet U υ → Set _
+A ⊈ B = ¬ (A ⊆ B)
+
+-- [note] Using Σ instead of A ≇ B because the latter doesn't
+-- allow constructive proofs
 _⊊_ : PSet U υ → PSet U υ → Set _
-A ⊊ B = A ⊆ B ∧ A ≇ B
+_⊊_ {U = U} A B = A ⊆ B ∧ Σ (El U) λ x → x ∈ B ∧ x ∉ A
 
 -- Remark 3.1.16
 subst-⊆ : {A A′ B : PSet U υ} → A ≅ A′ → A ⊆ B → A′ ⊆ B
@@ -413,19 +418,74 @@ subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (∧-elimᴿ (A≅A′ x))
     use-2 = ∨-introᴸ ∘ ∨-introᴸ ∘ ∨-introᴿ
     use-4 = ∨-introᴿ ∘ ∨-introᴸ
 
-124≇12345 : triple {U = ℕ-Setoid} 1 2 4 ≇ quintuple 1 2 3 4 5
-124≇12345 124≅12345 = ∨-rec (∨-rec contra-1 contra-2) contra-4 3∈124
+124⊊12345 : triple {U = ℕ-Setoid} 1 2 4 ⊊ quintuple 1 2 3 4 5
+124⊊12345 = ∧-intro 124⊆12345 (Σ-intro 3 (∧-intro 3∈12345 3∉124))
   where
-    3∈124 = ∧-elimᴿ (124≅12345 3) (∨-introᴸ (∨-introᴿ ≡-refl))
+    3∈12345 = ∨-introᴸ (∨-introᴿ ≡-refl)
     contra-1 = succ≢zero ∘ succ-inj
     contra-2 = succ≢zero ∘ succ-inj ∘ succ-inj
     contra-4 = succ≢zero ∘ succ-inj ∘ succ-inj ∘ succ-inj ∘ ≡-sym
-
-124⊊12345 : triple {U = ℕ-Setoid} 1 2 4 ⊊ quintuple 1 2 3 4 5
-124⊊12345 = ∧-intro 124⊆12345 124≇12345
+    3∉124 = ∨-rec (∨-rec contra-1 contra-2) contra-4
 
 A⊆A : {A : PSet U υ} → A ⊆ A
 A⊆A x = id
 
 ∅⊆A : {A : PSet U υ} → ∅ ⊆ A
 ∅⊆A x = ⊥-elim ∘ lower
+
+-- Proposition 3.1.18 (Sets are partially ordered by set inclusion)
+-- Exercise 3.1.4
+⊆-trans : {A B C : PSet U υ} → A ⊆ B → B ⊆ C → A ⊆ C
+⊆-trans A⊆B B⊆C x = (B⊆C x) ∘ (A⊆B x)
+
+⊆-antisym : {A B : PSet U υ} → A ⊆ B → B ⊆ A → A ≅ B
+⊆-antisym A⊆B B⊆A x = ∧-intro (A⊆B x) (B⊆A x)
+
+A≅B→A⊆B : {A B : PSet U υ} → A ≅ B → A ⊆ B
+A≅B→A⊆B A≅B = ∧-elimᴸ ∘ A≅B
+
+A≅B→B⊆A : {A B : PSet U υ} → A ≅ B → B ⊆ A
+A≅B→B⊆A A≅B = ∧-elimᴿ ∘ A≅B
+
+A⊊B→A⊆B : {A B : PSet U υ} → A ⊊ B → A ⊆ B
+A⊊B→A⊆B = ∧-elimᴸ
+
+A⊊B→B⊈A : {A B : PSet U υ} → A ⊊ B → B ⊈ A
+A⊊B→B⊈A A⊊B B⊆A = Σ-rec use-x∈B∧¬A (∧-elimᴿ A⊊B)
+  where
+    use-x∈B∧¬A = λ x x∈B∧¬A → ∧-elimᴿ x∈B∧¬A (B⊆A x (∧-elimᴸ x∈B∧¬A))
+
+⊊-trans : {A B C : PSet U υ} → A ⊊ B → B ⊊ C → A ⊊ C
+⊊-trans {U = U} {A = A} {B} {C} A⊊B B⊊C = ∧-intro A⊆C Σx∈C∧¬A
+  where
+    A⊆B = ∧-elimᴸ A⊊B
+    B⊆C = ∧-elimᴸ B⊊C
+    A⊆C = ⊆-trans {U = U} {A = A} {B} {C} A⊆B B⊆C
+    Σx∈C∧¬B = ∧-elimᴿ B⊊C
+
+    x∉B→x∉A : ∀ {x} → x ∉ B → x ∉ A
+    x∉B→x∉A {x} x∉B x∈A = x∉B (A⊆B x x∈A)
+
+    use-x∈C∧¬B : ∀ {x} → x ∈ C ∧ x ∉ B → x ∈ C ∧ x ∉ A
+    use-x∈C∧¬B {x} x∈C∧¬B = ∧-mapᴿ x∉B→x∉A x∈C∧¬B
+
+    Σx∈C∧¬A : Σ (El U) λ x → x ∈ C ∧ x ∉ A
+    Σx∈C∧¬A = Σ-map-snd use-x∈C∧¬B Σx∈C∧¬B
+
+-- Remark 3.1.20
+13⊈24 : pair {U = ℕ-Setoid} 1 3 ⊈ pair 2 4
+13⊈24 x∈13→x∈24 = ∨-rec contra-2 contra-4 (x∈13→x∈24 1 (∨-introᴸ ≡-refl))
+  where
+    contra-2 = succ≢zero ∘ succ-inj ∘ ≡-sym
+    contra-4 = succ≢zero ∘ succ-inj ∘ ≡-sym
+
+24⊈13 : pair {U = ℕ-Setoid} 2 4 ⊈ pair 1 3
+24⊈13 x∈24→x∈13 = ∨-rec contra-1 contra-3 (x∈24→x∈13 2 (∨-introᴸ ≡-refl))
+  where
+    contra-1 = succ≢zero ∘ succ-inj
+    contra-3 = succ≢zero ∘ succ-inj ∘ succ-inj ∘ ≡-sym
+
+-- Remark 3.1.21
+-- Tao provides some examples showing that ∈ is not the same as ⊆.
+-- It's harder to get them confused in Agda, because his examples
+-- won't even typecheck!
