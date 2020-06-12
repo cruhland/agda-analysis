@@ -489,3 +489,32 @@ A⊊B→B⊈A A⊊B B⊆A = Σ-rec use-x∈B∧¬A (∧-elimᴿ A⊊B)
 -- Tao provides some examples showing that ∈ is not the same as ⊆.
 -- It's harder to get them confused in Agda, because his examples
 -- won't even typecheck!
+
+-- Axiom 3.5 (Axiom of specification)
+-- [note] because PSet is already a predicate, this definition is
+-- really just set intersection.
+infixl 8 _⟨_⟩
+_⟨_⟩ : ∀ {υ′} → PSet U υ → PSet U υ′ → PSet U (υ ⊔ υ′)
+_⟨_⟩ {U = U} A P = record { ap = in-set ; cong = ⟨⟩-cong }
+  where
+    open module U = Setoid U using () renaming (_≗_ to _≗ᵁ_)
+
+    in-set = λ x → x ∈ A ∧ P ⟨$⟩ x
+
+    ⟨⟩-in : {x y : El U} → x ≗ᵁ y → in-set x → in-set y
+    ⟨⟩-in {x} {y} x≗y x∈A∧P = ∧-map (use-x∈S A) (use-x∈S P) x∈A∧P
+      where
+        use-x∈S : ∀ {σ} (S : PSet U σ) → x ∈ S → y ∈ S
+        use-x∈S S x∈S = ∧-elimᴸ (cong S x≗y) x∈S
+
+    ⟨⟩-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
+    ⟨⟩-cong x≗y = ∧-intro (⟨⟩-in x≗y) (⟨⟩-in (U.sym x≗y))
+
+A⟨P⟩⊆ : {A P : PSet U υ} → A ⟨ P ⟩ ⊆ A
+A⟨P⟩⊆ x = ∧-elimᴸ
+
+A⟨∅⟩≅∅ : ∀ {υ′} {A : PSet U υ} → A ⟨ ∅ {υ = υ′} ⟩ ≅ ∅
+A⟨∅⟩≅∅ x = ∧-intro (lift ∘ lower ∘ ∧-elimᴿ) (⊥-elim ∘ lower)
+
+A⟨A⟩≅A : {A : PSet U υ} → A ⟨ A ⟩ ≅ A
+A⟨A⟩≅A x = ∧-intro ∧-elimᴸ ∧-dup
