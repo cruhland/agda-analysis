@@ -510,6 +510,11 @@ _⟨_⟩ {U = U} A P = record { ap = in-set ; cong = ⟨⟩-cong }
     ⟨⟩-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
     ⟨⟩-cong x≗y = ∧-intro (⟨⟩-in x≗y) (⟨⟩-in (U.sym x≗y))
 
+x∈A⟨P⟩ :
+  ∀ {υ′} {U : Setoid υ₁ υ₂} {A P : PSet U υ} {P : PSet U υ′} {x : El U} →
+  x ∈ A ⟨ P ⟩ ↔ x ∈ A ∧ P ⟨$⟩ x
+x∈A⟨P⟩ = ∧-dup id
+
 A⟨P⟩⊆ : {A P : PSet U υ} → A ⟨ P ⟩ ⊆ A
 A⟨P⟩⊆ x = ∧-elimᴸ
 
@@ -518,3 +523,19 @@ A⟨∅⟩≅∅ x = ∧-intro (lift ∘ lower ∘ ∧-elimᴿ) (⊥-elim ∘ lo
 
 A⟨A⟩≅A : {A : PSet U υ} → A ⟨ A ⟩ ≅ A
 A⟨A⟩≅A x = ∧-intro ∧-elimᴸ ∧-dup
+
+subst-⟨⟩ :
+  ∀ {υ′} {A A′ : PSet U υ} {P : PSet U υ′} → A ≅ A′ → A ⟨ P ⟩ ≅ A′ ⟨ P ⟩
+subst-⟨⟩ {U = U} {A = A} {A′} {P} A≅A′ x =
+  ∧-intro (one-way A A′ A≅A′) (one-way A′ A (≅-sym {A = A} {A′} A≅A′))
+    where
+      one-way : (S S′ : PSet U υ) → S ≅ S′ → x ∈ S ∧ P ⟨$⟩ x → x ∈ S′ ∧ P ⟨$⟩ x
+      one-way S S′ S≅S′ = ∧-mapᴸ (∧-elimᴸ (S≅S′ x))
+
+⟨⟩-subst :
+  ∀ {υ′} {A : PSet U υ} {P P′ : PSet U υ′} → P ≅ P′ → A ⟨ P ⟩ ≅ A ⟨ P′ ⟩
+⟨⟩-subst {U = U} {υ′ = υ′} {A = A} {P} {P′} P≅P′ x =
+  ∧-intro (one-way P P′ P≅P′) (one-way P′ P (≅-sym {A = P} {P′} P≅P′))
+    where
+      one-way : (Q Q′ : PSet U υ′) → Q ≅ Q′ → x ∈ A ∧ Q ⟨$⟩ x → x ∈ A ∧ Q′ ⟨$⟩ x
+      one-way Q Q′ Q≅Q′ = ∧-mapᴿ (∧-elimᴸ (Q≅Q′ x))
