@@ -8,14 +8,16 @@ open Eq using (_≡_; refl; sym; trans; subst; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
+open import net.cruhland.axiomatic.Peano.Multiplication using (Multiplication)
 
-module _ (LB : LogicBundle) (PB : PeanoBundle LB) where
+module _
+    (LB : LogicBundle) (PB : PeanoBundle LB) (PM : Multiplication LB PB) where
   open LogicBundle LB
   open PeanoBundle PB
+  open Multiplication PM
   open import net.cruhland.axiomatic.Logic.Decidable LB
   open import net.cruhland.axiomatic.Peano.Addition LB PB
   open import net.cruhland.axiomatic.Peano.Literals LB PB
-  open import net.cruhland.axiomatic.Peano.Multiplication LB PB
   open import net.cruhland.axiomatic.Peano.Ordering LB PB
 
   {- 2.1 The Peano Axioms -}
