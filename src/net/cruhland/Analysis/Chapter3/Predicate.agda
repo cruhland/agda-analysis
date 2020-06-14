@@ -1,20 +1,26 @@
 open import Agda.Builtin.FromNat using (Number)
-open import Data.Unit renaming (⊤ to Unit)
+open import Data.Unit using () renaming (⊤ to Unit)
 open import Function using (const; id; _∘_)
 open import Level
   using (Level; _⊔_; Lift; lift; lower)
   renaming (zero to lzero; suc to lsuc)
-open import Relation.Binary.PropositionalEquality
-  using (_≡_; subst) renaming (refl to ≡-refl; sym to ≡-sym; trans to ≡-trans)
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_)
+open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
+import net.cruhland.axiomatic.Peano.Addition as PeanoAddition
+import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
+import net.cruhland.axiomatic.Peano.Ordering as PeanoOrdering
 
 module net.cruhland.Analysis.Chapter3.Predicate
   (LB : LogicBundle) (PB : PeanoBundle LB) where
 
 open LogicBundle LB
 open PeanoBundle PB
-open import net.cruhland.axiomatic.Peano.Literals LB PB
+open PeanoAddition LB PB using (_+_; +-zeroᴸ; +-stepᴸ⃗ᴿ)
+open PeanoLiterals LB PB
+open PeanoOrdering LB PB using (_≤_; _<_; n<sn; <-trans)
 
 {-= Chapter 3: Set theory (type theory predicate approach) =-}
 
@@ -40,7 +46,7 @@ record IsEquivalence {β α} {A : Set α} (_≅_ : Rel₂ A β) : Set (α ⊔ β
 ↔-IsEquivalence β = record { refl = ↔-refl ; sym = ↔-sym ; trans = ↔-trans }
 
 ≡-IsEquivalence : ∀ {α} {A : Set α} → IsEquivalence {A = A} _≡_
-≡-IsEquivalence = record { refl = ≡-refl ; sym = ≡-sym ; trans = ≡-trans }
+≡-IsEquivalence = record { refl = Eq.refl ; sym = Eq.sym ; trans = Eq.trans }
 
 -- Setoids (generally following agda-stdlib)
 record Setoid α β : Set (lsuc (α ⊔ β)) where
@@ -387,8 +393,11 @@ quintuple a b c d e = triple a b c ∪ pair d e
 ℕ-Setoid : Setoid _ _
 ℕ-Setoid = ≡-Setoid ℕ
 
-ℕ-PSet : PSet ℕ-Setoid lzero
-ℕ-PSet = record { ap = const ⊤ ; cong = const ↔-refl }
+ℕ-PSet : Set _
+ℕ-PSet = PSet ℕ-Setoid lzero
+
+ℕᴾ : ℕ-PSet
+ℕᴾ = record { ap = const ⊤ ; cong = const ↔-refl }
 
 -- Definition 3.1.15 (Subsets).
 infix 4 _⊆_ _⊈_ _⊊_
@@ -421,10 +430,10 @@ subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (∧-elimᴿ (A≅A′ x))
 124⊊12345 : triple {U = ℕ-Setoid} 1 2 4 ⊊ quintuple 1 2 3 4 5
 124⊊12345 = ∧-intro 124⊆12345 (Σ-intro 3 (∧-intro 3∈12345 3∉124))
   where
-    3∈12345 = ∨-introᴸ (∨-introᴿ ≡-refl)
+    3∈12345 = ∨-introᴸ (∨-introᴿ Eq.refl)
     contra-1 = step≢zero ∘ step-inj
     contra-2 = step≢zero ∘ step-inj ∘ step-inj
-    contra-4 = step≢zero ∘ step-inj ∘ step-inj ∘ step-inj ∘ ≡-sym
+    contra-4 = step≢zero ∘ step-inj ∘ step-inj ∘ step-inj ∘ Eq.sym
     3∉124 = ∨-rec (∨-rec contra-1 contra-2) contra-4
 
 A⊆A : {A : PSet U υ} → A ⊆ A
@@ -474,16 +483,16 @@ A⊊B→B⊈A A⊊B B⊆A = Σ-rec use-x∈B∧¬A (∧-elimᴿ A⊊B)
 
 -- Remark 3.1.20
 13⊈24 : pair {U = ℕ-Setoid} 1 3 ⊈ pair 2 4
-13⊈24 x∈13→x∈24 = ∨-rec contra-2 contra-4 (x∈13→x∈24 1 (∨-introᴸ ≡-refl))
+13⊈24 x∈13→x∈24 = ∨-rec contra-2 contra-4 (x∈13→x∈24 1 (∨-introᴸ Eq.refl))
   where
-    contra-2 = step≢zero ∘ step-inj ∘ ≡-sym
-    contra-4 = step≢zero ∘ step-inj ∘ ≡-sym
+    contra-2 = step≢zero ∘ step-inj ∘ Eq.sym
+    contra-4 = step≢zero ∘ step-inj ∘ Eq.sym
 
 24⊈13 : pair {U = ℕ-Setoid} 2 4 ⊈ pair 1 3
-24⊈13 x∈24→x∈13 = ∨-rec contra-1 contra-3 (x∈24→x∈13 2 (∨-introᴸ ≡-refl))
+24⊈13 x∈24→x∈13 = ∨-rec contra-1 contra-3 (x∈24→x∈13 2 (∨-introᴸ Eq.refl))
   where
     contra-1 = step≢zero ∘ step-inj
-    contra-3 = step≢zero ∘ step-inj ∘ step-inj ∘ ≡-sym
+    contra-3 = step≢zero ∘ step-inj ∘ step-inj ∘ Eq.sym
 
 -- Remark 3.1.21
 -- Tao provides some examples showing that ∈ is not the same as ⊆.
@@ -539,3 +548,139 @@ subst-⟨⟩ {U = U} {A = A} {A′} {P} A≅A′ x =
     where
       one-way : (Q Q′ : PSet U υ′) → Q ≅ Q′ → x ∈ A ∧ Q ⟨$⟩ x → x ∈ A ∧ Q′ ⟨$⟩ x
       one-way Q Q′ Q≅Q′ = ∧-mapᴿ (∧-elimᴸ (Q≅Q′ x))
+
+-- Example 3.1.22
+ℕ-predicate : (P : ℕ → Set) → ℕ-PSet
+ℕ-predicate P = record { ap = P ; cong = P-cong }
+  where
+    P-cong : {x y : ℕ} → x ≡ y → P x ↔ P y
+    P-cong x≡y = ∧-intro (Eq.subst P x≡y) (Eq.subst P (Eq.sym x≡y))
+
+module _ where
+  S : ℕ-PSet
+  S = quintuple 1 2 3 4 5
+
+  0+4≡4 : 0 + 4 ≡ 4
+  0+4≡4 = +-zeroᴸ
+
+  1+3≡4 : 1 + 3 ≡ 4
+  1+3≡4 = Eq.trans +-stepᴸ⃗ᴿ 0+4≡4
+
+  2+2≡4 : 2 + 2 ≡ 4
+  2+2≡4 = Eq.trans +-stepᴸ⃗ᴿ 1+3≡4
+
+  3+1≡4 : 3 + 1 ≡ 4
+  3+1≡4 = Eq.trans +-stepᴸ⃗ᴿ 2+2≡4
+
+  0+7≡7 : 0 + 7 ≡ 7
+  0+7≡7 = +-zeroᴸ
+
+  1+6≡7 : 1 + 6 ≡ 7
+  1+6≡7 = Eq.trans +-stepᴸ⃗ᴿ 0+7≡7
+
+  2+5≡7 : 2 + 5 ≡ 7
+  2+5≡7 = Eq.trans +-stepᴸ⃗ᴿ 1+6≡7
+
+  3+4≡7 : 3 + 4 ≡ 7
+  3+4≡7 = Eq.trans +-stepᴸ⃗ᴿ 2+5≡7
+
+  4+3≡7 : 4 + 3 ≡ 7
+  4+3≡7 = Eq.trans +-stepᴸ⃗ᴿ 3+4≡7
+
+  5+2≡7 : 5 + 2 ≡ 7
+  5+2≡7 = Eq.trans +-stepᴸ⃗ᴿ 4+3≡7
+
+  S⟨n<4⟩≅123 : S ⟨ ℕ-predicate (_< 4) ⟩ ≅ triple 1 2 3
+  S⟨n<4⟩≅123 x = ∧-intro forward backward
+    where
+      forward : x ∈ S ⟨ ℕ-predicate (_< 4) ⟩ → x ∈ triple {U = ℕ-Setoid} 1 2 3
+      forward x∈S⟨n<4⟩ = ∨-rec use-triple use-pair x∈S
+        where
+          x∈S = ∧-elimᴸ x∈S⟨n<4⟩
+          x<4 = ∧-elimᴿ x∈S⟨n<4⟩
+          x≢4 = ∧-elimᴿ x<4
+          x≢5 = ∧-elimᴿ (<-trans x<4 n<sn)
+          use-triple = id
+          use-pair = ⊥-elim ∘ ∨-rec x≢4 x≢5
+
+      backward : x ∈ triple {U = ℕ-Setoid} 1 2 3 → x ∈ S ⟨ ℕ-predicate (_< 4) ⟩
+      backward x∈123 = ∧-intro x∈S x<4
+        where
+          x∈S = ∨-introᴸ x∈123
+
+          use-1 = λ x≡1 → Σ-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡1) 1+3≡4)
+          use-2 = λ x≡2 → Σ-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡2) 2+2≡4)
+          use-3 = λ x≡3 → Σ-intro 1 (Eq.trans (Eq.cong (_+ 1) x≡3) 3+1≡4)
+          x≤4 = ∨-rec (∨-rec use-1 use-2) use-3 x∈123
+
+          x≢4 : x ≢ 4
+          x≢4 x≡4 = ∨-rec (∨-rec contra-1 contra-2) contra-3 x∈123
+            where
+              4≡x = Eq.sym x≡4
+              contra-1 =
+                step≢zero ∘ step-inj ∘ Eq.trans 4≡x
+              contra-2 =
+                step≢zero ∘ step-inj ∘ step-inj ∘ Eq.trans 4≡x
+              contra-3 =
+                step≢zero ∘ step-inj ∘ step-inj ∘ step-inj ∘ Eq.trans 4≡x
+
+          x<4 = ∧-intro x≤4 x≢4
+
+  S⟨n<7⟩≅S : S ⟨ ℕ-predicate (_< 7) ⟩ ≅ S
+  S⟨n<7⟩≅S x = ∧-intro forward backward
+    where
+      forward : x ∈ S ⟨ ℕ-predicate (_< 7) ⟩ → x ∈ S
+      forward = ∧-elimᴸ
+
+      backward : x ∈ S → x ∈ S ⟨ ℕ-predicate (_< 7) ⟩
+      backward x∈S = ∧-intro x∈S x<7
+        where
+          use-1 = λ x≡1 → Σ-intro 6 (Eq.trans (Eq.cong (_+ 6) x≡1) 1+6≡7)
+          use-2 = λ x≡2 → Σ-intro 5 (Eq.trans (Eq.cong (_+ 5) x≡2) 2+5≡7)
+          use-3 = λ x≡3 → Σ-intro 4 (Eq.trans (Eq.cong (_+ 4) x≡3) 3+4≡7)
+          use-4 = λ x≡4 → Σ-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡4) 4+3≡7)
+          use-5 = λ x≡5 → Σ-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡5) 5+2≡7)
+          x≤7 = ∨-rec (∨-rec (∨-rec use-1 use-2) use-3) (∨-rec use-4 use-5) x∈S
+
+          x≢7 : x ≢ 7
+          x≢7 x≡7 = ∨-rec contra-triple contra-pair x∈S
+            where
+              7≡x = Eq.sym x≡7
+              si = step-inj
+              contra-1 =
+                step≢zero ∘ si ∘ Eq.trans 7≡x
+              contra-2 =
+                step≢zero ∘ si ∘ si ∘ Eq.trans 7≡x
+              contra-3 =
+                step≢zero ∘ si ∘ si ∘ si ∘ Eq.trans 7≡x
+              contra-4 =
+                step≢zero ∘ si ∘ si ∘ si ∘ si ∘ Eq.trans 7≡x
+              contra-5 =
+                step≢zero ∘ si ∘ si ∘ si ∘ si ∘ si ∘ Eq.trans 7≡x
+              contra-triple = ∨-rec (∨-rec contra-1 contra-2) contra-3
+              contra-pair = ∨-rec contra-4 contra-5
+
+          x<7 = ∧-intro x≤7 x≢7
+
+  S⟨n<1⟩≅∅ : S ⟨ ℕ-predicate (_< 1) ⟩ ≅ ∅
+  S⟨n<1⟩≅∅ x = ∧-intro forward backward
+    where
+      forward : x ∈ S ⟨ ℕ-predicate (_< 1) ⟩ → x ∈ ∅ {U = ℕ-Setoid}
+      forward x∈S⟨n<1⟩ = ⊥-elim (∨-rec use-triple use-pair x∈S)
+        where
+          x∈S = ∧-elimᴸ x∈S⟨n<1⟩
+          x<1 = ∧-elimᴿ x∈S⟨n<1⟩
+          x<2 = <-trans x<1 n<sn
+          x<3 = <-trans x<2 n<sn
+          x<4 = <-trans x<3 n<sn
+          x<5 = <-trans x<4 n<sn
+          x≢1 = ∧-elimᴿ x<1
+          x≢2 = ∧-elimᴿ x<2
+          x≢3 = ∧-elimᴿ x<3
+          x≢4 = ∧-elimᴿ x<4
+          x≢5 = ∧-elimᴿ x<5
+          use-triple = ∨-rec (∨-rec x≢1 x≢2) x≢3
+          use-pair = ∨-rec x≢4 x≢5
+
+      backward : x ∈ ∅ {U = ℕ-Setoid} → x ∈ S ⟨ ℕ-predicate (_< 1) ⟩
+      backward = ⊥-elim ∘ x∉∅ {U = ℕ-Setoid} x
