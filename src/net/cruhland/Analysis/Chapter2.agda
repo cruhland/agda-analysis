@@ -95,7 +95,7 @@ module _
   -- rules are equivalent to the book's argument that recursive definitions
   -- exist. It makes me wonder whether ind-zero and ind-step are necessary.
   rec-def :
-    (f : {ℕ} → (ℕ → ℕ)) →
+    (f : {n : ℕ} → (ℕ → ℕ)) →
     (c : ℕ) →
     Σ (ℕ → ℕ) (λ a → a 0 ≡ c ∧ ∀ n → a (step n) ≡ f {n} (a n))
   rec-def f c = Σ-intro (ind (const ℕ) c f) (∧-intro ind-zero (λ n → ind-step))
