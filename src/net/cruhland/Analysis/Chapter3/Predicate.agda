@@ -684,3 +684,46 @@ module _ where
 
       backward : x ∈ ∅ {U = ℕ-Setoid} → x ∈ S ⟨ ℕ-predicate (_< 1) ⟩
       backward = ⊥-elim ∘ x∉∅ {U = ℕ-Setoid} x
+
+-- Definition 3.1.23 (Intersections)
+_∩_ : ∀ {υ′} → PSet U υ → PSet U υ′ → PSet U (υ ⊔ υ′)
+A ∩ B = A ⟨ B ⟩
+
+subst-∩ : ∀ {υ′} {A A′ : PSet U υ} {P : PSet U υ′} → A ≅ A′ → A ∩ P ≅ A′ ∩ P
+subst-∩ {U = U} {A = A} {A′} {P} = subst-⟨⟩ {U = U} {A = A} {A′} {P}
+
+∩-subst :
+  ∀ {υ′} {A : PSet U υ} {P P′ : PSet U υ′} → P ≅ P′ → A ∩ P ≅ A ∩ P′
+∩-subst {U = U} {A = A} {P} {P′} = ⟨⟩-subst {U = U} {A = A} {P} {P′}
+
+-- Examples 3.1.25
+infixl 8 _∩_
+124∩234≅24 : triple {U = ℕ-Setoid} 1 2 4 ∩ triple 2 3 4 ≅ pair 2 4
+124∩234≅24 x = ∧-intro forward backward
+  where
+    forward :
+      x ∈ triple {U = ℕ-Setoid} 1 2 4 ∩ triple 2 3 4 →
+        x ∈ pair {U = ℕ-Setoid} 2 4
+    forward x∈124∩234 = ∨-rec (∨-rec use-1 use-2) use-4 x∈124
+      where
+        x∈124 = ∧-elimᴸ x∈124∩234
+        x∈234 = ∧-elimᴿ x∈124∩234
+        use-1 = λ x≡1 →
+          let contra-2 =
+                λ x≡2 → step≢zero (step-inj (Eq.trans (Eq.sym x≡2) x≡1))
+              contra-3 =
+                λ x≡3 → step≢zero (step-inj (Eq.trans (Eq.sym x≡3) x≡1))
+              contra-4 =
+                λ x≡4 → step≢zero (step-inj (Eq.trans (Eq.sym x≡4) x≡1))
+           in ⊥-elim (∨-rec (∨-rec contra-2 contra-3) contra-4 x∈234)
+        use-2 = ∨-introᴸ
+        use-4 = ∨-introᴿ
+
+    backward :
+      x ∈ pair {U = ℕ-Setoid} 2 4 →
+        x ∈ triple {U = ℕ-Setoid} 1 2 4 ∩ triple 2 3 4
+    backward x∈24 = ∨-rec use-2 use-4 x∈24
+      where
+        use-2 = λ x≡2 →
+          ∧-intro (∨-introᴸ (∨-introᴿ x≡2)) (∨-introᴸ (∨-introᴸ x≡2))
+        use-4 = λ x≡4 → ∧-intro (∨-introᴿ x≡4) (∨-introᴿ x≡4)
