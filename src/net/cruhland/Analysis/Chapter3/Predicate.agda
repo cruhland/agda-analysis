@@ -9,18 +9,19 @@ open Eq using (_≡_)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
-import net.cruhland.axiomatic.Peano.Addition as PeanoAddition
+open import net.cruhland.axiomatic.Peano.Addition
+  using () renaming (Addition to PeanoAddition)
 import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
 import net.cruhland.axiomatic.Peano.Ordering as PeanoOrdering
 
 module net.cruhland.Analysis.Chapter3.Predicate
-  (LB : LogicBundle) (PB : PeanoBundle LB) where
+  (LB : LogicBundle) (PB : PeanoBundle LB) (PA : PeanoAddition LB PB) where
 
 open LogicBundle LB
 open PeanoBundle PB
-open PeanoAddition LB PB using (_+_; +-zeroᴸ; +-stepᴸ⃗ᴿ)
+open PeanoAddition PA using (_+_; +-zeroᴸ; +-stepᴸ⃗ᴿ)
 open PeanoLiterals LB PB
-open PeanoOrdering LB PB using (_≤_; _<_; n<sn; <-trans)
+open PeanoOrdering LB PB PA using (_≤_; _<_; n<sn; <-trans)
 
 {-= Chapter 3: Set theory (type theory predicate approach) =-}
 

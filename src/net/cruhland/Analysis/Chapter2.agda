@@ -7,7 +7,11 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; sym; trans; subst; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using (LogicBundle)
+import net.cruhland.axiomatic.Logic.Decidable as LogicDecidable
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
+open import net.cruhland.axiomatic.Peano.Addition
+  using () renaming (Addition to PeanoAddition)
+import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
 import net.cruhland.axiomatic.Peano.Ordering as PeanoOrdering
 open import net.cruhland.axiomatic.Peano.Multiplication
   using () renaming (Multiplication to PeanoMultiplication)
@@ -15,14 +19,15 @@ open import net.cruhland.axiomatic.Peano.Multiplication
 module _
     (LB : LogicBundle)
     (PB : PeanoBundle LB)
-    (PM : PeanoMultiplication LB PB) where
+    (PA : PeanoAddition LB PB)
+    (PM : PeanoMultiplication LB PB PA) where
   open LogicBundle LB
+  open LogicDecidable LB
   open PeanoBundle PB
-  open PeanoOrdering LB PB
+  open PeanoAddition PA
+  open PeanoLiterals LB PB
+  open PeanoOrdering LB PB PA
   open PeanoMultiplication PM
-  open import net.cruhland.axiomatic.Logic.Decidable LB
-  open import net.cruhland.axiomatic.Peano.Addition LB PB
-  open import net.cruhland.axiomatic.Peano.Literals LB PB
 
   {- 2.1 The Peano Axioms -}
 
@@ -107,19 +112,15 @@ module _
   _ = _+_
 
   0+m : ∀ {m} → 0 + m ≡ m
-  0+m = rec-zero
+  0+m = +-zeroᴸ
 
   1+m : ∀ {m} → 1 + m ≡ step m
   1+m {m} =
     begin
       1 + m
-    ≡⟨⟩
-      rec m step 1
-    ≡⟨⟩
-      rec m step (step zero)
-    ≡⟨ rec-step-tail ⟩
-      rec (step m) step zero
-    ≡⟨ rec-zero ⟩
+    ≡⟨ +-stepᴸ⃗ᴿ ⟩
+      0 + step m
+    ≡⟨ +-zeroᴸ ⟩
       step m
     ∎
 
@@ -127,15 +128,11 @@ module _
   2+3≡5 =
     begin
       2 + 3
-    ≡⟨⟩
-      rec 3 step 2
-    ≡⟨⟩
-      rec 3 step (step (step zero))
-    ≡⟨ rec-step-tail ⟩
-      rec (step 3) step (step zero)
-    ≡⟨ rec-step-tail ⟩
-      rec (step (step 3)) step zero
-    ≡⟨ rec-zero ⟩
+    ≡⟨ +-stepᴸ⃗ᴿ ⟩
+      1 + 4
+    ≡⟨ +-stepᴸ⃗ᴿ ⟩
+      0 + 5
+    ≡⟨ +-zeroᴸ ⟩
       5
     ∎
 
