@@ -1,6 +1,6 @@
 open import Agda.Builtin.FromNat using (Number)
 open import Data.Unit using () renaming (⊤ to Unit)
-open import Function using (const; id; _∘_)
+open import Function using (const; id; _∘_; flip)
 open import Level
   using (Level; _⊔_; Lift; lift; lower)
   renaming (zero to lzero; suc to lsuc)
@@ -728,3 +728,47 @@ infixl 8 _∩_
         use-2 = λ x≡2 →
           ∧-intro (∨-introᴸ (∨-introᴿ x≡2)) (∨-introᴸ (∨-introᴸ x≡2))
         use-4 = λ x≡4 → ∧-intro (∨-introᴿ x≡4) (∨-introᴿ x≡4)
+
+⟨12⟩ = pair {U = ℕ-Setoid} 1 2
+⟨34⟩ = pair {U = ℕ-Setoid} 3 4
+
+⊆-intro : {U : Setoid υ₁ υ₂} {A B : PSet U υ} → (∀ {x} → x ∈ A → x ∈ B) → A ⊆ B
+⊆-intro f x = f
+
+∈∩-elimᴸ = ∧-elimᴸ
+∈∩-elimᴿ = ∧-elimᴿ
+
+12∩34≅∅ : ⟨12⟩ ∩ ⟨34⟩ ≅ ∅
+12∩34≅∅ = ⊆-antisym {A = ⟨12⟩ ∩ ⟨34⟩} {∅} 12∩34⊆∅ ∅⊆12∩34
+  where
+    ∈-pair-elim :
+      ∀ {ξ} {X : Set ξ} {x a b : ℕ} →
+        (x ≡ a → X) → (x ≡ b → X) → x ∈ pair {U = ℕ-Setoid} a b → X
+    ∈-pair-elim = ∨-rec
+
+    x∉12∩34 : ∀ {x} → x ∉ ⟨12⟩ ∩ ⟨34⟩
+    x∉12∩34 x∈12∩34 = ∈-pair-elim use-1 use-2 x∈12
+      where
+        x∈12 = ∈∩-elimᴸ x∈12∩34
+        x∈34 = ∈∩-elimᴿ x∈12∩34
+        use-1 = λ x≡1 →
+          let contra-3 = step≢zero ∘ step-inj ∘ flip Eq.trans x≡1 ∘ Eq.sym
+              contra-4 = step≢zero ∘ step-inj ∘ flip Eq.trans x≡1 ∘ Eq.sym
+           in ∈-pair-elim contra-3 contra-4 x∈34
+        use-2 = λ x≡2 →
+          let contra-3 =
+                step≢zero ∘ step-inj ∘ step-inj ∘ flip Eq.trans x≡2 ∘ Eq.sym
+              contra-4 =
+                step≢zero ∘ step-inj ∘ step-inj ∘ flip Eq.trans x≡2 ∘ Eq.sym
+           in ∈-pair-elim contra-3 contra-4 x∈34
+
+    12∩34⊆∅ = ⊆-intro {A = ⟨12⟩ ∩ ⟨34⟩} {∅} (⊥-elim ∘ x∉12∩34)
+    ∅⊆12∩34 = ∅⊆A {A = ⟨12⟩ ∩ ⟨34⟩}
+
+⟨23⟩ = pair {U = ℕ-Setoid} 2 3
+
+23∪∅≅23 : ⟨23⟩ ∪ ∅ ≅ ⟨23⟩
+23∪∅≅23 = ∪-identᴿ {A = ⟨23⟩}
+
+23∩∅≅∅ : ⟨23⟩ ∩ ∅ ≅ ∅ {υ = υ}
+23∩∅≅∅ = A⟨∅⟩≅∅ {A = ⟨23⟩}
