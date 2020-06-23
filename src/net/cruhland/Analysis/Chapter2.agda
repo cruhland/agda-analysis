@@ -1,7 +1,6 @@
 module net.cruhland.Analysis.Chapter2 where
 
 open import Agda.Builtin.FromNat using (Number)
-open import Data.Unit using (⊤)
 open import Function using (id; const)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; sym; trans; subst; cong)

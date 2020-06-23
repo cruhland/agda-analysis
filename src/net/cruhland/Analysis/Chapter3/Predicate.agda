@@ -1,5 +1,4 @@
 open import Agda.Builtin.FromNat using (Number)
-open import Data.Unit using () renaming (⊤ to Unit)
 open import Function using (const; id; _∘_; flip)
 open import Level
   using (Level; _⊔_; Lift; lift; lower)
