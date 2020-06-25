@@ -1,8 +1,6 @@
 open import Agda.Builtin.FromNat using (Number)
 open import Function using (const; id; _∘_; flip)
-open import Level
-  using (Level; _⊔_; Lift; lift; lower)
-  renaming (zero to lzero; suc to lsuc)
+open import Level using (Level; _⊔_) renaming (zero to lzero; suc to lsuc)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_)
 open Eq.≡-Reasoning
@@ -189,20 +187,19 @@ subst-∈ {C = C} A≅B A∈C = ∧-elimᴸ (cong C A≅B) A∈C
 -- set_, which contains no elements, i.e., for every object x we
 -- have x ∉ ∅.
 ∅ : ∀ {υ} → PSet U υ
-∅ {υ = υ} = record { ap = const (Lift υ ⊥) ; cong = λ _ → ∧-intro id id }
+∅ {υ = υ} = record { ap = const ⊥̂ ; cong = λ _ → ∧-intro id id }
 
 is-empty : PSet U υ → Set _
 is-empty {U = U} S = (x : El U) → x ∉ S
 
 x∉∅ : ∀ {υ} → is-empty (∅ {U = U} {υ = υ})
-x∉∅ x = lower
+x∉∅ x = ⊥̂-elim
 
 -- Note that there can only be one empty set; if there were two sets
 -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
 -- would be equal to each other.
 ∅-unique : {U : Setoid υ₁ υ₂} {∅′ : PSet U υ} → is-empty ∅′ → ∅ ≅ ∅′
-∅-unique {υ = υ} {U = U} x∉∅′ x =
-  ∧-intro (⊥-elim ∘ (x∉∅ {U = U} x)) (lift ∘ (x∉∅′ x))
+∅-unique x∉∅′ x = ∧-intro ⊥̂-elim (⊥-elim ∘ x∉∅′ x)
 
 -- Lemma 3.1.6 (Single choice)
 -- This is not provable in Agda because it's nonconstructive.  Instead
@@ -276,7 +273,7 @@ pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
 -- Examples 3.1.10
 -- Exercise 3.1.2
 ∅≇sa : {U : Setoid υ₁ υ₂} → (a : El U) → ∅ {U = U} ≇ singleton a
-∅≇sa {U = U} a ∅≅sa = lower (a≗a→⊥ U.refl)
+∅≇sa {U = U} a ∅≅sa = ⊥̂-elim (a≗a→⊥ U.refl)
   where
     module U = Setoid U
     a≗a→⊥ = ∧-elimᴿ (∅≅sa a)
@@ -440,7 +437,7 @@ A⊆A : {A : PSet U υ} → A ⊆ A
 A⊆A x = id
 
 ∅⊆A : {A : PSet U υ} → ∅ ⊆ A
-∅⊆A x = ⊥-elim ∘ lower
+∅⊆A x = ⊥̂-elim
 
 -- Proposition 3.1.18 (Sets are partially ordered by set inclusion)
 -- Exercise 3.1.4
@@ -528,7 +525,7 @@ A⟨P⟩⊆ : {A P : PSet U υ} → A ⟨ P ⟩ ⊆ A
 A⟨P⟩⊆ x = ∧-elimᴸ
 
 A⟨∅⟩≅∅ : ∀ {υ′} {A : PSet U υ} → A ⟨ ∅ {υ = υ′} ⟩ ≅ ∅
-A⟨∅⟩≅∅ x = ∧-intro (lift ∘ lower ∘ ∧-elimᴿ) (⊥-elim ∘ lower)
+A⟨∅⟩≅∅ x = ∧-intro (⊥̂-elim ∘ ∧-elimᴿ) ⊥̂-elim
 
 A⟨A⟩≅A : {A : PSet U υ} → A ⟨ A ⟩ ≅ A
 A⟨A⟩≅A x = ∧-intro ∧-elimᴸ ∧-dup
