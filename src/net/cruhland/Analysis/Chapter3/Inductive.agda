@@ -1,9 +1,7 @@
+module net.cruhland.Analysis.Chapter3.Inductive where
+
 open import Function using (id)
-open import net.cruhland.axiomatic.Logic using (LogicBundle)
-
-module net.cruhland.Analysis.Chapter3.Inductive (LB : LogicBundle) where
-
-open LogicBundle LB
+open import net.cruhland.axiomatic.Logic using (⊥; ¬_)
 
 {-= Chapter 3: Set theory (inductive datatype approach) =-}
 

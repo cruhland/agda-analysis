@@ -2,9 +2,17 @@ open import Agda.Builtin.FromNat using (Number)
 open import Function using (const; id; _∘_; flip)
 open import Level using (Level; _⊔_) renaming (zero to lzero; suc to lsuc)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_)
+open Eq using (_≡_; _≢_)
 open Eq.≡-Reasoning
-open import net.cruhland.axiomatic.Logic using (LogicBundle)
+open import net.cruhland.axiomatic.Logic using
+  ( _∧_; ∧-dup; ∧-elimᴸ; ∧-elimᴿ; ∧-intro; ∧-map; ∧-mapᴸ; ∧-mapᴿ
+  ; _∨_; ∨-assocᴸᴿ; ∨-assocᴿᴸ; ∨-comm; ∨-identᴸ; ∨-identᴿ
+  ; ∨-introᴸ; ∨-introᴿ; ∨-map; ∨-mapᴸ; ∨-mapᴿ; ∨-merge; ∨-rec
+  ; _↔_; ↔-refl; ↔-sym; ↔-trans
+  ; ⊤
+  ; ⊥-elim; ⊥̂; ⊥̂-elim; ¬_
+  ; Σ; Σ-intro; Σ-map-snd; Σ-rec
+  )
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 open import net.cruhland.axiomatic.Peano.Addition
   using () renaming (Addition to PeanoAddition)
@@ -12,13 +20,12 @@ import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
 import net.cruhland.axiomatic.Peano.Ordering as PeanoOrdering
 
 module net.cruhland.Analysis.Chapter3.Predicate
-  (LB : LogicBundle) (PB : PeanoBundle LB) (PA : PeanoAddition LB PB) where
+  (PB : PeanoBundle) (PA : PeanoAddition PB) where
 
-open LogicBundle LB
 open PeanoBundle PB
 open PeanoAddition PA using (_+_; +-zeroᴸ; +-stepᴸ⃗ᴿ)
-open PeanoLiterals LB PB
-open PeanoOrdering LB PB PA using (_≤_; _<_; n<sn; <-trans)
+open PeanoLiterals PB
+open PeanoOrdering PB PA using (_≤_; _<_; n<sn; <-trans)
 
 {-= Chapter 3: Set theory (type theory predicate approach) =-}
 

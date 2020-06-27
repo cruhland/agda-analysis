@@ -1,9 +1,8 @@
+module net.cruhland.Analysis.Chapter3.Synthetic where
+
 open import Function using (_∘_)
-open import net.cruhland.axiomatic.Logic using (LogicBundle)
-
-module net.cruhland.Analysis.Chapter3.Synthetic (LB : LogicBundle) where
-
-open LogicBundle LB
+open import net.cruhland.axiomatic.Logic
+  using (∧-elimᴸ; ∧-intro; _↔_; ↔-refl; ↔-sym; ↔-trans; ⊥-elim; ¬_)
 
 {-= Chapter 3: Set theory (synthetic axioms approach) =-}
 

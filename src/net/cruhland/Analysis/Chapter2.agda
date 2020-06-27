@@ -3,10 +3,15 @@ module net.cruhland.Analysis.Chapter2 where
 open import Agda.Builtin.FromNat using (Number)
 open import Function using (id; const)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; sym; trans; subst; cong)
+open Eq using (_≡_; _≢_; refl; sym; trans; subst; cong)
 open Eq.≡-Reasoning
-open import net.cruhland.axiomatic.Logic using (LogicBundle)
-import net.cruhland.axiomatic.Logic.Decidable as LogicDecidable
+open import net.cruhland.axiomatic.Logic using
+  ( _∧_; ∧-elimᴸ; ∧-elimᴿ; ∧-intro
+  ; _∨_; ∨-forceᴿ; ∨-rec
+  ; _↔_
+  ; ⊥-elim; ¬_; ¬sym
+  ; Σ; Σ-intro; Σ-map-snd; Σ-rec; snd
+  )
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 open import net.cruhland.axiomatic.Peano.Addition
   using () renaming (Addition to PeanoAddition)
@@ -16,16 +21,13 @@ open import net.cruhland.axiomatic.Peano.Multiplication
   using () renaming (Multiplication to PeanoMultiplication)
 
 module _
-    (LB : LogicBundle)
-    (PB : PeanoBundle LB)
-    (PA : PeanoAddition LB PB)
-    (PM : PeanoMultiplication LB PB PA) where
-  open LogicBundle LB
-  open LogicDecidable LB
+    (PB : PeanoBundle)
+    (PA : PeanoAddition PB)
+    (PM : PeanoMultiplication PB PA) where
   open PeanoBundle PB
   open PeanoAddition PA
-  open PeanoLiterals LB PB
-  open PeanoOrdering LB PB PA
+  open PeanoLiterals PB
+  open PeanoOrdering PB PA
   open PeanoMultiplication PM
 
   {- 2.1 The Peano Axioms -}
