@@ -15,6 +15,8 @@ open import net.cruhland.axiomatic.Logic using
 open import net.cruhland.axiomatic.Peano using (PeanoBundle)
 open import net.cruhland.axiomatic.Peano.Addition
   using () renaming (Addition to PeanoAddition)
+open import net.cruhland.axiomatic.Peano.Exponentiation
+  using () renaming (Exponentiation to PeanoExponentiation)
 import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
 import net.cruhland.axiomatic.Peano.Ordering as PeanoOrdering
 open import net.cruhland.axiomatic.Peano.Multiplication
@@ -23,9 +25,11 @@ open import net.cruhland.axiomatic.Peano.Multiplication
 module _
     (PB : PeanoBundle)
     (PA : PeanoAddition PB)
-    (PM : PeanoMultiplication PB PA) where
+    (PM : PeanoMultiplication PB PA)
+    (PE : PeanoExponentiation PB PA PM) where
   open PeanoBundle PB
   open PeanoAddition PA
+  open PeanoExponentiation PE
   open PeanoLiterals PB
   open PeanoOrdering PB PA
   open PeanoMultiplication PM
@@ -399,20 +403,18 @@ module _
                  in Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
 
   -- Definition 2.3.11 (Exponentiation for natural numbers).
-  _^_ : ℕ → ℕ → ℕ
-  n ^ m = rec 1 (_* n) m
-
-  infixr 8 _^_
+  _ : ℕ → ℕ → ℕ
+  _ = _^_
 
   -- Examples 2.3.12
   x^0≡1 : ∀ {x} → x ^ 0 ≡ 1
-  x^0≡1 = rec-zero
+  x^0≡1 = ^-zeroᴿ
 
   x^1≡x : ∀ {x} → x ^ 1 ≡ x
   x^1≡x {x} =
     begin
       x ^ 1
-    ≡⟨ rec-step ⟩
+    ≡⟨ ^-stepᴿ ⟩
       x ^ 0 * x
     ≡⟨ cong (_* x) x^0≡1 ⟩
       1 * x
@@ -424,7 +426,7 @@ module _
   x^2≡xx {x} =
     begin
       x ^ 2
-    ≡⟨ rec-step ⟩
+    ≡⟨ ^-stepᴿ ⟩
       x ^ 1 * x
     ≡⟨ cong (_* x) x^1≡x ⟩
       x * x
@@ -434,7 +436,7 @@ module _
   x^3≡xxx {x} =
     begin
       x ^ 3
-    ≡⟨ rec-step ⟩
+    ≡⟨ ^-stepᴿ ⟩
       x ^ 2 * x
     ≡⟨ cong (_* x) x^2≡xx ⟩
       x * x * x
