@@ -13,19 +13,15 @@ open import net.cruhland.axiomatic.Logic using
   ; ⊥-elim; ⊥̂; ⊥̂-elim; ¬_
   ; Σ; Σ-intro; Σ-map-snd; Σ-rec
   )
-open import net.cruhland.axiomatic.Peano using (PeanoBundle)
-open import net.cruhland.axiomatic.Peano.Addition
-  using () renaming (Addition to PeanoAddition)
-import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
-import net.cruhland.axiomatic.Peano.Ordering as PeanoOrdering
+open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
-module net.cruhland.Analysis.Chapter3.Predicate
-  (PB : PeanoBundle) (PA : PeanoAddition PB) where
+module net.cruhland.Analysis.Chapter3.Predicate (PA : PeanoArithmetic) where
 
-open PeanoBundle PB
-open PeanoAddition PA using (_+_; +-zeroᴸ; +-stepᴸ⃗ᴿ)
-open PeanoLiterals PB
-open PeanoOrdering PB PA using (_≤_; _<_; n<sn; <-trans)
+open PeanoArithmetic PA using
+  ( ℕ; step≢zero; step-inj; number
+  ; _+_; +-zeroᴸ; +-stepᴸ⃗ᴿ
+  ; _≤_; _<_; n<sn; <-trans
+  )
 
 {-= Chapter 3: Set theory (type theory predicate approach) =-}
 

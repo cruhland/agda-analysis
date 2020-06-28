@@ -3,11 +3,11 @@ open import Level renaming (zero to lzero; suc to lsuc)
 open import Relation.Binary.PropositionalEquality
   using (_≡_; refl; sym; trans; subst)
 open import net.cruhland.axiomatic.Logic using (⊤; ⊤-intro)
-open import net.cruhland.axiomatic.Peano using (PeanoBundle)
+open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
-module net.cruhland.Analysis.Chapter3.Universal (PB : PeanoBundle) where
+module net.cruhland.Analysis.Chapter3.Universal (PA : PeanoArithmetic) where
 
-open PeanoBundle PB
+open PeanoArithmetic PA using (ℕ; zero)
 
 {-= Chapter 3: Set theory (Agda universes approach) =-}
 

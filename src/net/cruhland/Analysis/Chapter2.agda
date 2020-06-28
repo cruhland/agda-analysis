@@ -12,27 +12,22 @@ open import net.cruhland.axiomatic.Logic using
   ; ⊥-elim; ¬_; ¬sym
   ; Σ; Σ-intro; Σ-map-snd; Σ-rec; snd
   )
-open import net.cruhland.axiomatic.Peano using (PeanoBundle)
-open import net.cruhland.axiomatic.Peano.Addition
-  using () renaming (Addition to PeanoAddition)
-open import net.cruhland.axiomatic.Peano.Exponentiation
-  using () renaming (Exponentiation to PeanoExponentiation)
-import net.cruhland.axiomatic.Peano.Literals as PeanoLiterals
-import net.cruhland.axiomatic.Peano.Ordering as PeanoOrdering
-open import net.cruhland.axiomatic.Peano.Multiplication
-  using () renaming (Multiplication to PeanoMultiplication)
+open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
-module _
-    (PB : PeanoBundle)
-    (PA : PeanoAddition PB)
-    (PM : PeanoMultiplication PB PA)
-    (PE : PeanoExponentiation PB PA PM) where
-  open PeanoBundle PB
-  open PeanoAddition PA
-  open PeanoExponentiation PE
-  open PeanoLiterals PB
-  open PeanoOrdering PB PA
-  open PeanoMultiplication PM
+module _ (PA : PeanoArithmetic) where
+  open PeanoArithmetic PA using
+    ( ℕ; ind; ind-zero; ind-step; step; step-case; step-inj; step≢zero; zero
+    ; case; number; pred
+    ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≡+; +-zeroᴸ; +-zeroᴿ
+    ; +-assoc; +-cancelᴸ; +-comm
+    ; Positive; +-positive; +-both-zero
+    ; _≤_; _<_; _>_; ≤-antisym; ≤-refl; ≤-trans; ≤-zero; <-zero
+    ; <→≤; ≤→<; ≤→<∨≡; ≤s→≤∨≡s; strong-ind; trichotomy
+    ; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; <→positive-diff; positive-diff→<
+    ; _*_; *-assoc; *-comm; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-zeroᴸ; *-zeroᴿ
+    ; *-cancelᴿ; *-distrib-+ᴸ; *-distrib-+ᴿ; *-either-zero; *-preserves-<
+    ; _^_; ^-stepᴿ; ^-zeroᴿ
+    )
 
   {- 2.1 The Peano Axioms -}
 
