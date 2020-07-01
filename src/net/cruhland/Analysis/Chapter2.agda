@@ -10,14 +10,14 @@ open import net.cruhland.axiomatic.Logic using
   ; _∨_; ∨-forceᴿ; ∨-rec
   ; _↔_
   ; ⊥-elim; ¬_; ¬sym
-  ; Σ; Σ-intro; Σ-map-snd; Σ-rec; snd
+  ; Σ; Σ-intro; Σ-rec; snd
   )
 open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
 module _ (PA : PeanoArithmetic) where
   open PeanoArithmetic PA using
     ( ℕ; ind; ind-zero; ind-step; step; step-case; step-inj; step≢zero; zero
-    ; case; number; pred
+    ; Case-step; Case-zero; case; number; Pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≡+; +-zeroᴸ; +-zeroᴿ
     ; +-assoc; +-cancelᴸ; +-comm
     ; Positive; +-positive; +-both-zero
@@ -177,19 +177,14 @@ module _ (PA : PeanoArithmetic) where
   -- My first proof uses a direct argument instead of the book's approach of
   -- proof by contradicition, because the latter is nonconstructive.
   a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
-  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 = ∨-rec case-a≡0 case-a≡step-p (case a)
+  a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 with case a
+  ... | Case-zero a≡0 = ∧-intro a≡0 (trans (sym +-zeroᴸ) 0+b≡0)
     where
-      case-a≡0 : a ≡ 0 → a ≡ 0 ∧ b ≡ 0
-      case-a≡0 a≡0 = ∧-intro a≡0 (trans (sym +-zeroᴸ) 0+b≡0)
-        where
-          0+b≡0 = subst (λ x → x + b ≡ 0) a≡0 a+b≡0
-
-      case-a≡step-p : Σ ℕ (λ p → a ≡ step p) → a ≡ 0 ∧ b ≡ 0
-      case-a≡step-p p∧a≡step-p = ⊥-elim (step≢zero s[p+b]≡0)
-        where
-          a≡step-p = snd p∧a≡step-p
-          step-p+b≡0 = subst (λ x → x + b ≡ 0) a≡step-p a+b≡0
-          s[p+b]≡0 = trans (sym +-stepᴸ) step-p+b≡0
+      0+b≡0 = subst (λ x → x + b ≡ 0) a≡0 a+b≡0
+  ... | Case-step (Pred-intro p a≡sp) = ⊥-elim (step≢zero s[p+b]≡0)
+    where
+      step-p+b≡0 = subst (λ x → x + b ≡ 0) a≡sp a+b≡0
+      s[p+b]≡0 = trans (sym +-stepᴸ) step-p+b≡0
 
   -- I realized that we could use the book's argument if we showed that
   -- n ≡ 0 is decidable for any n.
@@ -203,11 +198,9 @@ module _ (PA : PeanoArithmetic) where
   a HasUniquePredecessor b = a ≡ step b ∧ ∀ b′ → a ≡ step b′ → b ≡ b′
 
   unique-predecessor : ∀ a → Positive a → Σ ℕ (a HasUniquePredecessor_)
-  unique-predecessor a a≢0 = Σ-map-snd use-pred (pred a≢0)
-    where
-      use-pred : ∀ {b} → a ≡ step b → a HasUniquePredecessor b
-      use-pred a≡sb =
-        ∧-intro a≡sb λ b′ a≡sb′ → step-inj (trans (sym a≡sb) a≡sb′)
+  unique-predecessor a a≢0 with pred a≢0
+  ... | Pred-intro b a≡sb =
+    Σ-intro b (∧-intro a≡sb λ b′ a≡sb′ → step-inj (trans (sym a≡sb) a≡sb′))
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
   _ : ℕ → ℕ → Set
