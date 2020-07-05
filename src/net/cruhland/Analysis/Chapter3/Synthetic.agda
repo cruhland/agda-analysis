@@ -2,7 +2,7 @@ module net.cruhland.Analysis.Chapter3.Synthetic where
 
 open import Function using (_∘_)
 open import net.cruhland.axiomatic.Logic
-  using (∧-elimᴸ; ∧-intro; _↔_; ↔-refl; ↔-sym; ↔-trans; ⊥-elim; ¬_)
+  using (_↔_; ↔-elimᴸ; ↔-intro; ↔-refl; ↔-sym; ↔-trans; ⊥-elim; ¬_)
 
 {-= Chapter 3: Set theory (synthetic axioms approach) =-}
 
@@ -70,10 +70,10 @@ postulate
 
 -- Substitution property of equality
 ∈-subst : ∀ {A B 𝒰} {x : 𝒰} → A ≗ B → x ∈ A → x ∈ B
-∈-subst {x = x} A≗B x∈A = ∧-elimᴸ (A≗B x) x∈A
+∈-subst {x = x} A≗B x∈A = ↔-elimᴸ (A≗B x) x∈A
 
 subst-∈ : ∀ {A B U} → A ≗ B → A ∈ U → B ∈ U
-subst-∈ {U = U} A≗B A∈U = ∧-elimᴸ (≗-indiscern A≗B U) A∈U
+subst-∈ {U = U} A≗B A∈U = ↔-elimᴸ (≗-indiscern A≗B U) A∈U
 
 -- Axiom 3.2 (Empty set).
 is-empty : SSet → Set₁
@@ -88,4 +88,4 @@ postulate
   x∉∅ : is-empty ∅
 
 ∅-unique : ∀ {∅′} → is-empty ∅′ → ∅ ≗ ∅′
-∅-unique x∉∅′ = λ x → ∧-intro (⊥-elim ∘ x∉∅) (⊥-elim ∘ x∉∅′)
+∅-unique x∉∅′ = λ x → ↔-intro (⊥-elim ∘ x∉∅) (⊥-elim ∘ x∉∅′)

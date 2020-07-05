@@ -5,10 +5,10 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; _≢_)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using
-  ( _∧_; ∧-dup; ∧-elimᴸ; ∧-elimᴿ; ∧-intro; ∧-map; ∧-mapᴸ; ∧-mapᴿ
+  ( _∧_; ∧-dup; ∧-elimᴿ; ∧-intro; ∧-map; ∧-mapᴸ; ∧-mapᴿ
   ; _∨_; ∨-assocᴸᴿ; ∨-assocᴿᴸ; ∨-comm; ∨-identᴸ; ∨-identᴿ
   ; ∨-introᴸ; ∨-introᴿ; ∨-map; ∨-mapᴸ; ∨-mapᴿ; ∨-merge; ∨-rec
-  ; _↔_; ↔-refl; ↔-sym; ↔-trans
+  ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro; ↔-refl; ↔-sym; ↔-trans
   ; ⊤
   ; ⊥-elim; ⊥̂; ⊥̂-elim; ¬_
   ; Σ; Σ-intro; Σ-map-snd; Σ-rec
@@ -180,17 +180,17 @@ infix 4 _≅_ _≇_
 -- Substitution property of equality
 ∈-subst :
   {U : Setoid υ₁ υ₂} {A B : PSet U υ} {x : El U} → A ≅ B → x ∈ A → x ∈ B
-∈-subst {x = x} A≅B x∈A = ∧-elimᴸ (A≅B x) x∈A
+∈-subst {x = x} A≅B x∈A = ↔-elimᴸ (A≅B x) x∈A
 
 subst-∈ :
   ∀ {χ} {A B : PSet U υ} {C : PSet (PSetoid A) χ} → A ≅ B → A ∈ C → B ∈ C
-subst-∈ {C = C} A≅B A∈C = ∧-elimᴸ (cong C A≅B) A∈C
+subst-∈ {C = C} A≅B A∈C = ↔-elimᴸ (cong C A≅B) A∈C
 
 -- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty
 -- set_, which contains no elements, i.e., for every object x we
 -- have x ∉ ∅.
 ∅ : ∀ {υ} → PSet U υ
-∅ {υ = υ} = record { ap = const ⊥̂ ; cong = λ _ → ∧-intro id id }
+∅ {υ = υ} = record { ap = const ⊥̂ ; cong = λ _ → ↔-refl }
 
 is-empty : PSet U υ → Set _
 is-empty {U = U} S = (x : El U) → x ∉ S
@@ -202,7 +202,7 @@ x∉∅ x = ⊥̂-elim
 -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
 -- would be equal to each other.
 ∅-unique : {U : Setoid υ₁ υ₂} {∅′ : PSet U υ} → is-empty ∅′ → ∅ ≅ ∅′
-∅-unique x∉∅′ x = ∧-intro ⊥̂-elim (⊥-elim ∘ x∉∅′ x)
+∅-unique x∉∅′ x = ↔-intro ⊥̂-elim (⊥-elim ∘ x∉∅′ x)
 
 -- Lemma 3.1.6 (Single choice)
 -- This is not provable in Agda because it's nonconstructive.  Instead
@@ -219,7 +219,7 @@ singleton {υ₂ = υ₂} {U} a = record { ap = in-set ; cong = singleton-cong }
 
     singleton-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
     singleton-cong x≗y =
-      ∧-intro (λ x≗a → U.trans (U.sym x≗y) x≗a) (λ y≗a → U.trans x≗y y≗a)
+      ↔-intro (λ x≗a → U.trans (U.sym x≗y) x≗a) (λ y≗a → U.trans x≗y y≗a)
 
 is-singleton : PSet U υ → El U → Set _
 is-singleton {U = U} S a = ∀ {x} → x ∈ S ↔ x ≗ᵁ a
@@ -248,7 +248,7 @@ pair {U = U} a b = record { ap = in-set ; cong = pair-cong }
         use-x≗b = λ x≗b → ∨-introᴿ (U.trans (U.sym x≗y) x≗b)
 
     pair-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
-    pair-cong x≗y = ∧-intro (pair-eq x≗y) (pair-eq (U.sym x≗y))
+    pair-cong x≗y = ↔-intro (pair-eq x≗y) (pair-eq (U.sym x≗y))
 
 is-pair : PSet U υ → El U → El U → Set _
 is-pair {U = U} S a b = ∀ {x} → x ∈ S ↔ x ≗ᵁ a ∨ x ≗ᵁ b
@@ -268,10 +268,10 @@ pair-unique :
 pair-unique is-pair x = is-pair
 
 pair-comm : {U : Setoid υ₁ υ₂} {a b : El U} → pair {U = U} a b ≅ pair b a
-pair-comm x = ∧-intro ∨-comm ∨-comm
+pair-comm x = ↔-intro ∨-comm ∨-comm
 
 pair-singleton : {U : Setoid υ₁ υ₂} {a : El U} → pair {U = U} a a ≅ singleton a
-pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
+pair-singleton x = ↔-intro ∨-merge ∨-introᴸ
 
 -- Examples 3.1.10
 -- Exercise 3.1.2
@@ -279,7 +279,7 @@ pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
 ∅≇sa {U = U} a ∅≅sa = ⊥̂-elim (a≗a→⊥ U.refl)
   where
     module U = Setoid U
-    a≗a→⊥ = ∧-elimᴿ (∅≅sa a)
+    a≗a→⊥ = ↔-elimᴿ (∅≅sa a)
 
 ∅≇s∅ : ∀ {υ} → ∅ {U = ⇒-Setoid U υ} ≇ singleton ∅
 ∅≇s∅ {U = U} {υ = υ} = ∅≇sa {U = ⇒-Setoid U υ} ∅
@@ -287,7 +287,7 @@ pair-singleton x = ∧-intro ∨-merge ∨-introᴸ
 singleton-inj :
   {U : Setoid υ₁ υ₂} → let open Setoid U using (_≗_) in
     (a b : El U) → singleton {U = U} a ≅ singleton b → a ≗ b
-singleton-inj {U = U} a b sa≅sb = ∧-elimᴸ (sa≅sb a) U.refl
+singleton-inj {U = U} a b sa≅sb = ↔-elimᴸ (sa≅sb a) U.refl
   where open module U = Setoid U using (_≗_)
 
 s∅≇ss∅ :
@@ -302,7 +302,7 @@ s∅≇p∅s∅ :
 s∅≇p∅s∅ {U = U} {υ = υ} s∅≅p∅s∅ = ∅≇s∅ ∅≅s∅
   where
     V = ⇒-Setoid (⇒-Setoid U υ) _
-    s∅∈p∅s∅→s∅∈s∅ = ∧-elimᴿ (s∅≅p∅s∅ (singleton ∅))
+    s∅∈p∅s∅→s∅∈s∅ = ↔-elimᴿ (s∅≅p∅s∅ (singleton ∅))
     s∅≅∅ = s∅∈p∅s∅→s∅∈s∅ (b∈pab {U = V} {a = ∅} {b = singleton ∅})
     ∅≅s∅ = ≅-sym {U = ⇒-Setoid U υ} {A = singleton ∅} {B = ∅} s∅≅∅
 
@@ -312,7 +312,7 @@ ss∅≇p∅s∅ :
 ss∅≇p∅s∅ {U = U} {υ = υ} ss∅≅p∅s∅ = ∅≇s∅ ∅≅s∅
   where
     V = ⇒-Setoid (⇒-Setoid U υ) _
-    ∅∈p∅s∅→∅∈ss∅ = ∧-elimᴿ (ss∅≅p∅s∅ ∅)
+    ∅∈p∅s∅→∅∈ss∅ = ↔-elimᴿ (ss∅≅p∅s∅ ∅)
     ∅≅s∅ = ∅∈p∅s∅→∅∈ss∅ (a∈pab {U = V} {a = ∅} {b = singleton ∅})
 
 -- Axiom 3.4 (Pairwise union)
@@ -328,10 +328,10 @@ _∪_ {U = U} A B = record { ap = in-set ; cong = ∪-cong }
     ∪-in {x} {y} x≗y x∈A∨B = ∨-map (use-x∈S A) (use-x∈S B) x∈A∨B
       where
         use-x∈S : ∀ {σ} (S : PSet U σ) → x ∈ S → y ∈ S
-        use-x∈S S x∈S = ∧-elimᴸ (cong S x≗y) x∈S
+        use-x∈S S x∈S = ↔-elimᴸ (cong S x≗y) x∈S
 
     ∪-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
-    ∪-cong x≗y = ∧-intro (∪-in x≗y) (∪-in (U.sym x≗y))
+    ∪-cong x≗y = ↔-intro (∪-in x≗y) (∪-in (U.sym x≗y))
 
 -- Example 3.1.11
 -- [todo] {1,2} ∪ {2,3} = {1,2,3}
@@ -340,14 +340,14 @@ _∪_ {U = U} A B = record { ap = in-set ; cong = ∪-cong }
 -- Union obeys the axiom of substitution
 subst-∪ : ∀ {α β} {A A′ : PSet U α} {B : PSet U β} → A ≅ A′ → A ∪ B ≅ A′ ∪ B
 subst-∪ {U = U} {A = A} {A′} {B} A≅A′ x =
-  ∧-intro (x∈X∪B→x∈Y∪B A A′ A≅A′) (x∈X∪B→x∈Y∪B A′ A A′≅A)
+  ↔-intro (x∈X∪B→x∈Y∪B A A′ A≅A′) (x∈X∪B→x∈Y∪B A′ A A′≅A)
     where
       A′≅A = ≅-sym {U = U} {A = A} {B = A′} A≅A′
       x∈X∪B→x∈Y∪B = λ X Y X≅Y → ∨-mapᴸ (∈-subst {A = X} {B = Y} X≅Y)
 
 ∪-subst : ∀ {α β} {A : PSet U α} {B B′ : PSet U β} → B ≅ B′ → A ∪ B ≅ A ∪ B′
 ∪-subst {U = U} {A = A} {B} {B′} B≅B′ x =
-  ∧-intro (x∈A∪X→x∈A∪Y B B′ B≅B′) (x∈A∪X→x∈A∪Y B′ B B′≅B)
+  ↔-intro (x∈A∪X→x∈A∪Y B B′ B≅B′) (x∈A∪X→x∈A∪Y B′ B B′≅B)
     where
       B′≅B = ≅-sym {U = U} {A = B} {B = B′} B≅B′
       x∈A∪X→x∈A∪Y = λ X Y X≅Y → ∨-mapᴿ (∈-subst {A = X} {B = Y} X≅Y)
@@ -357,16 +357,16 @@ subst-∪ {U = U} {A = A} {A′} {B} A≅A′ x =
 pab≅sa∪sb :
   {U : Setoid υ₁ υ₂} {a b : El U} →
     pair {U = U} a b ≅ singleton a ∪ singleton b
-pab≅sa∪sb x = ∧-intro id id
+pab≅sa∪sb x = ↔-refl
 
 ∪-comm : {A B : PSet U υ} → A ∪ B ≅ B ∪ A
-∪-comm x = ∧-intro ∨-comm ∨-comm
+∪-comm x = ↔-intro ∨-comm ∨-comm
 
 ∪-assoc : {A B C : PSet U υ} → (A ∪ B) ∪ C ≅ A ∪ (B ∪ C)
-∪-assoc x = ∧-intro ∨-assocᴸᴿ ∨-assocᴿᴸ
+∪-assoc x = ↔-intro ∨-assocᴸᴿ ∨-assocᴿᴸ
 
 ∪-idemp : {A : PSet U υ} → A ∪ A ≅ A
-∪-idemp x = ∧-intro ∨-merge ∨-introᴸ
+∪-idemp x = ↔-intro ∨-merge ∨-introᴸ
 
 -- The consistent level parameter makes the below ∪-ident definitions cleaner
 infixl 6 _∪̂_
@@ -374,10 +374,10 @@ _∪̂_ : PSet U υ → PSet U υ → PSet U υ
 A ∪̂ B = A ∪ B
 
 ∪-identᴸ : {A : PSet U υ} → ∅ ∪̂ A ≅ A
-∪-identᴸ x = ∧-intro ∨-identᴸ ∨-introᴿ
+∪-identᴸ x = ↔-intro ∨-identᴸ ∨-introᴿ
 
 ∪-identᴿ : {U : Setoid υ₁ υ₂} {A : PSet U υ} → A ∪̂ ∅ ≅ A
-∪-identᴿ x = ∧-intro ∨-identᴿ ∨-introᴸ
+∪-identᴿ x = ↔-intro ∨-identᴿ ∨-introᴸ
 
 triple : El U → El U → El U → PSet U _
 triple a b c = singleton a ∪ singleton b ∪ singleton c
@@ -414,10 +414,10 @@ _⊊_ {U = U} A B = A ⊆ B ∧ Σ (El U) λ x → x ∈ B ∧ x ∉ A
 
 -- Remark 3.1.16
 subst-⊆ : {A A′ B : PSet U υ} → A ≅ A′ → A ⊆ B → A′ ⊆ B
-subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (∧-elimᴿ (A≅A′ x))
+subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (↔-elimᴿ (A≅A′ x))
 
 ⊆-subst : {A B B′ : PSet U υ} → B ≅ B′ → A ⊆ B → A ⊆ B′
-⊆-subst B≅B′ A⊆B x = (∧-elimᴸ (B≅B′ x)) ∘ (A⊆B x)
+⊆-subst B≅B′ A⊆B x = (↔-elimᴸ (B≅B′ x)) ∘ (A⊆B x)
 
 -- Examples 3.1.17
 124⊆12345 : triple {U = ℕ-Setoid} 1 2 4 ⊆ quintuple 1 2 3 4 5
@@ -448,38 +448,36 @@ A⊆A x = id
 ⊆-trans A⊆B B⊆C x = (B⊆C x) ∘ (A⊆B x)
 
 ⊆-antisym : {A B : PSet U υ} → A ⊆ B → B ⊆ A → A ≅ B
-⊆-antisym A⊆B B⊆A x = ∧-intro (A⊆B x) (B⊆A x)
+⊆-antisym A⊆B B⊆A x = ↔-intro (A⊆B x) (B⊆A x)
 
 A≅B→A⊆B : {A B : PSet U υ} → A ≅ B → A ⊆ B
-A≅B→A⊆B A≅B = ∧-elimᴸ ∘ A≅B
+A≅B→A⊆B A≅B = ↔-elimᴸ ∘ A≅B
 
 A≅B→B⊆A : {A B : PSet U υ} → A ≅ B → B ⊆ A
-A≅B→B⊆A A≅B = ∧-elimᴿ ∘ A≅B
+A≅B→B⊆A A≅B = ↔-elimᴿ ∘ A≅B
 
 A⊊B→A⊆B : {A B : PSet U υ} → A ⊊ B → A ⊆ B
-A⊊B→A⊆B = ∧-elimᴸ
+A⊊B→A⊆B (∧-intro A⊆B Σx∈B∧x∉A) = A⊆B
 
 A⊊B→B⊈A : {A B : PSet U υ} → A ⊊ B → B ⊈ A
-A⊊B→B⊈A A⊊B B⊆A = Σ-rec use-x∈B∧¬A (∧-elimᴿ A⊊B)
+A⊊B→B⊈A (∧-intro A⊆B Σx∈B∧x∉A) B⊆A = Σ-rec use-x∈B∧x∉A Σx∈B∧x∉A
   where
-    use-x∈B∧¬A = λ x x∈B∧¬A → ∧-elimᴿ x∈B∧¬A (B⊆A x (∧-elimᴸ x∈B∧¬A))
+    use-x∈B∧x∉A = λ { x (∧-intro x∈B x∉A) → x∉A (B⊆A x x∈B) }
 
 ⊊-trans : {A B C : PSet U υ} → A ⊊ B → B ⊊ C → A ⊊ C
-⊊-trans {U = U} {A = A} {B} {C} A⊊B B⊊C = ∧-intro A⊆C Σx∈C∧¬A
-  where
-    A⊆B = ∧-elimᴸ A⊊B
-    B⊆C = ∧-elimᴸ B⊊C
-    A⊆C = ⊆-trans {U = U} {A = A} {B} {C} A⊆B B⊆C
-    Σx∈C∧¬B = ∧-elimᴿ B⊊C
+⊊-trans {U = U} {A = A} {B} {C} (∧-intro A⊆B Σx∈B∧x∉A) (∧-intro B⊆C Σx∈C∧x∉B) =
+  ∧-intro A⊆C Σx∈C∧x∉A
+    where
+      A⊆C = ⊆-trans {U = U} {A = A} {B} {C} A⊆B B⊆C
 
-    x∉B→x∉A : ∀ {x} → x ∉ B → x ∉ A
-    x∉B→x∉A {x} x∉B x∈A = x∉B (A⊆B x x∈A)
+      x∉B→x∉A : ∀ {x} → x ∉ B → x ∉ A
+      x∉B→x∉A {x} x∉B x∈A = x∉B (A⊆B x x∈A)
 
-    use-x∈C∧¬B : ∀ {x} → x ∈ C ∧ x ∉ B → x ∈ C ∧ x ∉ A
-    use-x∈C∧¬B {x} x∈C∧¬B = ∧-mapᴿ x∉B→x∉A x∈C∧¬B
+      use-x∈C∧x∉B : ∀ {x} → x ∈ C ∧ x ∉ B → x ∈ C ∧ x ∉ A
+      use-x∈C∧x∉B {x} x∈C∧x∉B = ∧-mapᴿ x∉B→x∉A x∈C∧x∉B
 
-    Σx∈C∧¬A : Σ (El U) λ x → x ∈ C ∧ x ∉ A
-    Σx∈C∧¬A = Σ-map-snd use-x∈C∧¬B Σx∈C∧¬B
+      Σx∈C∧x∉A : Σ (El U) λ x → x ∈ C ∧ x ∉ A
+      Σx∈C∧x∉A = Σ-map-snd use-x∈C∧x∉B Σx∈C∧x∉B
 
 -- Remark 3.1.20
 13⊈24 : pair {U = ℕ-Setoid} 1 3 ⊈ pair 2 4
@@ -514,47 +512,47 @@ _⟨_⟩ {U = U} A P = record { ap = in-set ; cong = ⟨⟩-cong }
     ⟨⟩-in {x} {y} x≗y x∈A∧P = ∧-map (use-x∈S A) (use-x∈S P) x∈A∧P
       where
         use-x∈S : ∀ {σ} (S : PSet U σ) → x ∈ S → y ∈ S
-        use-x∈S S x∈S = ∧-elimᴸ (cong S x≗y) x∈S
+        use-x∈S S x∈S = ↔-elimᴸ (cong S x≗y) x∈S
 
     ⟨⟩-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
-    ⟨⟩-cong x≗y = ∧-intro (⟨⟩-in x≗y) (⟨⟩-in (U.sym x≗y))
+    ⟨⟩-cong x≗y = ↔-intro (⟨⟩-in x≗y) (⟨⟩-in (U.sym x≗y))
 
 x∈A⟨P⟩ :
   ∀ {υ′} {U : Setoid υ₁ υ₂} {A P : PSet U υ} {P : PSet U υ′} {x : El U} →
   x ∈ A ⟨ P ⟩ ↔ x ∈ A ∧ P ⟨$⟩ x
-x∈A⟨P⟩ = ∧-dup id
+x∈A⟨P⟩ = ↔-refl
 
 A⟨P⟩⊆ : {A P : PSet U υ} → A ⟨ P ⟩ ⊆ A
-A⟨P⟩⊆ x = ∧-elimᴸ
+A⟨P⟩⊆ x (∧-intro x∈A x∈P) = x∈A
 
 A⟨∅⟩≅∅ : ∀ {υ′} {A : PSet U υ} → A ⟨ ∅ {υ = υ′} ⟩ ≅ ∅
-A⟨∅⟩≅∅ x = ∧-intro (⊥̂-elim ∘ ∧-elimᴿ) ⊥̂-elim
+A⟨∅⟩≅∅ x = ↔-intro (λ { (∧-intro x∈A x∈∅) → ⊥̂-elim x∈∅}) ⊥̂-elim
 
 A⟨A⟩≅A : {A : PSet U υ} → A ⟨ A ⟩ ≅ A
-A⟨A⟩≅A x = ∧-intro ∧-elimᴸ ∧-dup
+A⟨A⟩≅A x = ↔-intro (λ { (∧-intro x∈A x∈A′) → x∈A }) ∧-dup
 
 subst-⟨⟩ :
   ∀ {υ′} {A A′ : PSet U υ} {P : PSet U υ′} → A ≅ A′ → A ⟨ P ⟩ ≅ A′ ⟨ P ⟩
 subst-⟨⟩ {U = U} {A = A} {A′} {P} A≅A′ x =
-  ∧-intro (one-way A A′ A≅A′) (one-way A′ A (≅-sym {A = A} {A′} A≅A′))
+  ↔-intro (one-way A A′ A≅A′) (one-way A′ A (≅-sym {A = A} {A′} A≅A′))
     where
       one-way : (S S′ : PSet U υ) → S ≅ S′ → x ∈ S ∧ P ⟨$⟩ x → x ∈ S′ ∧ P ⟨$⟩ x
-      one-way S S′ S≅S′ = ∧-mapᴸ (∧-elimᴸ (S≅S′ x))
+      one-way S S′ S≅S′ = ∧-mapᴸ (↔-elimᴸ (S≅S′ x))
 
 ⟨⟩-subst :
   ∀ {υ′} {A : PSet U υ} {P P′ : PSet U υ′} → P ≅ P′ → A ⟨ P ⟩ ≅ A ⟨ P′ ⟩
 ⟨⟩-subst {U = U} {υ′ = υ′} {A = A} {P} {P′} P≅P′ x =
-  ∧-intro (one-way P P′ P≅P′) (one-way P′ P (≅-sym {A = P} {P′} P≅P′))
+  ↔-intro (one-way P P′ P≅P′) (one-way P′ P (≅-sym {A = P} {P′} P≅P′))
     where
       one-way : (Q Q′ : PSet U υ′) → Q ≅ Q′ → x ∈ A ∧ Q ⟨$⟩ x → x ∈ A ∧ Q′ ⟨$⟩ x
-      one-way Q Q′ Q≅Q′ = ∧-mapᴿ (∧-elimᴸ (Q≅Q′ x))
+      one-way Q Q′ Q≅Q′ = ∧-mapᴿ (↔-elimᴸ (Q≅Q′ x))
 
 -- Example 3.1.22
 ℕ-predicate : (P : ℕ → Set) → ℕ-PSet
 ℕ-predicate P = record { ap = P ; cong = P-cong }
   where
     P-cong : {x y : ℕ} → x ≡ y → P x ↔ P y
-    P-cong x≡y = ∧-intro (Eq.subst P x≡y) (Eq.subst P (Eq.sym x≡y))
+    P-cong x≡y = ↔-intro (Eq.subst P x≡y) (Eq.subst P (Eq.sym x≡y))
 
 module _ where
   S : ℕ-PSet
@@ -591,13 +589,11 @@ module _ where
   5+2≡7 = Eq.trans +-stepᴸ⃗ᴿ 4+3≡7
 
   S⟨n<4⟩≅123 : S ⟨ ℕ-predicate (_< 4) ⟩ ≅ triple 1 2 3
-  S⟨n<4⟩≅123 x = ∧-intro forward backward
+  S⟨n<4⟩≅123 x = ↔-intro forward backward
     where
       forward : x ∈ S ⟨ ℕ-predicate (_< 4) ⟩ → x ∈ triple {U = ℕ-Setoid} 1 2 3
-      forward x∈S⟨n<4⟩ = ∨-rec use-triple use-pair x∈S
+      forward (∧-intro x∈S x<4) = ∨-rec use-triple use-pair x∈S
         where
-          x∈S = ∧-elimᴸ x∈S⟨n<4⟩
-          x<4 = ∧-elimᴿ x∈S⟨n<4⟩
           x≢4 = ∧-elimᴿ x<4
           x≢5 = ∧-elimᴿ (<-trans x<4 n<sn)
           use-triple = id
@@ -627,10 +623,10 @@ module _ where
           x<4 = ∧-intro x≤4 x≢4
 
   S⟨n<7⟩≅S : S ⟨ ℕ-predicate (_< 7) ⟩ ≅ S
-  S⟨n<7⟩≅S x = ∧-intro forward backward
+  S⟨n<7⟩≅S x = ↔-intro forward backward
     where
       forward : x ∈ S ⟨ ℕ-predicate (_< 7) ⟩ → x ∈ S
-      forward = ∧-elimᴸ
+      forward (∧-intro x∈S x<7) = x∈S
 
       backward : x ∈ S → x ∈ S ⟨ ℕ-predicate (_< 7) ⟩
       backward x∈S = ∧-intro x∈S x<7
@@ -663,13 +659,11 @@ module _ where
           x<7 = ∧-intro x≤7 x≢7
 
   S⟨n<1⟩≅∅ : S ⟨ ℕ-predicate (_< 1) ⟩ ≅ ∅
-  S⟨n<1⟩≅∅ x = ∧-intro forward backward
+  S⟨n<1⟩≅∅ x = ↔-intro forward backward
     where
       forward : x ∈ S ⟨ ℕ-predicate (_< 1) ⟩ → x ∈ ∅ {U = ℕ-Setoid}
-      forward x∈S⟨n<1⟩ = ⊥-elim (∨-rec use-triple use-pair x∈S)
+      forward (∧-intro x∈S x<1) = ⊥-elim (∨-rec use-triple use-pair x∈S)
         where
-          x∈S = ∧-elimᴸ x∈S⟨n<1⟩
-          x<1 = ∧-elimᴿ x∈S⟨n<1⟩
           x<2 = <-trans x<1 n<sn
           x<3 = <-trans x<2 n<sn
           x<4 = <-trans x<3 n<sn
@@ -699,15 +693,13 @@ subst-∩ {U = U} {A = A} {A′} {P} = subst-⟨⟩ {U = U} {A = A} {A′} {P}
 -- Examples 3.1.25
 infixl 8 _∩_
 124∩234≅24 : triple {U = ℕ-Setoid} 1 2 4 ∩ triple 2 3 4 ≅ pair 2 4
-124∩234≅24 x = ∧-intro forward backward
+124∩234≅24 x = ↔-intro forward backward
   where
     forward :
       x ∈ triple {U = ℕ-Setoid} 1 2 4 ∩ triple 2 3 4 →
         x ∈ pair {U = ℕ-Setoid} 2 4
-    forward x∈124∩234 = ∨-rec (∨-rec use-1 use-2) use-4 x∈124
+    forward (∧-intro x∈124 x∈234) = ∨-rec (∨-rec use-1 use-2) use-4 x∈124
       where
-        x∈124 = ∧-elimᴸ x∈124∩234
-        x∈234 = ∧-elimᴿ x∈124∩234
         use-1 = λ x≡1 →
           let contra-2 =
                 λ x≡2 → step≢zero (step-inj (Eq.trans (Eq.sym x≡2) x≡1))
@@ -734,9 +726,6 @@ infixl 8 _∩_
 ⊆-intro : {U : Setoid υ₁ υ₂} {A B : PSet U υ} → (∀ {x} → x ∈ A → x ∈ B) → A ⊆ B
 ⊆-intro f x = f
 
-∈∩-elimᴸ = ∧-elimᴸ
-∈∩-elimᴿ = ∧-elimᴿ
-
 12∩34≅∅ : ⟨12⟩ ∩ ⟨34⟩ ≅ ∅
 12∩34≅∅ = ⊆-antisym {A = ⟨12⟩ ∩ ⟨34⟩} {∅} 12∩34⊆∅ ∅⊆12∩34
   where
@@ -746,10 +735,8 @@ infixl 8 _∩_
     ∈-pair-elim = ∨-rec
 
     x∉12∩34 : ∀ {x} → x ∉ ⟨12⟩ ∩ ⟨34⟩
-    x∉12∩34 x∈12∩34 = ∈-pair-elim use-1 use-2 x∈12
+    x∉12∩34 (∧-intro x∈12 x∈34) = ∈-pair-elim use-1 use-2 x∈12
       where
-        x∈12 = ∈∩-elimᴸ x∈12∩34
-        x∈34 = ∈∩-elimᴿ x∈12∩34
         use-1 = λ x≡1 →
           let contra-3 = step≢zero ∘ step-inj ∘ flip Eq.trans x≡1 ∘ Eq.sym
               contra-4 = step≢zero ∘ step-inj ∘ flip Eq.trans x≡1 ∘ Eq.sym

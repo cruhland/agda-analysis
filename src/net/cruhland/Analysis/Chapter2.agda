@@ -6,9 +6,9 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; _≢_; refl; sym; trans; subst; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using
-  ( _∧_; ∧-elimᴸ; ∧-elimᴿ; ∧-intro
+  ( _∧_; ∧-intro
   ; _∨_; ∨-forceᴿ; ∨-rec
-  ; _↔_
+  ; _↔_; ↔-intro
   ; ⊥-elim; ¬_; ¬sym
   ; Σ; Σ-intro; Σ-rec; snd
   )
@@ -247,15 +247,15 @@ module _ (PA : PeanoArithmetic) where
 
   -- (d) (Addition preserves order)
   _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
-  _ = ∧-intro ≤-compat-+ᵁᴿ ≤-compat-+ᴰᴿ
+  _ = ↔-intro ≤-compat-+ᵁᴿ ≤-compat-+ᴰᴿ
 
   -- (e)
   _ : ∀ {a b} → a < b ↔ step a ≤ b
-  _ = ∧-intro <→≤ ≤→<
+  _ = ↔-intro <→≤ ≤→<
 
   -- (f)
   <↔positive-diff : ∀ {a b} → a < b ↔ Σ ℕ λ d → Positive d ∧ b ≡ a + d
-  <↔positive-diff = ∧-intro <→positive-diff positive-diff→<
+  <↔positive-diff = ↔-intro <→positive-diff positive-diff→<
 
   -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
   _ :
@@ -264,12 +264,10 @@ module _ (PA : PeanoArithmetic) where
       ¬ (a < b ∧ a ≡ b ∨ (a > b ∧ a ≡ b ∨ a < b ∧ a > b))
   _ = ∧-intro trichotomy any-pair-absurd
     where
-      use-<≡ = λ <≡ → ∧-elimᴿ (∧-elimᴸ <≡) (∧-elimᴿ <≡)
-      use->≡ = λ >≡ → ∧-elimᴿ (∧-elimᴸ >≡) (sym (∧-elimᴿ >≡))
-      use-<> = λ <> →
-        ∧-elimᴿ
-          (∧-elimᴸ <>)
-          (≤-antisym (∧-elimᴸ (∧-elimᴸ <>)) (∧-elimᴸ (∧-elimᴿ <>)))
+      use-<≡ = λ { (∧-intro (∧-intro a≤b a≢b) a≡b) → a≢b a≡b }
+      use->≡ = λ { (∧-intro (∧-intro b≤a b≢a) a≡b) → b≢a (sym a≡b) }
+      use-<> = λ { (∧-intro (∧-intro a≤b a≢b) (∧-intro b≤a b≢a)) →
+        a≢b (≤-antisym a≤b b≤a) }
       any-pair-absurd = λ pairs → ∨-rec use-<≡ (∨-rec use->≡ use-<>) pairs
 
   -- Proposition 2.2.14
@@ -321,7 +319,7 @@ module _ (PA : PeanoArithmetic) where
   -- Lemma 2.3.3 (Positive natural numbers have no zero divisors).
   -- Exercise 2.3.2
   no-zero-divs : ∀ {n m} → n * m ≡ 0 ↔ n ≡ 0 ∨ m ≡ 0
-  no-zero-divs {n} {m} = ∧-intro *-either-zero backward
+  no-zero-divs {n} {m} = ↔-intro *-either-zero backward
     where
       use-n≡0 = λ n≡0 → trans (cong (_* m) n≡0) *-zeroᴸ
       use-m≡0 = λ m≡0 → trans (cong (n *_) m≡0) *-zeroᴿ
@@ -363,32 +361,30 @@ module _ (PA : PeanoArithmetic) where
       Ps {k} Pk = Σ-rec (λ q Σr → Σ-rec (use-qr q) Σr) Pk
         where
           use-qr : ∀ q r → r < m ∧ k ≡ m * q + r → P (step k)
-          use-qr q r props = ∨-rec use-sr<m use-sr≡m (≤→<∨≡ (<→≤ r<m))
-            where
-              r<m = ∧-elimᴸ props
-              k≡mq+r = ∧-elimᴿ props
+          use-qr q r (∧-intro r<m k≡mq+r) =
+            ∨-rec use-sr<m use-sr≡m (≤→<∨≡ (<→≤ r<m))
+              where
+                sk≡mq+sr = trans (cong step k≡mq+r) (sym +-stepᴿ)
+                use-sr<m = λ sr<m →
+                  Σ-intro q (Σ-intro (step r) (∧-intro sr<m sk≡mq+sr))
 
-              sk≡mq+sr = trans (cong step k≡mq+r) (sym +-stepᴿ)
-              use-sr<m = λ sr<m →
-                Σ-intro q (Σ-intro (step r) (∧-intro sr<m sk≡mq+sr))
-
-              0<m = ∧-intro ≤-zero (¬sym m≢0)
-              use-sr≡m = λ sr≡m →
-                let sk≡m[sq]+0 =
-                      begin
-                        step k
-                      ≡⟨ cong step k≡mq+r ⟩
-                        step (m * q + r)
-                      ≡⟨ sym +-stepᴿ ⟩
-                        m * q + step r
-                      ≡⟨ cong (m * q +_) sr≡m ⟩
-                        m * q + m
-                      ≡⟨ sym *-stepᴿ ⟩
-                        m * step q
-                      ≡⟨ sym +-zeroᴿ ⟩
-                        m * step q + 0
-                      ∎
-                 in Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
+                0<m = ∧-intro ≤-zero (¬sym m≢0)
+                use-sr≡m = λ sr≡m →
+                  let sk≡m[sq]+0 =
+                        begin
+                          step k
+                        ≡⟨ cong step k≡mq+r ⟩
+                          step (m * q + r)
+                        ≡⟨ sym +-stepᴿ ⟩
+                          m * q + step r
+                        ≡⟨ cong (m * q +_) sr≡m ⟩
+                          m * q + m
+                        ≡⟨ sym *-stepᴿ ⟩
+                          m * step q
+                        ≡⟨ sym +-zeroᴿ ⟩
+                          m * step q + 0
+                        ∎
+                   in Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
 
   -- Definition 2.3.11 (Exponentiation for natural numbers).
   _ : ℕ → ℕ → ℕ
