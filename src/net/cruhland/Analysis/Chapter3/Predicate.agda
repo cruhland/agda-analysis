@@ -10,7 +10,7 @@ open import net.cruhland.axiomatic.Logic using
   ; ∨-introᴸ; ∨-introᴿ; ∨-map; ∨-mapᴸ; ∨-mapᴿ; ∨-merge; ∨-rec
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro; ↔-refl; ↔-sym; ↔-trans
   ; ⊤
-  ; ⊥-elim; ⊥̂; ⊥̂-elim; ¬_
+  ; ⊥-elim; ⊥ᴸᴾ; ⊥ᴸᴾ-elim; ¬_
   ; Σ; Σ-intro; Σ-map-snd; Σ-rec
   )
 open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
@@ -190,19 +190,19 @@ subst-∈ {C = C} A≅B A∈C = ↔-elimᴸ (cong C A≅B) A∈C
 -- set_, which contains no elements, i.e., for every object x we
 -- have x ∉ ∅.
 ∅ : ∀ {υ} → PSet U υ
-∅ {υ = υ} = record { ap = const ⊥̂ ; cong = λ _ → ↔-refl }
+∅ {υ = υ} = record { ap = const ⊥ᴸᴾ ; cong = λ _ → ↔-refl }
 
 is-empty : PSet U υ → Set _
 is-empty {U = U} S = (x : El U) → x ∉ S
 
 x∉∅ : ∀ {υ} → is-empty (∅ {U = U} {υ = υ})
-x∉∅ x = ⊥̂-elim
+x∉∅ x = ⊥ᴸᴾ-elim
 
 -- Note that there can only be one empty set; if there were two sets
 -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
 -- would be equal to each other.
 ∅-unique : {U : Setoid υ₁ υ₂} {∅′ : PSet U υ} → is-empty ∅′ → ∅ ≅ ∅′
-∅-unique x∉∅′ x = ↔-intro ⊥̂-elim (⊥-elim ∘ x∉∅′ x)
+∅-unique x∉∅′ x = ↔-intro ⊥ᴸᴾ-elim (⊥-elim ∘ x∉∅′ x)
 
 -- Lemma 3.1.6 (Single choice)
 -- This is not provable in Agda because it's nonconstructive.  Instead
@@ -276,7 +276,7 @@ pair-singleton x = ↔-intro ∨-merge ∨-introᴸ
 -- Examples 3.1.10
 -- Exercise 3.1.2
 ∅≇sa : {U : Setoid υ₁ υ₂} → (a : El U) → ∅ {U = U} ≇ singleton a
-∅≇sa {U = U} a ∅≅sa = ⊥̂-elim (a≗a→⊥ U.refl)
+∅≇sa {U = U} a ∅≅sa = ⊥ᴸᴾ-elim (a≗a→⊥ U.refl)
   where
     module U = Setoid U
     a≗a→⊥ = ↔-elimᴿ (∅≅sa a)
@@ -440,7 +440,7 @@ A⊆A : {A : PSet U υ} → A ⊆ A
 A⊆A x = id
 
 ∅⊆A : {A : PSet U υ} → ∅ ⊆ A
-∅⊆A x = ⊥̂-elim
+∅⊆A x = ⊥ᴸᴾ-elim
 
 -- Proposition 3.1.18 (Sets are partially ordered by set inclusion)
 -- Exercise 3.1.4
@@ -526,7 +526,7 @@ A⟨P⟩⊆ : {A P : PSet U υ} → A ⟨ P ⟩ ⊆ A
 A⟨P⟩⊆ x (∧-intro x∈A x∈P) = x∈A
 
 A⟨∅⟩≅∅ : ∀ {υ′} {A : PSet U υ} → A ⟨ ∅ {υ = υ′} ⟩ ≅ ∅
-A⟨∅⟩≅∅ x = ↔-intro (λ { (∧-intro x∈A x∈∅) → ⊥̂-elim x∈∅}) ⊥̂-elim
+A⟨∅⟩≅∅ x = ↔-intro (λ { (∧-intro x∈A x∈∅) → ⊥ᴸᴾ-elim x∈∅}) ⊥ᴸᴾ-elim
 
 A⟨A⟩≅A : {A : PSet U υ} → A ⟨ A ⟩ ≅ A
 A⟨A⟩≅A x = ↔-intro (λ { (∧-intro x∈A x∈A′) → x∈A }) ∧-dup
