@@ -10,7 +10,7 @@ open import net.cruhland.axiomatic.Logic using
   ; ∨-introᴸ; ∨-introᴿ; ∨-map; ∨-mapᴸ; ∨-mapᴿ; ∨-merge; ∨-rec
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro; ↔-refl; ↔-sym; ↔-trans
   ; ⊤
-  ; ⊥-elim; ⊥ᴸᴾ; ⊥ᴸᴾ-elim; ¬_
+  ; ⊥-elim; ⊥ᴸᴾ; ⊥ᴸᴾ-elim; ¬_; ¬sym
   ; Σ; Σ-intro; Σ-map-snd; Σ-rec
   )
 open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
@@ -242,10 +242,8 @@ pair {U = U} a b = record { ap = in-set ; cong = pair-cong }
     in-set = λ x → x ≗ᵁ a ∨ x ≗ᵁ b
 
     pair-eq : {x y : El U} → x ≗ᵁ y → in-set x → in-set y
-    pair-eq x≗y x≗a∨b = ∨-rec use-x≗a use-x≗b x≗a∨b
-      where
-        use-x≗a = λ x≗a → ∨-introᴸ (U.trans (U.sym x≗y) x≗a)
-        use-x≗b = λ x≗b → ∨-introᴿ (U.trans (U.sym x≗y) x≗b)
+    pair-eq x≗y (∨-introᴸ x≗a) = ∨-introᴸ (U.trans (U.sym x≗y) x≗a)
+    pair-eq x≗y (∨-introᴿ x≗b) = ∨-introᴿ (U.trans (U.sym x≗y) x≗b)
 
     pair-cong : {x y : El U} → x ≗ᵁ y → in-set x ↔ in-set y
     pair-cong x≗y = ↔-intro (pair-eq x≗y) (pair-eq (U.sym x≗y))
@@ -421,20 +419,20 @@ subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (↔-elimᴿ (A≅A′ x))
 
 -- Examples 3.1.17
 124⊆12345 : triple {U = ℕ-Setoid} 1 2 4 ⊆ quintuple 1 2 3 4 5
-124⊆12345 n n∈124 = ∨-rec (∨-rec use-1 use-2) use-4 n∈124
-  where
-    use-1 = ∨-introᴸ ∘ ∨-introᴸ ∘ ∨-introᴸ
-    use-2 = ∨-introᴸ ∘ ∨-introᴸ ∘ ∨-introᴿ
-    use-4 = ∨-introᴿ ∘ ∨-introᴸ
+124⊆12345 n (∨-introᴸ (∨-introᴸ n≡1)) = ∨-introᴸ (∨-introᴸ (∨-introᴸ n≡1))
+124⊆12345 n (∨-introᴸ (∨-introᴿ n≡2)) = ∨-introᴸ (∨-introᴸ (∨-introᴿ n≡2))
+124⊆12345 n (∨-introᴿ n≡4) = ∨-introᴿ (∨-introᴸ n≡4)
 
 124⊊12345 : triple {U = ℕ-Setoid} 1 2 4 ⊊ quintuple 1 2 3 4 5
 124⊊12345 = ∧-intro 124⊆12345 (Σ-intro 3 (∧-intro 3∈12345 3∉124))
   where
     3∈12345 = ∨-introᴸ (∨-introᴿ Eq.refl)
-    contra-1 = step≢zero ∘ step-inj
-    contra-2 = step≢zero ∘ step-inj ∘ step-inj
-    contra-4 = step≢zero ∘ step-inj ∘ step-inj ∘ step-inj ∘ Eq.sym
-    3∉124 = ∨-rec (∨-rec contra-1 contra-2) contra-4
+
+    3∉124 : 3 ∉ triple {U = ℕ-Setoid} 1 2 4
+    3∉124 (∨-introᴸ (∨-introᴸ 3≡1)) = step≢zero (step-inj 3≡1)
+    3∉124 (∨-introᴸ (∨-introᴿ 3≡2)) = step≢zero (step-inj (step-inj 3≡2))
+    3∉124 (∨-introᴿ 3≡4) =
+      step≢zero (step-inj (step-inj (step-inj (Eq.sym 3≡4))))
 
 A⊆A : {A : PSet U υ} → A ⊆ A
 A⊆A x = id
@@ -481,16 +479,14 @@ A⊊B→B⊈A (∧-intro A⊆B Σx∈B∧x∉A) B⊆A = Σ-rec use-x∈B∧x∉A
 
 -- Remark 3.1.20
 13⊈24 : pair {U = ℕ-Setoid} 1 3 ⊈ pair 2 4
-13⊈24 x∈13→x∈24 = ∨-rec contra-2 contra-4 (x∈13→x∈24 1 (∨-introᴸ Eq.refl))
-  where
-    contra-2 = step≢zero ∘ step-inj ∘ Eq.sym
-    contra-4 = step≢zero ∘ step-inj ∘ Eq.sym
+13⊈24 x∈13→x∈24 with x∈13→x∈24 1 (∨-introᴸ Eq.refl)
+... | ∨-introᴸ x≡2 = step≢zero (step-inj (Eq.sym x≡2))
+... | ∨-introᴿ x≡4 = step≢zero (step-inj (Eq.sym x≡4))
 
 24⊈13 : pair {U = ℕ-Setoid} 2 4 ⊈ pair 1 3
-24⊈13 x∈24→x∈13 = ∨-rec contra-1 contra-3 (x∈24→x∈13 2 (∨-introᴸ Eq.refl))
-  where
-    contra-1 = step≢zero ∘ step-inj
-    contra-3 = step≢zero ∘ step-inj ∘ step-inj ∘ Eq.sym
+24⊈13 x∈24→x∈13 with x∈24→x∈13 2 (∨-introᴸ Eq.refl)
+... | ∨-introᴸ x≡1 = step≢zero (step-inj x≡1)
+... | ∨-introᴿ x≡3 = step≢zero (step-inj (step-inj (Eq.sym x≡3)))
 
 -- Remark 3.1.21
 -- Tao provides some examples showing that ∈ is not the same as ⊆.
@@ -592,35 +588,32 @@ module _ where
   S⟨n<4⟩≅123 x = ↔-intro forward backward
     where
       forward : x ∈ S ⟨ ℕ-predicate (_< 4) ⟩ → x ∈ triple {U = ℕ-Setoid} 1 2 3
-      forward (∧-intro x∈S x<4) = ∨-rec use-triple use-pair x∈S
-        where
-          x≢4 = ∧-elimᴿ x<4
-          x≢5 = ∧-elimᴿ (<-trans x<4 n<sn)
-          use-triple = id
-          use-pair = ⊥-elim ∘ ∨-rec x≢4 x≢5
+      forward (∧-intro x∈S x<4) with x∈S
+      ... | ∨-introᴸ x∈123 = x∈123
+      ... | ∨-introᴿ (∨-introᴸ x≡4) = ⊥-elim ((∧-elimᴿ x<4) x≡4)
+      ... | ∨-introᴿ (∨-introᴿ x≡5) = ⊥-elim ((∧-elimᴿ (<-trans x<4 n<sn)) x≡5)
+
+      x≤4 : x ∈ triple {U = ℕ-Setoid} 1 2 3 → x ≤ 4
+      x≤4 (∨-introᴸ (∨-introᴸ x≡1)) =
+        Σ-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡1) 1+3≡4)
+      x≤4 (∨-introᴸ (∨-introᴿ x≡2)) =
+        Σ-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡2) 2+2≡4)
+      x≤4 (∨-introᴿ x≡3) =
+        Σ-intro 1 (Eq.trans (Eq.cong (_+ 1) x≡3) 3+1≡4)
+
+      4≢x : x ∈ triple {U = ℕ-Setoid} 1 2 3 → 4 ≢ x
+      4≢x (∨-introᴸ (∨-introᴸ x≡1)) 4≡x =
+        step≢zero (step-inj (Eq.trans 4≡x x≡1))
+      4≢x (∨-introᴸ (∨-introᴿ x≡2)) 4≡x =
+        step≢zero (step-inj (step-inj (Eq.trans 4≡x x≡2)))
+      4≢x (∨-introᴿ x≡3) 4≡x =
+        step≢zero (step-inj (step-inj (step-inj (Eq.trans 4≡x x≡3))))
 
       backward : x ∈ triple {U = ℕ-Setoid} 1 2 3 → x ∈ S ⟨ ℕ-predicate (_< 4) ⟩
       backward x∈123 = ∧-intro x∈S x<4
         where
           x∈S = ∨-introᴸ x∈123
-
-          use-1 = λ x≡1 → Σ-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡1) 1+3≡4)
-          use-2 = λ x≡2 → Σ-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡2) 2+2≡4)
-          use-3 = λ x≡3 → Σ-intro 1 (Eq.trans (Eq.cong (_+ 1) x≡3) 3+1≡4)
-          x≤4 = ∨-rec (∨-rec use-1 use-2) use-3 x∈123
-
-          x≢4 : x ≢ 4
-          x≢4 x≡4 = ∨-rec (∨-rec contra-1 contra-2) contra-3 x∈123
-            where
-              4≡x = Eq.sym x≡4
-              contra-1 =
-                step≢zero ∘ step-inj ∘ Eq.trans 4≡x
-              contra-2 =
-                step≢zero ∘ step-inj ∘ step-inj ∘ Eq.trans 4≡x
-              contra-3 =
-                step≢zero ∘ step-inj ∘ step-inj ∘ step-inj ∘ Eq.trans 4≡x
-
-          x<4 = ∧-intro x≤4 x≢4
+          x<4 = ∧-intro (x≤4 x∈123) (¬sym (4≢x x∈123))
 
   S⟨n<7⟩≅S : S ⟨ ℕ-predicate (_< 7) ⟩ ≅ S
   S⟨n<7⟩≅S x = ↔-intro forward backward

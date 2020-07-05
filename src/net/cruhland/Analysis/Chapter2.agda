@@ -7,7 +7,7 @@ open Eq using (_≡_; _≢_; refl; sym; trans; subst; cong)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using
   ( _∧_; ∧-intro
-  ; _∨_; ∨-forceᴿ; ∨-rec
+  ; _∨_; ∨-forceᴿ; ∨-introᴸ; ∨-introᴿ
   ; _↔_; ↔-intro
   ; ⊥-elim; ¬_; ¬sym
   ; Σ; Σ-intro; Σ-rec; snd
@@ -22,7 +22,7 @@ module _ (PA : PeanoArithmetic) where
     ; +-assoc; +-cancelᴸ; +-comm
     ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; ≤-antisym; ≤-refl; ≤-trans; ≤-zero; <-zero
-    ; <→≤; ≤→<; ≤→<∨≡; ≤s→≤∨≡s; strong-ind; trichotomy
+    ; <→≤; ≤→<; ≤→<∨≡; ≤s→≤∨≡s; strong-ind; Trichotomy; trichotomy
     ; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; <→positive-diff; positive-diff→<
     ; _*_; *-assoc; *-comm; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-zeroᴸ; *-zeroᴿ
     ; *-cancelᴿ; *-distrib-+ᴸ; *-distrib-+ᴿ; *-either-zero; *-preserves-<
@@ -258,17 +258,21 @@ module _ (PA : PeanoArithmetic) where
   <↔positive-diff = ↔-intro <→positive-diff positive-diff→<
 
   -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
-  _ :
+  trichotomy-of-order :
     ∀ {a b} →
-    (a < b ∨ (a ≡ b ∨ a > b)) ∧
-      ¬ (a < b ∧ a ≡ b ∨ (a > b ∧ a ≡ b ∨ a < b ∧ a > b))
-  _ = ∧-intro trichotomy any-pair-absurd
+      Trichotomy a b ∧ ¬ (a < b ∧ a ≡ b ∨ a > b ∧ a ≡ b ∨ a < b ∧ a > b)
+  trichotomy-of-order {a} {b} = ∧-intro trichotomy any-pair-absurd
     where
-      use-<≡ = λ { (∧-intro (∧-intro a≤b a≢b) a≡b) → a≢b a≡b }
-      use->≡ = λ { (∧-intro (∧-intro b≤a b≢a) a≡b) → b≢a (sym a≡b) }
-      use-<> = λ { (∧-intro (∧-intro a≤b a≢b) (∧-intro b≤a b≢a)) →
-        a≢b (≤-antisym a≤b b≤a) }
-      any-pair-absurd = λ pairs → ∨-rec use-<≡ (∨-rec use->≡ use-<>) pairs
+      any-pair-absurd : ¬ (a < b ∧ a ≡ b ∨ a > b ∧ a ≡ b ∨ a < b ∧ a > b)
+      any-pair-absurd
+        (∨-introᴸ (∧-intro (∧-intro a≤b a≢b) a≡b)) =
+          a≢b a≡b
+      any-pair-absurd
+        (∨-introᴿ (∨-introᴸ (∧-intro (∧-intro b≤a b≢a) a≡b))) =
+          b≢a (sym a≡b)
+      any-pair-absurd
+        (∨-introᴿ (∨-introᴿ (∧-intro (∧-intro a≤b a≢b) (∧-intro b≤a b≢a)))) =
+          a≢b (≤-antisym a≤b b≤a)
 
   -- Proposition 2.2.14
   -- Exercise 2.2.5
@@ -291,10 +295,9 @@ module _ (PA : PeanoArithmetic) where
       Qz Pz y≤z = subst P (sym (∨-forceᴿ <-zero (≤→<∨≡ y≤z))) Pz
 
       Qs : step-case Q
-      Qs Qk Psk y≤sk = ∨-rec use-y≤k use-y≡sk (≤s→≤∨≡s y≤sk)
-        where
-          use-y≤k = λ y≤k → Qk (Pk Psk) y≤k
-          use-y≡sk = λ y≡sk → subst P (sym y≡sk) Psk
+      Qs Qk Psk y≤sk with ≤s→≤∨≡s y≤sk
+      ... | ∨-introᴸ y≤k = Qk (Pk Psk) y≤k
+      ... | ∨-introᴿ y≡sk = subst P (sym y≡sk) Psk
 
   {- 2.3 Multiplication -}
 
@@ -321,9 +324,9 @@ module _ (PA : PeanoArithmetic) where
   no-zero-divs : ∀ {n m} → n * m ≡ 0 ↔ n ≡ 0 ∨ m ≡ 0
   no-zero-divs {n} {m} = ↔-intro *-either-zero backward
     where
-      use-n≡0 = λ n≡0 → trans (cong (_* m) n≡0) *-zeroᴸ
-      use-m≡0 = λ m≡0 → trans (cong (n *_) m≡0) *-zeroᴿ
-      backward = ∨-rec use-n≡0 use-m≡0
+      backward : n ≡ 0 ∨ m ≡ 0 → n * m ≡ 0
+      backward (∨-introᴸ n≡0) = trans (cong (_* m) n≡0) *-zeroᴸ
+      backward (∨-introᴿ m≡0) = trans (cong (n *_) m≡0) *-zeroᴿ
 
   -- Proposition 2.3.4 (Distributive law).
   _ : ∀ {a b c} → a * (b + c) ≡ a * b + a * c
@@ -361,30 +364,30 @@ module _ (PA : PeanoArithmetic) where
       Ps {k} Pk = Σ-rec (λ q Σr → Σ-rec (use-qr q) Σr) Pk
         where
           use-qr : ∀ q r → r < m ∧ k ≡ m * q + r → P (step k)
-          use-qr q r (∧-intro r<m k≡mq+r) =
-            ∨-rec use-sr<m use-sr≡m (≤→<∨≡ (<→≤ r<m))
+          use-qr q r (∧-intro r<m k≡mq+r) with ≤→<∨≡ (<→≤ r<m)
+          ... | ∨-introᴸ sr<m =
+            Σ-intro q (Σ-intro (step r) (∧-intro sr<m sk≡mq+sr))
               where
                 sk≡mq+sr = trans (cong step k≡mq+r) (sym +-stepᴿ)
-                use-sr<m = λ sr<m →
-                  Σ-intro q (Σ-intro (step r) (∧-intro sr<m sk≡mq+sr))
-
+          ... | ∨-introᴿ sr≡m =
+            Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
+              where
                 0<m = ∧-intro ≤-zero (¬sym m≢0)
-                use-sr≡m = λ sr≡m →
-                  let sk≡m[sq]+0 =
-                        begin
-                          step k
-                        ≡⟨ cong step k≡mq+r ⟩
-                          step (m * q + r)
-                        ≡⟨ sym +-stepᴿ ⟩
-                          m * q + step r
-                        ≡⟨ cong (m * q +_) sr≡m ⟩
-                          m * q + m
-                        ≡⟨ sym *-stepᴿ ⟩
-                          m * step q
-                        ≡⟨ sym +-zeroᴿ ⟩
-                          m * step q + 0
-                        ∎
-                   in Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
+
+                sk≡m[sq]+0 =
+                  begin
+                    step k
+                  ≡⟨ cong step k≡mq+r ⟩
+                    step (m * q + r)
+                  ≡⟨ sym +-stepᴿ ⟩
+                    m * q + step r
+                  ≡⟨ cong (m * q +_) sr≡m ⟩
+                    m * q + m
+                  ≡⟨ sym *-stepᴿ ⟩
+                    m * step q
+                  ≡⟨ sym +-zeroᴿ ⟩
+                    m * step q + 0
+                  ∎
 
   -- Definition 2.3.11 (Exponentiation for natural numbers).
   _ : ℕ → ℕ → ℕ
