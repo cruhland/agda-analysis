@@ -21,9 +21,9 @@ module _ (PA : PeanoArithmetic) where
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≡+; +-zeroᴸ; +-zeroᴿ
     ; +-assoc; +-cancelᴸ; +-comm
     ; Positive; +-positive; +-both-zero
-    ; _≤_; _<_; _>_; ≤-antisym; ≤-refl; ≤-trans; ≤-zero; <-zero
-    ; <→≤; ≤→<; ≤→<∨≡; ≤s→≤∨≡s; strong-ind; Trichotomy; trichotomy
-    ; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; <→positive-diff; positive-diff→<
+    ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≡; ≤s→≤∨≡s; ≤-intro; <-intro
+    ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
+    ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
     ; _*_; *-assoc; *-comm; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-zeroᴸ; *-zeroᴿ
     ; *-cancelᴿ; *-distrib-+ᴸ; *-distrib-+ᴿ; *-either-zero; *-preserves-<
     ; _^_; ^-stepᴿ; ^-zeroᴿ
@@ -208,7 +208,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Using Definition 2.2.11 on some examples
   8>5 : 8 > 5
-  8>5 = ∧-intro 5≤8 5≢8
+  8>5 = <-intro 5≤8 5≢8
     where
       5+3≡8 =
         begin
@@ -226,7 +226,7 @@ module _ (PA : PeanoArithmetic) where
         ≡⟨⟩
           8
         ∎
-      5≤8 = Σ-intro 3 5+3≡8
+      5≤8 = ≤-intro 3 5+3≡8
       si = step-inj
       5≢8 = λ 5≡8 → step≢zero (si (si (si (si (si (sym 5≡8))))))
 
@@ -251,27 +251,27 @@ module _ (PA : PeanoArithmetic) where
 
   -- (e)
   _ : ∀ {a b} → a < b ↔ step a ≤ b
-  _ = ↔-intro <→≤ ≤→<
+  _ = ↔-intro <→s≤ s≤→<
 
   -- (f)
-  <↔positive-diff : ∀ {a b} → a < b ↔ Σ ℕ λ d → Positive d ∧ b ≡ a + d
-  <↔positive-diff = ↔-intro <→positive-diff positive-diff→<
+  <↔<⁺ : ∀ {a b} → a < b ↔ a <⁺ b
+  <↔<⁺ = ↔-intro <→<⁺ <⁺→<
 
   -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
   trichotomy-of-order :
     ∀ {a b} →
-      Trichotomy a b ∧ ¬ (a < b ∧ a ≡ b ∨ a > b ∧ a ≡ b ∨ a < b ∧ a > b)
+      Trichotomy a b ∧ ¬ ((a < b ∧ a ≡ b) ∨ (a > b ∧ a ≡ b) ∨ (a < b ∧ a > b))
   trichotomy-of-order {a} {b} = ∧-intro trichotomy any-pair-absurd
     where
-      any-pair-absurd : ¬ (a < b ∧ a ≡ b ∨ a > b ∧ a ≡ b ∨ a < b ∧ a > b)
+      any-pair-absurd : ¬ ((a < b ∧ a ≡ b) ∨ (a > b ∧ a ≡ b) ∨ (a < b ∧ a > b))
       any-pair-absurd
-        (∨-introᴸ (∧-intro (∧-intro a≤b a≢b) a≡b)) =
+        (∨-introᴸ (∧-intro (<-intro a≤b a≢b) a≡b)) =
           a≢b a≡b
       any-pair-absurd
-        (∨-introᴿ (∨-introᴸ (∧-intro (∧-intro b≤a b≢a) a≡b))) =
+        (∨-introᴿ (∨-introᴸ (∧-intro (<-intro b≤a b≢a) a≡b))) =
           b≢a (sym a≡b)
       any-pair-absurd
-        (∨-introᴿ (∨-introᴿ (∧-intro (∧-intro a≤b a≢b) (∧-intro b≤a b≢a)))) =
+        (∨-introᴿ (∨-introᴿ (∧-intro (<-intro a≤b a≢b) (<-intro b≤a b≢a)))) =
           a≢b (≤-antisym a≤b b≤a)
 
   -- Proposition 2.2.14
@@ -357,14 +357,14 @@ module _ (PA : PeanoArithmetic) where
         where
           q = 0
           r = 0
-          r<m = ∧-intro ≤-zero (¬sym m≢0)
+          r<m = <-intro ≤-zero (¬sym m≢0)
           n≡mq+r = sym (trans +-zeroᴿ *-zeroᴿ)
 
       Ps : step-case P
       Ps {k} Pk = Σ-rec (λ q Σr → Σ-rec (use-qr q) Σr) Pk
         where
           use-qr : ∀ q r → r < m ∧ k ≡ m * q + r → P (step k)
-          use-qr q r (∧-intro r<m k≡mq+r) with ≤→<∨≡ (<→≤ r<m)
+          use-qr q r (∧-intro r<m k≡mq+r) with ≤→<∨≡ (<→s≤ r<m)
           ... | ∨-introᴸ sr<m =
             Σ-intro q (Σ-intro (step r) (∧-intro sr<m sk≡mq+sr))
               where
@@ -372,7 +372,7 @@ module _ (PA : PeanoArithmetic) where
           ... | ∨-introᴿ sr≡m =
             Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
               where
-                0<m = ∧-intro ≤-zero (¬sym m≢0)
+                0<m = <-intro ≤-zero (¬sym m≢0)
 
                 sk≡m[sq]+0 =
                   begin

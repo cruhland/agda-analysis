@@ -20,7 +20,7 @@ module net.cruhland.Analysis.Chapter3.Predicate (PA : PeanoArithmetic) where
 open PeanoArithmetic PA using
   ( ℕ; step≢zero; step-inj; number
   ; _+_; +-zeroᴸ; +-stepᴸ⃗ᴿ
-  ; _≤_; _<_; n<sn; <-trans
+  ; _≤_; _<_; <→≢; ≤-intro; <-intro; n<sn; <-trans
   )
 
 {-= Chapter 3: Set theory (type theory predicate approach) =-}
@@ -590,16 +590,16 @@ module _ where
       forward : x ∈ S ⟨ ℕ-predicate (_< 4) ⟩ → x ∈ triple {U = ℕ-Setoid} 1 2 3
       forward (∧-intro x∈S x<4) with x∈S
       ... | ∨-introᴸ x∈123 = x∈123
-      ... | ∨-introᴿ (∨-introᴸ x≡4) = ⊥-elim ((∧-elimᴿ x<4) x≡4)
-      ... | ∨-introᴿ (∨-introᴿ x≡5) = ⊥-elim ((∧-elimᴿ (<-trans x<4 n<sn)) x≡5)
+      ... | ∨-introᴿ (∨-introᴸ x≡4) = ⊥-elim ((<→≢ x<4) x≡4)
+      ... | ∨-introᴿ (∨-introᴿ x≡5) = ⊥-elim ((<→≢ (<-trans x<4 n<sn)) x≡5)
 
       x≤4 : x ∈ triple {U = ℕ-Setoid} 1 2 3 → x ≤ 4
       x≤4 (∨-introᴸ (∨-introᴸ x≡1)) =
-        Σ-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡1) 1+3≡4)
+        ≤-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡1) 1+3≡4)
       x≤4 (∨-introᴸ (∨-introᴿ x≡2)) =
-        Σ-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡2) 2+2≡4)
+        ≤-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡2) 2+2≡4)
       x≤4 (∨-introᴿ x≡3) =
-        Σ-intro 1 (Eq.trans (Eq.cong (_+ 1) x≡3) 3+1≡4)
+        ≤-intro 1 (Eq.trans (Eq.cong (_+ 1) x≡3) 3+1≡4)
 
       4≢x : x ∈ triple {U = ℕ-Setoid} 1 2 3 → 4 ≢ x
       4≢x (∨-introᴸ (∨-introᴸ x≡1)) 4≡x =
@@ -613,7 +613,7 @@ module _ where
       backward x∈123 = ∧-intro x∈S x<4
         where
           x∈S = ∨-introᴸ x∈123
-          x<4 = ∧-intro (x≤4 x∈123) (¬sym (4≢x x∈123))
+          x<4 = <-intro (x≤4 x∈123) (¬sym (4≢x x∈123))
 
   S⟨n<7⟩≅S : S ⟨ ℕ-predicate (_< 7) ⟩ ≅ S
   S⟨n<7⟩≅S x = ↔-intro forward backward
@@ -624,11 +624,11 @@ module _ where
       backward : x ∈ S → x ∈ S ⟨ ℕ-predicate (_< 7) ⟩
       backward x∈S = ∧-intro x∈S x<7
         where
-          use-1 = λ x≡1 → Σ-intro 6 (Eq.trans (Eq.cong (_+ 6) x≡1) 1+6≡7)
-          use-2 = λ x≡2 → Σ-intro 5 (Eq.trans (Eq.cong (_+ 5) x≡2) 2+5≡7)
-          use-3 = λ x≡3 → Σ-intro 4 (Eq.trans (Eq.cong (_+ 4) x≡3) 3+4≡7)
-          use-4 = λ x≡4 → Σ-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡4) 4+3≡7)
-          use-5 = λ x≡5 → Σ-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡5) 5+2≡7)
+          use-1 = λ x≡1 → ≤-intro 6 (Eq.trans (Eq.cong (_+ 6) x≡1) 1+6≡7)
+          use-2 = λ x≡2 → ≤-intro 5 (Eq.trans (Eq.cong (_+ 5) x≡2) 2+5≡7)
+          use-3 = λ x≡3 → ≤-intro 4 (Eq.trans (Eq.cong (_+ 4) x≡3) 3+4≡7)
+          use-4 = λ x≡4 → ≤-intro 3 (Eq.trans (Eq.cong (_+ 3) x≡4) 4+3≡7)
+          use-5 = λ x≡5 → ≤-intro 2 (Eq.trans (Eq.cong (_+ 2) x≡5) 5+2≡7)
           x≤7 = ∨-rec (∨-rec (∨-rec use-1 use-2) use-3) (∨-rec use-4 use-5) x∈S
 
           x≢7 : x ≢ 7
@@ -649,7 +649,7 @@ module _ where
               contra-triple = ∨-rec (∨-rec contra-1 contra-2) contra-3
               contra-pair = ∨-rec contra-4 contra-5
 
-          x<7 = ∧-intro x≤7 x≢7
+          x<7 = <-intro x≤7 x≢7
 
   S⟨n<1⟩≅∅ : S ⟨ ℕ-predicate (_< 1) ⟩ ≅ ∅
   S⟨n<1⟩≅∅ x = ↔-intro forward backward
@@ -661,11 +661,11 @@ module _ where
           x<3 = <-trans x<2 n<sn
           x<4 = <-trans x<3 n<sn
           x<5 = <-trans x<4 n<sn
-          x≢1 = ∧-elimᴿ x<1
-          x≢2 = ∧-elimᴿ x<2
-          x≢3 = ∧-elimᴿ x<3
-          x≢4 = ∧-elimᴿ x<4
-          x≢5 = ∧-elimᴿ x<5
+          x≢1 = <→≢ x<1
+          x≢2 = <→≢ x<2
+          x≢3 = <→≢ x<3
+          x≢4 = <→≢ x<4
+          x≢5 = <→≢ x<5
           use-triple = ∨-rec (∨-rec x≢1 x≢2) x≢3
           use-pair = ∨-rec x≢4 x≢5
 
