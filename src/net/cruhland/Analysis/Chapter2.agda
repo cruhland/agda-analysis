@@ -3,21 +3,20 @@ module net.cruhland.Analysis.Chapter2 where
 open import Agda.Builtin.FromNat using (Number)
 open import Function using (id; const)
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; _≢_; refl; sym; trans; subst; cong)
+open Eq using (_≡_; _≢_; refl; sym; trans; subst; cong; cong₂)
 open Eq.≡-Reasoning
 open import net.cruhland.axiomatic.Logic using
   ( _∧_; ∧-intro
   ; _∨_; ∨-forceᴿ; ∨-introᴸ; ∨-introᴿ
   ; _↔_; ↔-intro
   ; ⊥-elim; ¬_; ¬sym
-  ; Σ; Σ-intro; Σ-rec; snd
   )
 open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
 module _ (PA : PeanoArithmetic) where
   open PeanoArithmetic PA using
-    ( ℕ; ind; ind-zero; ind-step; step; step-case; step-inj; step≢zero; zero
-    ; Case-step; Case-zero; case; number; Pred-intro; pred
+    ( ℕ; ind; step; step-case; step-inj; step≢zero; zero
+    ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≡+; +-zeroᴸ; +-zeroᴿ
     ; +-assoc; +-cancelᴸ; +-comm
     ; Positive; +-positive; +-both-zero
@@ -94,16 +93,41 @@ module _ (PA : PeanoArithmetic) where
   _ = ind
 
   -- Proposition 2.1.16 (Recursive definitions).
-  -- There's something not quite right here, but it's hard for me to
-  -- pin it down. I think because the book doesn't have the ind-zero
-  -- and ind-step axioms that I defined. Essentially, those β-reduction
-  -- rules are equivalent to the book's argument that recursive definitions
-  -- exist. It makes me wonder whether ind-zero and ind-step are necessary.
-  rec-def :
-    (f : {n : ℕ} → (ℕ → ℕ)) →
-    (c : ℕ) →
-    Σ (ℕ → ℕ) (λ a → a 0 ≡ c ∧ ∀ n → a (step n) ≡ f {n} (a n))
-  rec-def f c = Σ-intro (ind (const ℕ) c f) (∧-intro ind-zero (λ n → ind-step))
+  module RecDef (f : (n : ℕ) → ℕ → ℕ) (c : ℕ) where
+    data _AssignedTo_ : ℕ → ℕ → Set where
+      assign-zero : c AssignedTo zero
+      assign-step : ∀ {a k} → a AssignedTo k → (f k a) AssignedTo (step k)
+
+    record UniqueAssignment (n : ℕ) : Set where
+      constructor assign-intro
+      field
+        a : ℕ
+        assign-exists : a AssignedTo n
+        assign-unique : ∀ a′ → a′ AssignedTo n → a ≡ a′
+
+    rec-def : ∀ n → UniqueAssignment n
+    rec-def = ind P Pz Ps
+      where
+        P = UniqueAssignment
+
+        Pz : P zero
+        Pz = assign-intro c assign-zero (c-unique zero refl)
+          where
+            c-unique : ∀ m → m ≡ zero → ∀ a′ → a′ AssignedTo m → c ≡ a′
+            c-unique zero m≡z a′ assign-zero = refl
+            c-unique .(step _) s≡z a′ (assign-step _) = ⊥-elim (step≢zero s≡z)
+
+        Ps : step-case P
+        Ps {k} (assign-intro a exists unique) =
+          assign-intro (f k a) (assign-step exists) (f-unique (step k) refl)
+            where
+              f-unique : ∀ m → m ≡ step k → ∀ a′ → a′ AssignedTo m → f k a ≡ a′
+              f-unique zero z≡sk a′ assign-zero =
+                ⊥-elim (step≢zero (sym z≡sk))
+              f-unique .(step pk) spk≡sk a′ (assign-step {pa} {pk} pa≔pk) =
+                let pk≡k = step-inj spk≡sk
+                    a≡pa = unique pa (subst (pa AssignedTo_) pk≡k pa≔pk)
+                 in cong₂ f (sym pk≡k) a≡pa
 
   {- 2.2 Addition -}
 
@@ -178,10 +202,10 @@ module _ (PA : PeanoArithmetic) where
   -- proof by contradicition, because the latter is nonconstructive.
   a+b≡0→a≡0∧b≡0 : ∀ {a b} → a + b ≡ 0 → a ≡ 0 ∧ b ≡ 0
   a+b≡0→a≡0∧b≡0 {a} {b} a+b≡0 with case a
-  ... | Case-zero a≡0 = ∧-intro a≡0 (trans (sym +-zeroᴸ) 0+b≡0)
+  ... | case-zero a≡0 = ∧-intro a≡0 (trans (sym +-zeroᴸ) 0+b≡0)
     where
       0+b≡0 = subst (λ x → x + b ≡ 0) a≡0 a+b≡0
-  ... | Case-step (Pred-intro p a≡sp) = ⊥-elim (step≢zero s[p+b]≡0)
+  ... | case-step (pred-intro p a≡sp) = ⊥-elim (step≢zero s[p+b]≡0)
     where
       step-p+b≡0 = subst (λ x → x + b ≡ 0) a≡sp a+b≡0
       s[p+b]≡0 = trans (sym +-stepᴸ) step-p+b≡0
@@ -194,13 +218,20 @@ module _ (PA : PeanoArithmetic) where
   -- Lemma 2.2.10. Let a be a positive natural number. Then there exists
   -- exactly one natural number b such that step b = a.
   -- Exercise 2.2.2
-  _HasUniquePredecessor_ : ℕ → ℕ → Set
-  a HasUniquePredecessor b = a ≡ step b ∧ ∀ b′ → a ≡ step b′ → b ≡ b′
+  record UniquePred (n : ℕ) : Set where
+    constructor upred-intro
+    field
+      pred-exists : Pred n
 
-  unique-predecessor : ∀ a → Positive a → Σ ℕ (a HasUniquePredecessor_)
-  unique-predecessor a a≢0 with pred a≢0
-  ... | Pred-intro b a≡sb =
-    Σ-intro b (∧-intro a≡sb λ b′ a≡sb′ → step-inj (trans (sym a≡sb) a≡sb′))
+    open Pred pred-exists public
+
+    field
+      pred-unique : ∀ m → m IsPred n → pred-value ≡ m
+
+  unique-predecessor : ∀ a → Positive a → UniquePred a
+  unique-predecessor a a≢0 =
+    let p@(pred-intro b a≡sb) = pred a≢0
+     in upred-intro p (λ b′ a≡sb′ → step-inj (trans (sym a≡sb) a≡sb′))
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
   _ : ℕ → ℕ → Set
@@ -347,13 +378,20 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.3.9 (Euclidean algorithm).
   -- Exercise 2.3.5
-  euclid : ∀ n m → m ≢ 0 → Σ ℕ λ q → Σ ℕ λ r → r < m ∧ n ≡ m * q + r
+  record _DividedBy_ (n m : ℕ) : Set where
+    constructor div-intro
+    field
+      q r : ℕ
+      r<m : r < m
+      n≡mq+r : n ≡ m * q + r
+
+  euclid : ∀ n m → m ≢ 0 → n DividedBy m
   euclid n m m≢0 = ind P Pz Ps n
     where
-      P = λ x → Σ ℕ λ q → Σ ℕ λ r → r < m ∧ x ≡ m * q + r
+      P = _DividedBy m
 
       Pz : P 0
-      Pz = Σ-intro q (Σ-intro r (∧-intro r<m n≡mq+r))
+      Pz = div-intro q r r<m n≡mq+r
         where
           q = 0
           r = 0
@@ -361,33 +399,28 @@ module _ (PA : PeanoArithmetic) where
           n≡mq+r = sym (trans +-zeroᴿ *-zeroᴿ)
 
       Ps : step-case P
-      Ps {k} Pk = Σ-rec (λ q Σr → Σ-rec (use-qr q) Σr) Pk
+      Ps {k} (div-intro q r r<m k≡mq+r) with ≤→<∨≡ (<→s≤ r<m)
+      ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≡mq+sr
         where
-          use-qr : ∀ q r → r < m ∧ k ≡ m * q + r → P (step k)
-          use-qr q r (∧-intro r<m k≡mq+r) with ≤→<∨≡ (<→s≤ r<m)
-          ... | ∨-introᴸ sr<m =
-            Σ-intro q (Σ-intro (step r) (∧-intro sr<m sk≡mq+sr))
-              where
-                sk≡mq+sr = trans (cong step k≡mq+r) (sym +-stepᴿ)
-          ... | ∨-introᴿ sr≡m =
-            Σ-intro (step q) (Σ-intro 0 (∧-intro 0<m sk≡m[sq]+0))
-              where
-                0<m = <-intro ≤-zero (¬sym m≢0)
+          sk≡mq+sr = trans (cong step k≡mq+r) (sym +-stepᴿ)
+      ... | ∨-introᴿ sr≡m = div-intro (step q) 0 0<m sk≡m[sq]+0
+        where
+          0<m = <-intro ≤-zero (¬sym m≢0)
 
-                sk≡m[sq]+0 =
-                  begin
-                    step k
-                  ≡⟨ cong step k≡mq+r ⟩
-                    step (m * q + r)
-                  ≡⟨ sym +-stepᴿ ⟩
-                    m * q + step r
-                  ≡⟨ cong (m * q +_) sr≡m ⟩
-                    m * q + m
-                  ≡⟨ sym *-stepᴿ ⟩
-                    m * step q
-                  ≡⟨ sym +-zeroᴿ ⟩
-                    m * step q + 0
-                  ∎
+          sk≡m[sq]+0 =
+            begin
+              step k
+            ≡⟨ cong step k≡mq+r ⟩
+              step (m * q + r)
+            ≡⟨ sym +-stepᴿ ⟩
+              m * q + step r
+            ≡⟨ cong (m * q +_) sr≡m ⟩
+              m * q + m
+            ≡⟨ sym *-stepᴿ ⟩
+              m * step q
+            ≡⟨ sym +-zeroᴿ ⟩
+              m * step q + 0
+            ∎
 
   -- Definition 2.3.11 (Exponentiation for natural numbers).
   _ : ℕ → ℕ → ℕ
