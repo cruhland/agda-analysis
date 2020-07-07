@@ -93,17 +93,25 @@ module _ (PA : PeanoArithmetic) where
   _ = ind
 
   -- Proposition 2.1.16 (Recursive definitions).
+  -- Suppose for each natural number n, we have some function
+  -- f_n : ℕ → ℕ from the natural numbers to the natural numbers. Let
+  -- c be a natural number.
   module RecDef (f : (n : ℕ) → ℕ → ℕ) (c : ℕ) where
+
+    -- Then we can assign a unique [see UniqueAssignment below]
+    -- natural number a_n to each natural number n, such that...
     data _AssignedTo_ : ℕ → ℕ → Set where
+      -- a_0 = c
       assign-zero : c AssignedTo zero
-      assign-step : ∀ {a k} → a AssignedTo k → (f k a) AssignedTo (step k)
+      -- and a_(step n) = f_n(a_n) for each natural number n.
+      assign-step : ∀ a n → a AssignedTo n → (f n a) AssignedTo (step n)
 
     record UniqueAssignment (n : ℕ) : Set where
       constructor assign-intro
       field
         a : ℕ
         assign-exists : a AssignedTo n
-        assign-unique : ∀ a′ → a′ AssignedTo n → a ≡ a′
+        assign-unique : ∀ b → b AssignedTo n → a ≡ b
 
     rec-def : ∀ n → UniqueAssignment n
     rec-def = ind P Pz Ps
@@ -113,21 +121,23 @@ module _ (PA : PeanoArithmetic) where
         Pz : P zero
         Pz = assign-intro c assign-zero (c-unique zero refl)
           where
-            c-unique : ∀ m → m ≡ zero → ∀ a′ → a′ AssignedTo m → c ≡ a′
-            c-unique zero m≡z a′ assign-zero = refl
-            c-unique .(step _) s≡z a′ (assign-step _) = ⊥-elim (step≢zero s≡z)
+            c-unique : ∀ m → m ≡ zero → ∀ b → b AssignedTo m → c ≡ b
+            c-unique zero z≡z .c assign-zero =
+              refl
+            c-unique .(step m′) sm′≡z .(f m′ b′) (assign-step b′ m′ b′≔m′) =
+              ⊥-elim (step≢zero sm′≡z)
 
         Ps : step-case P
-        Ps {k} (assign-intro a exists unique) =
-          assign-intro (f k a) (assign-step exists) (f-unique (step k) refl)
+        Ps {k} (assign-intro a a≔k unique) =
+          assign-intro (f k a) (assign-step a k a≔k) (f-unique (step k) refl)
             where
-              f-unique : ∀ m → m ≡ step k → ∀ a′ → a′ AssignedTo m → f k a ≡ a′
-              f-unique zero z≡sk a′ assign-zero =
+              f-unique : ∀ m → m ≡ step k → ∀ b → b AssignedTo m → f k a ≡ b
+              f-unique zero z≡sk .c assign-zero =
                 ⊥-elim (step≢zero (sym z≡sk))
-              f-unique .(step pk) spk≡sk a′ (assign-step {pa} {pk} pa≔pk) =
-                let pk≡k = step-inj spk≡sk
-                    a≡pa = unique pa (subst (pa AssignedTo_) pk≡k pa≔pk)
-                 in cong₂ f (sym pk≡k) a≡pa
+              f-unique .(step k′) sk′≡sk .(f k′ a′) (assign-step a′ k′ a′≔k′) =
+                let k′≡k = step-inj sk′≡sk
+                    a≡a′ = unique a′ (subst (a′ AssignedTo_) k′≡k a′≔k′)
+                 in cong₂ f (sym k′≡k) a≡a′
 
   {- 2.2 Addition -}
 
