@@ -11,7 +11,6 @@ open import net.cruhland.axiomatic.Logic using
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro; ↔-refl; ↔-sym; ↔-trans
   ; ⊤
   ; ⊥-elim; ⊥ᴸᴾ; ⊥ᴸᴾ-elim; ¬_; ¬sym
-  ; Σ; Σ-intro; Σ-map-snd; Σ-rec
   )
 open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
@@ -405,10 +404,16 @@ A ⊆ B = ∀ x → x ∈ A → x ∈ B
 _⊈_ : PSet U υ → PSet U υ → Set _
 A ⊈ B = ¬ (A ⊆ B)
 
--- [note] Using Σ instead of A ≇ B because the latter doesn't
--- allow constructive proofs
-_⊊_ : PSet U υ → PSet U υ → Set _
-_⊊_ {U = U} A B = A ⊆ B ∧ Σ (El U) λ x → x ∈ B ∧ x ∉ A
+-- [note] Using direct evidence of an element of B that's not in A,
+-- instead of A ≇ B because the latter doesn't allow constructive
+-- proofs
+record _⊊_ {U : Setoid υ₁ υ₂} (A B : PSet U υ) : Set (υ₁ ⊔ υ) where
+  constructor ⊊-intro
+  field
+    ⊊→⊆ : A ⊆ B
+    ⊊-point : El U
+    ⊊-point∉A : ⊊-point ∉ A
+    ⊊-point∈B : ⊊-point ∈ B
 
 -- Remark 3.1.16
 subst-⊆ : {A A′ B : PSet U υ} → A ≅ A′ → A ⊆ B → A′ ⊆ B
@@ -424,7 +429,7 @@ subst-⊆ A≅A′ A⊆B x = (A⊆B x) ∘ (↔-elimᴿ (A≅A′ x))
 124⊆12345 n (∨-introᴿ n≡4) = ∨-introᴿ (∨-introᴸ n≡4)
 
 124⊊12345 : triple {U = ℕ-Setoid} 1 2 4 ⊊ quintuple 1 2 3 4 5
-124⊊12345 = ∧-intro 124⊆12345 (Σ-intro 3 (∧-intro 3∈12345 3∉124))
+124⊊12345 = ⊊-intro 124⊆12345 3 3∉124 3∈12345
   where
     3∈12345 = ∨-introᴸ (∨-introᴿ Eq.refl)
 
@@ -454,28 +459,15 @@ A≅B→A⊆B A≅B = ↔-elimᴸ ∘ A≅B
 A≅B→B⊆A : {A B : PSet U υ} → A ≅ B → B ⊆ A
 A≅B→B⊆A A≅B = ↔-elimᴿ ∘ A≅B
 
-A⊊B→A⊆B : {A B : PSet U υ} → A ⊊ B → A ⊆ B
-A⊊B→A⊆B (∧-intro A⊆B Σx∈B∧x∉A) = A⊆B
-
 A⊊B→B⊈A : {A B : PSet U υ} → A ⊊ B → B ⊈ A
-A⊊B→B⊈A (∧-intro A⊆B Σx∈B∧x∉A) B⊆A = Σ-rec use-x∈B∧x∉A Σx∈B∧x∉A
-  where
-    use-x∈B∧x∉A = λ { x (∧-intro x∈B x∉A) → x∉A (B⊆A x x∈B) }
+A⊊B→B⊈A (⊊-intro A⊆B x x∉A x∈B) B⊆A = x∉A (B⊆A x x∈B)
 
 ⊊-trans : {A B C : PSet U υ} → A ⊊ B → B ⊊ C → A ⊊ C
-⊊-trans {U = U} {A = A} {B} {C} (∧-intro A⊆B Σx∈B∧x∉A) (∧-intro B⊆C Σx∈C∧x∉B) =
-  ∧-intro A⊆C Σx∈C∧x∉A
+⊊-trans {U = U} {A = A} {B} {C}
+  (⊊-intro A⊆B x x∉A x∈B) (⊊-intro B⊆C y y∉B y∈C) = ⊊-intro A⊆C y y∉A y∈C
     where
       A⊆C = ⊆-trans {U = U} {A = A} {B} {C} A⊆B B⊆C
-
-      x∉B→x∉A : ∀ {x} → x ∉ B → x ∉ A
-      x∉B→x∉A {x} x∉B x∈A = x∉B (A⊆B x x∈A)
-
-      use-x∈C∧x∉B : ∀ {x} → x ∈ C ∧ x ∉ B → x ∈ C ∧ x ∉ A
-      use-x∈C∧x∉B {x} x∈C∧x∉B = ∧-mapᴿ x∉B→x∉A x∈C∧x∉B
-
-      Σx∈C∧x∉A : Σ (El U) λ x → x ∈ C ∧ x ∉ A
-      Σx∈C∧x∉A = Σ-map-snd use-x∈C∧x∉B Σx∈C∧x∉B
+      y∉A = y∉B ∘ A⊆B y
 
 -- Remark 3.1.20
 13⊈24 : pair {U = ℕ-Setoid} 1 3 ⊈ pair 2 4
