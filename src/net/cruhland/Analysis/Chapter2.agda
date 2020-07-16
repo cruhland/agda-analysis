@@ -5,13 +5,13 @@ open import Function using (id; const)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; _≢_; refl; sym; trans; subst; cong; cong₂)
 open Eq.≡-Reasoning
-open import net.cruhland.axiomatic.Logic using
+open import net.cruhland.axioms.Peano using (PeanoArithmetic)
+open import net.cruhland.models.Logic using
   ( _∧_; ∧-intro
   ; _∨_; ∨-forceᴿ; ∨-introᴸ; ∨-introᴿ
   ; _↔_; ↔-intro
   ; ⊥-elim; ¬_; ¬sym
   )
-open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
 module _ (PA : PeanoArithmetic) where
   open PeanoArithmetic PA using

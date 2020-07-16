@@ -4,7 +4,8 @@ open import Level using (Level; _⊔_) renaming (zero to lzero; suc to lsuc)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; _≢_)
 open Eq.≡-Reasoning
-open import net.cruhland.axiomatic.Logic using
+open import net.cruhland.axioms.Peano using (PeanoArithmetic)
+open import net.cruhland.models.Logic using
   ( _∧_; ∧-dup; ∧-elimᴿ; ∧-intro; ∧-map; ∧-mapᴸ; ∧-mapᴿ
   ; _∨_; ∨-assocᴸᴿ; ∨-assocᴿᴸ; ∨-comm; ∨-identᴸ; ∨-identᴿ
   ; ∨-introᴸ; ∨-introᴿ; ∨-map; ∨-mapᴸ; ∨-mapᴿ; ∨-merge; ∨-rec
@@ -12,7 +13,6 @@ open import net.cruhland.axiomatic.Logic using
   ; ⊤
   ; ⊥-elim; ⊥ᴸᴾ; ⊥ᴸᴾ-elim; ¬_; ¬sym
   )
-open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Predicate (PA : PeanoArithmetic) where
 

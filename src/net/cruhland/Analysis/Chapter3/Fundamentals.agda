@@ -1,16 +1,20 @@
 open import Agda.Builtin.FromNat using (Number)
+open import Data.Bool using (true)
 open import Data.List using ([]; _∷_)
 import Data.List.Membership.DecPropositional as DecMembership
 open import Data.List.Relation.Unary.Any using (here; there)
 open import Data.Unit using (⊤)
 open import Function using (id; _∘_)
 open import Level using (_⊔_; Level) renaming (suc to lsuc; zero to lzero)
+open import Relation.Binary using (DecSetoid; Decidable)
 open import Relation.Binary.PropositionalEquality
   using (_≡_; _≢_; refl; subst; sym; isEquivalence)
-open import net.cruhland.axiomatic.Logic using (no; yes)
-open import net.cruhland.axiomatic.Peano using (PeanoArithmetic)
-open import net.cruhland.axiomatic.Sets using (SetTheory)
-import net.cruhland.axiomatic.Sets.Finite as FiniteSets
+open import Relation.Nullary using (does)
+open import Relation.Nullary.Decidable using (False; True; toWitness)
+open import net.cruhland.axioms.Peano using (PeanoArithmetic)
+open import net.cruhland.axioms.Sets using (SetTheory)
+import net.cruhland.axioms.Sets.Finite as FiniteSets
+open import net.cruhland.models.Logic using (no; yes)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals
     (PA : PeanoArithmetic) (ST : SetTheory) where
@@ -27,7 +31,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals
   ℕ-Setoid : Setoid lzero lzero
   ℕ-Setoid = record { Carrier = ℕ ; _≈_ = _≡_ ; isEquivalence = isEquivalence }
 
-  open DecMembership {A = ℕ} _≡?_ using (_∈?_) renaming (_∉_ to _∉ᴸ_)
+  ℕ-DecSetoid : DecSetoid lzero lzero
+  ℕ-DecSetoid = record
+    { Carrier = ℕ
+    ; _≈_ = _≡_
+    ; isDecEquivalence = record { isEquivalence = isEquivalence ; _≟_ = _≡?_ }
+    }
+
+  open DecMembership {A = ℕ} _≡?_
+    using () renaming (_∈?_ to _∈ᴸ?_; _∈_ to _∈ᴸ_; _∉_ to _∉ᴸ_)
 
   3≢1 : 3 ≢ 1
   3≢1 = step≢zero ∘ step-inj
@@ -79,6 +91,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals
   _ = _∉_
 
   ⟨12345⟩ = 1 ∷ 2 ∷ 3 ∷ 4 ∷ 5 ∷ []
+
+  _ : 3 ∈ᴸ ⟨12345⟩
+  _ = toWitness {Q = 3 ∈ᴸ? ⟨12345⟩} _
 
   -- For instance, 3 ∈ {1, 2, 3, 4, 5}
   _ : 3 ∈ finite {S = ℕ-Setoid} ⟨12345⟩
