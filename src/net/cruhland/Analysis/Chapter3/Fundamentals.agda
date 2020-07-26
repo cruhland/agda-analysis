@@ -1,23 +1,26 @@
 open import Data.List using ([]; _∷_)
 import Data.List.Membership.DecPropositional as DecMembership
+open import Function using (_∘_)
 open import Level using (_⊔_; Level) renaming (suc to lsuc; zero to lzero)
 open import Relation.Binary using (DecSetoid)
 open import Relation.Binary.PropositionalEquality using (setoid; decSetoid)
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
-open import net.cruhland.models.Logic using (_∨_; ∨-introᴸ; ∨-introᴿ; _↔_)
+open import net.cruhland.models.Logic using
+  (_∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_)
 
   open SetTheory ST using
-    ( _∈_; _∉_; _≗_; _≗̸_; El; PSet; PSet-Setoid; Setoid
+    ( _∈_; _∉_; _≗_; _≗̸_; El; ≗-intro; PSet; PSet-Setoid; Setoid
     ; ≗-refl; ∈-substᴸ; ∈-substᴿ; ≗-sym; ≗-trans
     ; ∅; x∉∅; ∅-unique
-    ; singleton; x∈sa↔x≈a
-    ; pair; x∈pab↔x≈a∨x≈b
+    ; singleton; singleton-unique; x∈sa↔x≈a; x∈sa-elim; x∈sa-intro
+    ; pair; pair-unique; x∈pab↔x≈a∨x≈b; x∈pab-elim; x∈pab-intro
+    ; _⊆_; ⊆-antisym; ⊆-intro
     ; finite; module Memberᴸ; module Subsetᴸ
     )
 
@@ -185,3 +188,34 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     {S : Setoid σ₁ σ₂} {a b y : El S} →
       let open Setoid S using (_≈_) in y ∈ pair {S = S} {α} a b ↔ y ≈ a ∨ y ≈ b
   _ = x∈pab↔x≈a∨x≈b
+
+  -- Remarks 3.1.9
+  -- Just as there is only one empty set, there is only one singleton
+  -- set for each object a, thanks to Definition 3.1.4.
+  _ :
+    {S : Setoid σ₁ σ₂} {A : PSet S α} {a : El S} →
+      let open Setoid S using (_≈_) in (∀ {x} → x ∈ A ↔ x ≈ a) → singleton a ≗ A
+  _ = singleton-unique
+
+  -- Similarly, given any two objects a and b, there is only one pair
+  -- set formed by a and b.
+  _ :
+    {S : Setoid σ₁ σ₂} {A : PSet S α} {a b : El S} →
+      let open Setoid S using (_≈_)
+       in (∀ {x} → x ∈ A ↔ x ≈ a ∨ x ≈ b) → pair a b ≗ A
+  _ = pair-unique
+
+  -- Also, Definition 3.1.4 ensures that pair a b ≗ pair b a
+  pair-comm : {S : Setoid σ₁ σ₂} {a b : El S} → pair {S = S} {α} a b ≗ pair b a
+  pair-comm {S = S} = ⊆-antisym ab⊆ba ba⊆ab
+    where
+      ab⊆ba = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elim)
+      ba⊆ab = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elim)
+
+  -- and pair a a ≗ singleton a.
+  pair-singleton :
+    {S : Setoid σ₁ σ₂} {a : El S} → pair {S = S} {α} a a ≗ singleton a
+  pair-singleton = ⊆-antisym paa⊆sa sa⊆paa
+    where
+      paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elim)
+      sa⊆paa = ⊆-intro (x∈pab-intro ∘ ∨-introᴸ ∘ x∈sa-elim)
