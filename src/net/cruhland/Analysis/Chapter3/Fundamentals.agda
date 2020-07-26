@@ -11,11 +11,10 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_)
-  open DecMembership {A = ℕ} _≡?_ using () renaming (_∈?_ to _∈ᴸ?_)
 
   open SetTheory ST using
     ( _∈_; _∉_; _≗_; _≗̸_; El; PSet; PSet-Setoid; Setoid
-    ; finite; ∈ᴸ→∈fin; ∉ᴸ→∉fin; module Subsetᴸ
+    ; finite; module Memberᴸ; module Subsetᴸ
     )
 
   variable
@@ -28,6 +27,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ℕ-DecSetoid : DecSetoid lzero lzero
   ℕ-DecSetoid = decSetoid _≡?_
 
+  open Memberᴸ {DS = ℕ-DecSetoid} using (_∈?_)
   open Subsetᴸ {DS = ℕ-DecSetoid} using (_≗?_)
 
   {- 3.1 Fundamentals -}
@@ -38,8 +38,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = PSet
 
   -- e.g., {3, 8, 5, 2} is a set.
-  _ : PSet ℕ-Setoid lzero
-  _ = finite (3 ∷ 8 ∷ 5 ∷ 2 ∷ [])
+  [3852] = 3 ∷ 8 ∷ 5 ∷ 2 ∷ []
+  ⟨3852⟩ : PSet ℕ-Setoid lzero
+  ⟨3852⟩ = finite {S = ℕ-Setoid} [3852]
 
   -- If x is an object, we say that x _is an element of_ A or x ∈ A if
   -- x lies in the collection
@@ -55,11 +56,11 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- For instance, 3 ∈ {1, 2, 3, 4, 5}
   _ : 3 ∈ ⟨12345⟩
-  _ = ∈ᴸ→∈fin (toWitness {Q = 3 ∈ᴸ? [12345]} _)
+  _ = toWitness {Q = 3 ∈? [12345]} _
 
   -- but 7 ∉ {1, 2, 3, 4, 5}.
   _ : 7 ∉ ⟨12345⟩
-  _ = ∉ᴸ→∉fin (toWitnessFalse {Q = 7 ∈ᴸ? [12345]} _)
+  _ = toWitnessFalse {Q = 7 ∈? [12345]} _
 
   -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
   -- object. In particular, given two sets A and B, it is meaningful to
@@ -101,9 +102,6 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = toWitness {Q = [12345] ≗? [3315242]} _
 
   -- [note] informal examples given prior to Definition 3.1.4
-  [3852] = 3 ∷ 8 ∷ 5 ∷ 2 ∷ []
-  ⟨3852⟩ = finite {S = ℕ-Setoid} [3852]
-
   [2358] = 2 ∷ 3 ∷ 5 ∷ 8 ∷ []
   _ : ⟨3852⟩ ≗ finite [2358]
   _ = toWitness {Q = [3852] ≗? [2358]} _
