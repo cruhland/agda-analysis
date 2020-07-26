@@ -13,7 +13,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_)
 
   open SetTheory ST using
-    ( _∈_; _∉_; _≗_; _≗̸_; El; PSet; PSet-Setoid; ≗-refl; Setoid; ≗-sym; ≗-trans
+    ( _∈_; _∉_; _≗_; _≗̸_; El; PSet; PSet-Setoid; Setoid
+    ; ≗-refl; ∈-substᴸ; ∈-substᴿ; ≗-sym; ≗-trans
+    ; ∅; x∉∅; ∅-unique
     ; finite; module Memberᴸ; module Subsetᴸ
     )
 
@@ -125,3 +127,36 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   _ : {A B C : PSet S α} → A ≗ B → B ≗ C → A ≗ C
   _ = ≗-trans
+
+  -- Observe that if x ∈ A and A ≗ B, then x ∈ B, by Definition
+  -- 3.1.4. This the "is an element of" relation _∈_ obeys the axiom
+  -- of substitution.
+  _ : {S : Setoid σ₁ σ₂} {A B : PSet S α} {x : El S} → A ≗ B → x ∈ A → x ∈ B
+  _ = ∈-substᴿ
+
+  -- [note] Tao only mentions substitution for the right-hand side of
+  -- _∈_, but it's also important that it works for the left-hand
+  -- side:
+  _ : {A B : PSet S α} {C : PSet (PSet-Setoid S α) β} → A ≗ B → A ∈ C → B ∈ C
+  _ = ∈-substᴸ
+
+  -- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty set_
+  _ : PSet S α
+  _ = ∅
+
+  -- which contains no elements, i.e., for every object x we have x ∉ ∅.
+  _ : {S : Setoid σ₁ σ₂} {x : El S} → x ∉ (∅ {S = S} {α = α})
+  _ = x∉∅
+
+  -- Note that there can only be one empty set; if there were two sets
+  -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
+  -- would be equal to each other.
+  _ : {S : Setoid σ₁ σ₂} {∅′ : PSet S α} → (∀ {x} → x ∉ ∅′) → ∅ ≗ ∅′
+  _ = ∅-unique
+
+  -- Lemma 3.1.6 (Single choice). Let A be a non-empty set. Then there
+  -- exists an object x such that x ∈ A.
+  -- [note] This is not provable in Agda because it's nonconstructive.
+  -- Instead of using evidence that a set is not equal to the empty
+  -- set, we will need to use direct evidence that an element of a set
+  -- exists.
