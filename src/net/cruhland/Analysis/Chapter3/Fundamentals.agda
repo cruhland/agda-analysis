@@ -13,7 +13,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_)
 
   open SetTheory ST using
-    ( _∈_; _∉_; _≗_; _≗̸_; El; PSet; PSet-Setoid; Setoid
+    ( _∈_; _∉_; _≗_; _≗̸_; El; PSet; PSet-Setoid; ≗-refl; Setoid; ≗-sym; ≗-trans
     ; finite; module Memberᴸ; module Subsetᴸ
     )
 
@@ -113,3 +113,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   [385] = 3 ∷ 8 ∷ 5 ∷ []
   _ : ⟨3852⟩ ≗̸ finite [385]
   _ = toWitnessFalse {Q = [3852] ≗? [385]} _
+
+  -- Exercise 3.1.1
+  -- One can easily verify that this notion of equality is reflexive,
+  -- symmetric, and transitive.
+  _ : {A : PSet S α} → A ≗ A
+  _ = ≗-refl
+
+  _ : {A B : PSet S α} → A ≗ B → B ≗ A
+  _ = ≗-sym
+
+  _ : {A B C : PSet S α} → A ≗ B → B ≗ C → A ≗ C
+  _ = ≗-trans
