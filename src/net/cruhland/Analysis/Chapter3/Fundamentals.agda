@@ -6,7 +6,7 @@ open import Relation.Binary.PropositionalEquality using (setoid; decSetoid)
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
-open import net.cruhland.models.Logic using (_∨_; ∨-introᴸ; ∨-introᴿ)
+open import net.cruhland.models.Logic using (_∨_; ∨-introᴸ; ∨-introᴿ; _↔_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
@@ -16,6 +16,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ( _∈_; _∉_; _≗_; _≗̸_; El; PSet; PSet-Setoid; Setoid
     ; ≗-refl; ∈-substᴸ; ∈-substᴿ; ≗-sym; ≗-trans
     ; ∅; x∉∅; ∅-unique
+    ; singleton; x∈sa↔x≈a
+    ; pair; x∈pab↔x≈a∨x≈b
     ; finite; module Memberᴸ; module Subsetᴸ
     )
 
@@ -160,3 +162,26 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Instead of using evidence that a set is not equal to the empty
   -- set, we will need to use direct evidence that an element of a set
   -- exists.
+
+  -- Axiom 3.3 (Singleton sets and pair sets). If a is an object, then
+  -- there exists a set (singleton a) whose only element is a
+  _ : El S → PSet S α
+  _ = singleton
+
+  -- i.e., for every object y, we have y ∈ singleton a if and only if y ≈ a
+  _ :
+    {S : Setoid σ₁ σ₂} {a y : El S} →
+      let open Setoid S using (_≈_) in y ∈ singleton {S = S} {α = α} a ↔ y ≈ a
+  _ = x∈sa↔x≈a
+
+  -- Furthermore, if a and b are objects, then there exists a set
+  -- (pair a b) whose only elements are a and b
+  _ : El S → El S → PSet S α
+  _ = pair
+
+  -- i.e., for every object y, we have y ∈ pair a b if and only if
+  -- y ≈ a or y ≈ b
+  _ :
+    {S : Setoid σ₁ σ₂} {a b y : El S} →
+      let open Setoid S using (_≈_) in y ∈ pair {S = S} {α} a b ↔ y ≈ a ∨ y ≈ b
+  _ = x∈pab↔x≈a∨x≈b
