@@ -18,7 +18,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ( _∈_; _∉_; _≗_; _≗̸_; El; ≗-intro; PSet; PSet-Setoid; Setoid
     ; ≗-refl; ∈-substᴸ; ∈-substᴿ; ≗-sym; ≗-trans
     ; ∅; x∉∅; ∅-unique
-    ; singleton; singleton-unique; x∈sa↔x≈a; x∈sa-elim; x∈sa-intro
+    ; singleton; singleton-unique; a∈sa; x∈sa↔x≈a; x∈sa-elim; x∈sa-intro
     ; pair; pair-unique; x∈pab↔x≈a∨x≈b; x∈pab-elim; x∈pab-intro
     ; _⊆_; ⊆-antisym; ⊆-intro
     ; finite; module Memberᴸ; module Subsetᴸ
@@ -219,3 +219,11 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     where
       paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elim)
       sa⊆paa = ⊆-intro (x∈pab-intro ∘ ∨-introᴸ ∘ x∈sa-elim)
+
+  -- Examples 3.1.10
+  -- Exercise 3.1.2
+  sa≗̸∅ : (a : El S) → singleton {S = S} {α} a ≗̸ ∅
+  sa≗̸∅ a (≗-intro x∈sa↔x∈∅) = x∉∅ (↔-elimᴸ x∈sa↔x∈∅ a∈sa)
+
+  s∅≗̸∅ : singleton {S = PSet-Setoid S α} {β} ∅ ≗̸ ∅
+  s∅≗̸∅ = sa≗̸∅ ∅
