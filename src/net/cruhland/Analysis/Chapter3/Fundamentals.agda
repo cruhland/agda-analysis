@@ -15,8 +15,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_)
 
   open SetTheory ST using
-    ( _∈_; _∉_; _≗_; _≗̸_; El; ≗-intro; PSet; PSet-Setoid; Setoid
-    ; ≗-refl; ∈-substᴸ; ∈-substᴿ; ≗-sym; ≗-trans
+    ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet-Setoid; Setoid
+    ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
     ; ∅; x∉∅; ∅-unique
     ; singleton; singleton-unique; a∈sa; x∈sa↔x≈a; x∈sa-elim; x∈sa-intro
     ; pair; pair-unique; x∈pab↔x≈a∨x≈b; x∈pab-elim; x∈pab-intro
@@ -35,7 +35,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ℕ-DecSetoid = decSetoid _≡?_
 
   open Memberᴸ {DS = ℕ-DecSetoid} using (_∈?_)
-  open Subsetᴸ {DS = ℕ-DecSetoid} using (_≗?_)
+  open Subsetᴸ {DS = ℕ-DecSetoid} using (_≃?_)
 
   {- 3.1 Fundamentals -}
 
@@ -94,55 +94,55 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- chapters.
 
   -- Definition 3.1.4 (Equality of sets). Two sets A and B are
-  -- _equal_, A ≗ B, iff every element of A is an element of B and
+  -- _equal_, A ≃ B, iff every element of A is an element of B and
   -- vice versa.
   _ : {S : Setoid σ₁ σ₂} → PSet S α → PSet S α → Set (σ₁ ⊔ α)
-  _ = _≗_
+  _ = _≃_
 
   -- Example 3.1.5
   [34215] = 3 ∷ 4 ∷ 2 ∷ 1 ∷ 5 ∷ []
-  _ : ⟨12345⟩ ≗ finite [34215]
-  _ = toWitness {Q = [12345] ≗? [34215]} _
+  _ : ⟨12345⟩ ≃ finite [34215]
+  _ = toWitness {Q = [12345] ≃? [34215]} _
 
   [3315242] = 3 ∷ 3 ∷ 1 ∷ 5 ∷ 2 ∷ 4 ∷ 2 ∷ []
-  _ : ⟨12345⟩ ≗ finite [3315242]
-  _ = toWitness {Q = [12345] ≗? [3315242]} _
+  _ : ⟨12345⟩ ≃ finite [3315242]
+  _ = toWitness {Q = [12345] ≃? [3315242]} _
 
   -- [note] informal examples given prior to Definition 3.1.4
   [2358] = 2 ∷ 3 ∷ 5 ∷ 8 ∷ []
-  _ : ⟨3852⟩ ≗ finite [2358]
-  _ = toWitness {Q = [3852] ≗? [2358]} _
+  _ : ⟨3852⟩ ≃ finite [2358]
+  _ = toWitness {Q = [3852] ≃? [2358]} _
 
   [38521] = 3 ∷ 8 ∷ 5 ∷ 2 ∷ 1 ∷ []
-  _ : ⟨3852⟩ ≗̸ finite [38521]
-  _ = toWitnessFalse {Q = [3852] ≗? [38521]} _
+  _ : ⟨3852⟩ ≄ finite [38521]
+  _ = toWitnessFalse {Q = [3852] ≃? [38521]} _
 
   [385] = 3 ∷ 8 ∷ 5 ∷ []
-  _ : ⟨3852⟩ ≗̸ finite [385]
-  _ = toWitnessFalse {Q = [3852] ≗? [385]} _
+  _ : ⟨3852⟩ ≄ finite [385]
+  _ = toWitnessFalse {Q = [3852] ≃? [385]} _
 
   -- Exercise 3.1.1
   -- One can easily verify that this notion of equality is reflexive,
   -- symmetric, and transitive.
-  _ : {A : PSet S α} → A ≗ A
-  _ = ≗-refl
+  _ : {A : PSet S α} → A ≃ A
+  _ = ≃-refl
 
-  _ : {A B : PSet S α} → A ≗ B → B ≗ A
-  _ = ≗-sym
+  _ : {A B : PSet S α} → A ≃ B → B ≃ A
+  _ = ≃-sym
 
-  _ : {A B C : PSet S α} → A ≗ B → B ≗ C → A ≗ C
-  _ = ≗-trans
+  _ : {A B C : PSet S α} → A ≃ B → B ≃ C → A ≃ C
+  _ = ≃-trans
 
-  -- Observe that if x ∈ A and A ≗ B, then x ∈ B, by Definition
+  -- Observe that if x ∈ A and A ≃ B, then x ∈ B, by Definition
   -- 3.1.4. This the "is an element of" relation _∈_ obeys the axiom
   -- of substitution.
-  _ : {S : Setoid σ₁ σ₂} {A B : PSet S α} {x : El S} → A ≗ B → x ∈ A → x ∈ B
+  _ : {S : Setoid σ₁ σ₂} {A B : PSet S α} {x : El S} → A ≃ B → x ∈ A → x ∈ B
   _ = ∈-substᴿ
 
   -- [note] Tao only mentions substitution for the right-hand side of
   -- _∈_, but it's also important that it works for the left-hand
   -- side:
-  _ : {A B : PSet S α} {C : PSet (PSet-Setoid S α) β} → A ≗ B → A ∈ C → B ∈ C
+  _ : {A B : PSet S α} {C : PSet (PSet-Setoid S α) β} → A ≃ B → A ∈ C → B ∈ C
   _ = ∈-substᴸ
 
   -- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty set_
@@ -156,7 +156,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Note that there can only be one empty set; if there were two sets
   -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
   -- would be equal to each other.
-  _ : {S : Setoid σ₁ σ₂} {∅′ : PSet S α} → (∀ {x} → x ∉ ∅′) → ∅ ≗ ∅′
+  _ : {S : Setoid σ₁ σ₂} {∅′ : PSet S α} → (∀ {x} → x ∉ ∅′) → ∅ ≃ ∅′
   _ = ∅-unique
 
   -- Lemma 3.1.6 (Single choice). Let A be a non-empty set. Then there
@@ -194,7 +194,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- set for each object a, thanks to Definition 3.1.4.
   _ :
     {S : Setoid σ₁ σ₂} {A : PSet S α} {a : El S} →
-      let open Setoid S using (_≈_) in (∀ {x} → x ∈ A ↔ x ≈ a) → singleton a ≗ A
+      let open Setoid S using (_≈_) in (∀ {x} → x ∈ A ↔ x ≈ a) → singleton a ≃ A
   _ = singleton-unique
 
   -- Similarly, given any two objects a and b, there is only one pair
@@ -202,19 +202,19 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ :
     {S : Setoid σ₁ σ₂} {A : PSet S α} {a b : El S} →
       let open Setoid S using (_≈_)
-       in (∀ {x} → x ∈ A ↔ x ≈ a ∨ x ≈ b) → pair a b ≗ A
+       in (∀ {x} → x ∈ A ↔ x ≈ a ∨ x ≈ b) → pair a b ≃ A
   _ = pair-unique
 
-  -- Also, Definition 3.1.4 ensures that pair a b ≗ pair b a
-  pair-comm : {S : Setoid σ₁ σ₂} {a b : El S} → pair {S = S} {α} a b ≗ pair b a
+  -- Also, Definition 3.1.4 ensures that pair a b ≃ pair b a
+  pair-comm : {S : Setoid σ₁ σ₂} {a b : El S} → pair {S = S} {α} a b ≃ pair b a
   pair-comm {S = S} = ⊆-antisym ab⊆ba ba⊆ab
     where
       ab⊆ba = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elim)
       ba⊆ab = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elim)
 
-  -- and pair a a ≗ singleton a.
+  -- and pair a a ≃ singleton a.
   pair-singleton :
-    {S : Setoid σ₁ σ₂} {a : El S} → pair {S = S} {α} a a ≗ singleton a
+    {S : Setoid σ₁ σ₂} {a : El S} → pair {S = S} {α} a a ≃ singleton a
   pair-singleton = ⊆-antisym paa⊆sa sa⊆paa
     where
       paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elim)
@@ -222,8 +222,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Examples 3.1.10
   -- Exercise 3.1.2
-  sa≗̸∅ : (a : El S) → singleton {S = S} {α} a ≗̸ ∅
-  sa≗̸∅ a (≗-intro x∈sa↔x∈∅) = x∉∅ (↔-elimᴸ x∈sa↔x∈∅ a∈sa)
+  sa≄∅ : (a : El S) → singleton {S = S} {α} a ≄ ∅
+  sa≄∅ a (≃-intro x∈sa↔x∈∅) = x∉∅ (↔-elimᴸ x∈sa↔x∈∅ a∈sa)
 
-  s∅≗̸∅ : singleton {S = PSet-Setoid S α} {β} ∅ ≗̸ ∅
-  s∅≗̸∅ = sa≗̸∅ ∅
+  s∅≄∅ : singleton {S = PSet-Setoid S α} {β} ∅ ≄ ∅
+  s∅≄∅ = sa≄∅ ∅
