@@ -25,7 +25,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     )
 
   variable
-    σ₁ σ₂ α β : Level
+    σ₁ σ₂ α β χ : Level
     S : Setoid σ₁ σ₂
 
   ℕ-Setoid : Setoid lzero lzero
@@ -225,8 +225,22 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   sa≄∅ : (a : El S) → singleton {S = S} {α} a ≄ ∅
   sa≄∅ a sa≃∅ = x∉∅ (≃-elimᴸ sa≃∅ a∈sa)
 
+  pab≄∅ : (a b : El S) → pair {S = S} {α} a b ≄ ∅
+  pab≄∅ a b pab≃∅ = x∉∅ (≃-elimᴸ pab≃∅ a∈pab)
+
   s∅≄∅ : singleton {S = PSet-Setoid S α} {β} ∅ ≄ ∅
   s∅≄∅ = sa≄∅ ∅
 
-  pab≄∅ : (a b : El S) → pair {S = S} {α} a b ≄ ∅
-  pab≄∅ a b pab≃∅ = x∉∅ (≃-elimᴸ pab≃∅ a∈pab)
+  ss∅≄∅ : singleton {S = PSet-Setoid (PSet-Setoid S α) β} {χ} (singleton ∅) ≄ ∅
+  ss∅≄∅ = sa≄∅ (singleton ∅)
+
+  p∅s∅≄∅ : pair {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅ (singleton ∅) ≄ ∅
+  p∅s∅≄∅ = pab≄∅ ∅ (singleton ∅)
+
+  ss∅≄s∅ :
+    let S″ = PSet-Setoid (PSet-Setoid S α) β
+     in singleton {S = S″} {χ} (singleton ∅) ≄ singleton ∅
+  ss∅≄s∅ {S = S″} ss∅≃s∅ =
+    let s∅∈s∅ = ≃-elimᴸ ss∅≃s∅ (x∈sa-intro ≃-refl)
+        s∅≃∅ = x∈sa-elim s∅∈s∅
+     in s∅≄∅ s∅≃∅
