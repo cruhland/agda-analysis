@@ -20,6 +20,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ∅; x∉∅; ∅-unique
     ; singleton; singleton-unique; a∈sa; x∈sa↔x≈a; x∈sa-elim; x∈sa-intro
     ; pair; a∈pab; pair-unique; x∈pab↔x≈a∨x≈b; x∈pab-elim; x∈pab-intro
+    ; _∪_; x∈A∪B↔x∈A∨x∈B
     ; _⊆_; ⊆-antisym; ⊆-intro
     ; finite; module Memberᴸ; module Subsetᴸ
     )
@@ -255,3 +256,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   p∅s∅≄ss∅ p∅s∅≃ss∅ =
     let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-intro (∨-introᴸ ≃-refl))
      in s∅≄∅ (≃-sym (x∈sa-elim ∅∈ss∅))
+
+  -- Axiom 3.4 (Pairwise union). Given any two sets A, B, there exists
+  -- a set A ∪ B, called the _union_ A ∪ B of A and B, whose elements
+  -- consist of all the elements which belong to A or B or both.
+  _ : PSet S α → PSet S β → PSet S (α ⊔ β)
+  _ = _∪_
+
+  -- In other words, for any object x, x ∈ A ∪ B ↔ x ∈ A ∨ x ∈ B.
+  _ :
+    {S : Setoid σ₁ σ₂} {A : PSet S α} {B : PSet S β} →
+      ∀ {x} → x ∈ A ∪ B ↔ x ∈ A ∨ x ∈ B
+  _ = x∈A∪B↔x∈A∨x∈B
