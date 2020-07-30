@@ -237,10 +237,21 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   p∅s∅≄∅ : pair {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅ (singleton ∅) ≄ ∅
   p∅s∅≄∅ = pab≄∅ ∅ (singleton ∅)
 
+  s∅∉s∅ : singleton ∅ ∉ singleton {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅
+  s∅∉s∅ s∅∈s∅ = s∅≄∅ (x∈sa-elim s∅∈s∅)
+
   ss∅≄s∅ :
     let S″ = PSet-Setoid (PSet-Setoid S α) β
      in singleton {S = S″} {χ} (singleton ∅) ≄ singleton ∅
-  ss∅≄s∅ {S = S″} ss∅≃s∅ =
-    let s∅∈s∅ = ≃-elimᴸ ss∅≃s∅ (x∈sa-intro ≃-refl)
-        s∅≃∅ = x∈sa-elim s∅∈s∅
-     in s∅≄∅ s∅≃∅
+  ss∅≄s∅ ss∅≃s∅ = s∅∉s∅ (≃-elimᴸ ss∅≃s∅ (x∈sa-intro ≃-refl))
+
+  p∅s∅≄s∅ :
+    pair {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅ (singleton ∅) ≄ singleton ∅
+  p∅s∅≄s∅ p∅s∅≃s∅ = s∅∉s∅ (≃-elimᴸ p∅s∅≃s∅ (x∈pab-intro (∨-introᴿ ≃-refl)))
+
+  p∅s∅≄ss∅ :
+    let S″ = PSet-Setoid (PSet-Setoid S α) β
+     in pair {S = S″} {χ} ∅ (singleton ∅) ≄ singleton (singleton ∅)
+  p∅s∅≄ss∅ p∅s∅≃ss∅ =
+    let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-intro (∨-introᴸ ≃-refl))
+     in s∅≄∅ (≃-sym (x∈sa-elim ∅∈ss∅))
