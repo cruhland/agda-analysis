@@ -1,4 +1,4 @@
-open import Data.List using ([]; _∷_)
+open import Data.List using ([]; _∷_; _++_)
 import Data.List.Membership.DecPropositional as DecMembership
 open import Function using (_∘_)
 open import Level using (_⊔_; Level) renaming (suc to lsuc; zero to lzero)
@@ -19,10 +19,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ≃-elimᴸ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
     ; ∅; x∉∅; ∅-unique
     ; singleton; singleton-unique; a∈sa; x∈sa↔x≈a; x∈sa-elim; x∈sa-intro
-    ; pair; a∈pab; pair-unique; x∈pab↔x≈a∨x≈b; x∈pab-elim; x∈pab-intro
-    ; _∪_; x∈A∪B↔x∈A∨x∈B
+    ; pair; x∈pab↔x≈a∨x≈b; a∈pab; x∈pab-elim
+    ; x∈pab-intro; x∈pab-introᴸ; x∈pab-introᴿ; pair-unique
+    ; _∪_; x∈A∪B↔x∈A∨x∈B; ∪-∅ᴸ; ∪-∅ᴿ; ∪-assoc; ∪-comm; x∈A∪B-elim
+    ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
     ; _⊆_; ⊆-antisym; ⊆-intro
-    ; finite; module Memberᴸ; module Subsetᴸ
+    ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
     )
 
   variable
@@ -219,7 +221,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   pair-singleton = ⊆-antisym paa⊆sa sa⊆paa
     where
       paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elim)
-      sa⊆paa = ⊆-intro (x∈pab-intro ∘ ∨-introᴸ ∘ x∈sa-elim)
+      sa⊆paa = ⊆-intro (x∈pab-introᴸ ∘ x∈sa-elim)
 
   -- Examples 3.1.10
   -- Exercise 3.1.2
@@ -248,13 +250,13 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   p∅s∅≄s∅ :
     pair {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅ (singleton ∅) ≄ singleton ∅
-  p∅s∅≄s∅ p∅s∅≃s∅ = s∅∉s∅ (≃-elimᴸ p∅s∅≃s∅ (x∈pab-intro (∨-introᴿ ≃-refl)))
+  p∅s∅≄s∅ p∅s∅≃s∅ = s∅∉s∅ (≃-elimᴸ p∅s∅≃s∅ (x∈pab-introᴿ ≃-refl))
 
   p∅s∅≄ss∅ :
     let S″ = PSet-Setoid (PSet-Setoid S α) β
      in pair {S = S″} {χ} ∅ (singleton ∅) ≄ singleton (singleton ∅)
   p∅s∅≄ss∅ p∅s∅≃ss∅ =
-    let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-intro (∨-introᴸ ≃-refl))
+    let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-introᴸ ≃-refl)
      in s∅≄∅ (≃-sym (x∈sa-elim ∅∈ss∅))
 
   -- Axiom 3.4 (Pairwise union). Given any two sets A, B, there exists
@@ -268,3 +270,58 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     {S : Setoid σ₁ σ₂} {A : PSet S α} {B : PSet S β} →
       ∀ {x} → x ∈ A ∪ B ↔ x ∈ A ∨ x ∈ B
   _ = x∈A∪B↔x∈A∨x∈B
+
+  -- Example 3.1.11
+  [12] = 1 ∷ 2 ∷ []
+  [23] = 2 ∷ 3 ∷ []
+  [123] = 1 ∷ 2 ∷ 3 ∷ []
+  _ : finite {S = ℕ-Setoid} [12] ∪ finite [23] ≃ finite [123]
+  _ = ≃-trans (∪-finite [12] [23]) (toWitness {Q = [12] ++ [23] ≃? [123]} _)
+
+  -- Remark 3.1.12. If A, B, A′ are sets, and A is equal to A′, then A
+  -- ∪ B is equal to A′ ∪ B.
+  _ : {A A′ : PSet S α} {B : PSet S β} → A ≃ A′ → A ∪ B ≃ A′ ∪ B
+  _ = ∪-substᴸ
+
+  -- Similarly if B′ is a set which is equal to B, then A ∪ B is equal
+  -- to A ∪ B′. Thus the operation of union obeys the axiom of
+  -- substitution, and is thus well-defined on sets.
+  _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ∪ B ≃ A ∪ B′
+  _ = ∪-substᴿ
+
+  -- Lemma 3.1.13.
+  -- If a and b are objects, then pair a b ≃ singleton a ∪ singleton b.
+  pab≃sa∪sb :
+    {S : Setoid σ₁ σ₂} {a b : El S} →
+      pair a b ≃ singleton {S = S} {α} a ∪ singleton {α = α} b
+  pab≃sa∪sb {S = S} {a} {b} = ⊆-antisym (⊆-intro forward) (⊆-intro backward)
+    where
+      open Setoid S using (_≈_)
+
+      forward : ∀ {x} → x ∈ pair a b → x ∈ singleton a ∪ singleton b
+      forward x∈pab with x∈pab-elim x∈pab
+      ... | ∨-introᴸ x≈a = x∈A∪B-introᴸ (x∈sa-intro x≈a)
+      ... | ∨-introᴿ x≈b = x∈A∪B-introᴿ (x∈sa-intro x≈b)
+
+      backward : ∀ {x} → x ∈ singleton a ∪ singleton b → x ∈ pair a b
+      backward x∈sa∪sb with x∈A∪B-elim x∈sa∪sb
+      ... | ∨-introᴸ x∈sa = x∈pab-introᴸ (x∈sa-elim x∈sa)
+      ... | ∨-introᴿ x∈sb = x∈pab-introᴿ (x∈sa-elim x∈sb)
+
+  -- If A, B, C are sets, then the union operation is commutative and
+  -- associative.
+  _ : {A : PSet S α} {B : PSet S β} → A ∪ B ≃ B ∪ A
+  _ = ∪-comm
+
+  _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → (A ∪ B) ∪ C ≃ A ∪ (B ∪ C)
+  _ = ∪-assoc
+
+  -- Also, we have A ∪ A ≃ A ∪ ∅ ≃ ∅ ∪ A ≃ A.
+  ∪-merge : {A : PSet S α} → A ∪ A ≃ A
+  ∪-merge = ⊆-antisym (⊆-intro (∨-merge ∘ x∈A∪B-elim)) (⊆-intro x∈A∪B-introᴸ)
+
+  _ : {S : Setoid σ₁ σ₂} {A : PSet S α} → A ∪ ∅ ≃ A
+  _ = ∪-∅ᴿ
+
+  _ : {S : Setoid σ₁ σ₂} {A : PSet S α} → ∅ ∪ A ≃ A
+  _ = ∪-∅ᴸ
