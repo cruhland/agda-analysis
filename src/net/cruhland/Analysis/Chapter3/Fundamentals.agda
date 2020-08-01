@@ -23,7 +23,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; x∈pab-intro; x∈pab-introᴸ; x∈pab-introᴿ; pair-unique
     ; _∪_; x∈A∪B↔x∈A∨x∈B; ∪-∅ᴸ; ∪-∅ᴿ; ∪-assoc; ∪-comm; x∈A∪B-elim
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
-    ; _⊆_; ⊆-antisym; ⊆-intro
+    ; _⊆_; _⊊_; ⊆-antisym; ⊆-elim; ⊆-intro
+    ; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
     )
 
@@ -325,3 +326,41 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   _ : {S : Setoid σ₁ σ₂} {A : PSet S α} → ∅ ∪ A ≃ A
   _ = ∪-∅ᴸ
+
+  -- Definition 3.1.15 (Subsets). Let A, B be sets. We say that A is a
+  -- _subset_ of B, denoted A ⊆ B
+  _ : {S : Setoid σ₁ σ₂} → PSet S α → PSet S β → Set (σ₁ ⊔ α ⊔ β)
+  _ = _⊆_
+
+  -- iff every element of A is also an element of B, i.e. for any
+  -- object x, x ∈ A → x ∈ B.
+  _ :
+    {S : Setoid σ₁ σ₂} {A : PSet S α} {B : PSet S β} →
+      A ⊆ B ↔ ∀ {x} → x ∈ A → x ∈ B
+  _ = ↔-intro ⊆-elim ⊆-intro
+
+  -- We say that A is a _proper subset_ of B, denoted A ⊊ B, if A ⊆ B
+  -- and A ≄ B.
+  -- [note] Having A ≄ B in the definition of proper subset isn't
+  -- useful in constructive mathematics, because it can't demonstrate
+  -- the existence of an element that's in B but not in A. We instead
+  -- give proper subsets their own record type.
+  _ : {S : Setoid σ₁ σ₂} → PSet S α → PSet S β → Set (σ₁ ⊔ α ⊔ β)
+  _ = _⊊_
+
+  -- Remark 3.1.16. Because these definitions involve only the notions
+  -- of equality and the "is an element of" relation, both of which
+  -- already obey the axiom of substitution, the notion of subset also
+  -- automatically obeys the axiom of substitution. Thus for instance
+  -- if A ⊆ B and A ≃ A′, then A′ ⊆ B.
+  _ : {A A′ : PSet S α} {B : PSet S β} → A ≃ A′ → A ⊆ B → A′ ⊆ B
+  _ = ⊆-substᴸ
+
+  _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ⊆ B → A ⊆ B′
+  _ = ⊆-substᴿ
+
+  _ : {A A′ : PSet S α} {B : PSet S β} → A ≃ A′ → A ⊊ B → A′ ⊊ B
+  _ = ⊊-substᴸ
+
+  _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ⊊ B → A ⊊ B′
+  _ = ⊊-substᴿ
