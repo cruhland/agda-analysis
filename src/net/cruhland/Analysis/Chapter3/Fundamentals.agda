@@ -24,7 +24,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∪_; x∈A∪B↔x∈A∨x∈B; ∪-∅ᴸ; ∪-∅ᴿ; ∪-assoc; ∪-comm; x∈A∪B-elim
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
     ; _⊆_; _⊊_; ∅-⊆; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
-    ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ
+    ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
     )
 
@@ -388,3 +388,16 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- and ∅ ⊆ A.
   _ : {A : PSet S α} → ∅ ⊆ A
   _ = ∅-⊆
+
+  -- Proposition 3.1.18 (Sets are partially ordered by set
+  -- inclusion). Let A, B, C be sets. If A ⊆ B and B ⊆ C then A ⊆ C.
+  _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊆ B → B ⊆ C → A ⊆ C
+  _ = ⊆-trans
+
+  -- If A ⊆ B and B ⊆ A, then A ≃ B.
+  _ : {A B : PSet S α} → A ⊆ B → B ⊆ A → A ≃ B
+  _ = ⊆-antisym
+
+  -- Finally, if A ⊊ B and B ⊊ C then A ⊊ C.
+  _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊊ B → B ⊊ C → A ⊊ C
+  _ = ⊊-trans
