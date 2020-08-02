@@ -23,8 +23,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; x∈pab-intro; x∈pab-introᴸ; x∈pab-introᴿ; pair-unique
     ; _∪_; x∈A∪B↔x∈A∨x∈B; ∪-∅ᴸ; ∪-∅ᴿ; ∪-assoc; ∪-comm; x∈A∪B-elim
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
-    ; _⊆_; _⊊_; ⊆-antisym; ⊆-elim; ⊆-intro
-    ; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ
+    ; _⊆_; _⊊_; ∅-⊆; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
+    ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
     )
 
@@ -39,7 +39,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ℕ-DecSetoid = decSetoid _≡?_
 
   open Memberᴸ {DS = ℕ-DecSetoid} using (_∈?_)
-  open Subsetᴸ {DS = ℕ-DecSetoid} using (_≃?_)
+  open Subsetᴸ {DS = ℕ-DecSetoid} using (_⊆?_; _≃?_)
 
   {- 3.1 Fundamentals -}
 
@@ -364,3 +364,27 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ⊊ B → A ⊊ B′
   _ = ⊊-substᴿ
+
+  -- Examples 3.1.17
+  -- We have {1,2,4} ⊆ {1,2,3,4,5}, because every element of {1,2,4}
+  -- is also an element of {1,2,3,4,5}.
+  [124] = 1 ∷ 2 ∷ 4 ∷ []
+  ⟨124⟩ = finite {S = ℕ-Setoid} [124]
+  124⊆12345 : ⟨124⟩ ⊆ ⟨12345⟩
+  124⊆12345 = toWitness {Q = [124] ⊆? [12345]} _
+
+  -- In fact we also have {1,2,4} ⊊ {1,2,3,4,5}, since the two sets
+  -- {1,2,4} and {1,2,3,4,5} are not equal.
+  _ : ⟨124⟩ ⊊ ⟨12345⟩
+  _ = ⊊-intro 124⊆12345 3 3∉124 3∈12345
+    where
+      3∉124 = toWitnessFalse {Q = 3 ∈? [124]} _
+      3∈12345 = toWitness {Q = 3 ∈? [12345]} _
+
+  -- Given any set A, we always have A ⊆ A
+  _ : {A : PSet S α} → A ⊆ A
+  _ = ⊆-refl
+
+  -- and ∅ ⊆ A.
+  _ : {A : PSet S α} → ∅ ⊆ A
+  _ = ∅-⊆
