@@ -3,7 +3,8 @@ import Data.List.Membership.DecPropositional as DecMembership
 open import Function using (_∘_; const; id)
 open import Level using (_⊔_; Level) renaming (suc to lstep; zero to lzero)
 open import Relation.Binary using (DecSetoid)
-open import Relation.Binary.PropositionalEquality using (setoid; decSetoid)
+open import Relation.Binary.PropositionalEquality using
+  (refl; setoid; decSetoid)
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
@@ -15,7 +16,7 @@ open import net.cruhland.models.Logic using
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
-  open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_)
+  open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_)
 
   open SetTheory ST using
     ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet-Setoid; Setoid
@@ -52,9 +53,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : Setoid σ₁ σ₂ → ∀ α → Set (σ₁ ⊔ σ₂ ⊔ lstep α)
   _ = PSet
 
+  ℕSet : Set₁
+  ℕSet = PSet ℕ-Setoid lzero
+
   -- e.g., {3, 8, 5, 2} is a set.
   [3852] = 3 ∷ 8 ∷ 5 ∷ 2 ∷ []
-  ⟨3852⟩ : PSet ℕ-Setoid lzero
+  ⟨3852⟩ : ℕSet
   ⟨3852⟩ = finite {S = ℕ-Setoid} [3852]
 
   -- If x is an object, we say that x _is an element of_ A or x ∈ A if
@@ -89,7 +93,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- [note] We wrap the elements in a sum type because our sets
   -- require all elements to have the same type. Apart from that, this
   -- set will behave identically to the one given in the example.
-  _ : PSet (setoid (ℕ ∨ PSet ℕ-Setoid lzero)) (lstep lzero)
+  _ : PSet (setoid (ℕ ∨ ℕSet)) (lstep lzero)
   _ = finite (∨-introᴸ 3 ∷ ∨-introᴿ (finite (3 ∷ 4 ∷ [])) ∷ ∨-introᴸ 4 ∷ [])
 
   -- To summarize so far...if x is an object and A is a set, then
@@ -477,3 +481,24 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- P(x)}.
   -- [note] Again, because in our version A is not a set, we can't
   -- verify this, nor is there a need to.
+
+  -- Example 3.1.22. Let S := {1,2,3,4,5}. Then the set
+  -- {n ∈ S : n < 4} is the set of those elements n in S for which
+  -- n < 4 is true, i.e., {n ∈ S : n < 4} = {1,2,3}. Similarly,
+  -- the set {n ∈ S : n < 7} is the same as S itself, while
+  -- {n ∈ S : n < 1} is the empty set.
+  -- [note] We can't define these sets with our version of
+  -- specification, but once we introduce intersection below, we will
+  -- be able to. For now, we'll just define the predicate portion of
+  -- the sets.
+  ℕ⟨_⟩ : (ℕ → Set) → ℕSet
+  ℕ⟨ P ⟩ = ⟨ P ~ (λ { refl → id }) ⟩
+
+  ⟨n<4⟩ : ℕSet
+  ⟨n<4⟩ = ℕ⟨ _< 4 ⟩
+
+  ⟨n<7⟩ : ℕSet
+  ⟨n<7⟩ = ℕ⟨ _< 7 ⟩
+
+  ⟨n<1⟩ : ℕSet
+  ⟨n<1⟩ = ℕ⟨ _< 1 ⟩
