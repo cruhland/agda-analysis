@@ -1,7 +1,7 @@
 open import Data.List using ([]; _∷_; _++_)
 import Data.List.Membership.DecPropositional as DecMembership
 open import Function using (_∘_)
-open import Level using (_⊔_; Level) renaming (suc to lsuc; zero to lzero)
+open import Level using (_⊔_; Level) renaming (suc to lstep; zero to lzero)
 open import Relation.Binary using (DecSetoid)
 open import Relation.Binary.PropositionalEquality using (setoid; decSetoid)
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
@@ -18,13 +18,14 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet-Setoid; Setoid
     ; ≃-elimᴸ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
     ; ∅; x∉∅; ∅-unique
-    ; singleton; singleton-unique; a∈sa; x∈sa↔x≈a; x∈sa-elim; x∈sa-intro
-    ; pair; x∈pab↔x≈a∨x≈b; a∈pab; x∈pab-elim
+    ; singleton; singleton-unique; a∈sa; x∈sa↔a≈x; x∈sa-elim; x∈sa-intro
+    ; pair; x∈pab↔a≈x∨b≈x; a∈pab; x∈pab-elim
     ; x∈pab-intro; x∈pab-introᴸ; x∈pab-introᴿ; pair-unique
     ; _∪_; x∈A∪B↔x∈A∨x∈B; ∪-∅ᴸ; ∪-∅ᴿ; ∪-assoc; ∪-comm; x∈A∪B-elim
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
-    ; _⊆_; _⊊_; ∅-⊆; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
+    ; _⊆_; _⊈_; _⊊_; ∅-⊆; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
+    ; ⟨_~_⟩
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
     )
 
@@ -45,7 +46,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Definition 3.1.1. (Informal) We define a _set_ A to be any
   -- unordered collection of objects
-  _ : Setoid σ₁ σ₂ → ∀ α → Set (σ₁ ⊔ σ₂ ⊔ lsuc α)
+  _ : Setoid σ₁ σ₂ → ∀ α → Set (σ₁ ⊔ σ₂ ⊔ lstep α)
   _ = PSet
 
   -- e.g., {3, 8, 5, 2} is a set.
@@ -85,7 +86,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- [note] We wrap the elements in a sum type because our sets
   -- require all elements to have the same type. Apart from that, this
   -- set will behave identically to the one given in the example.
-  _ : PSet (setoid (ℕ ∨ PSet ℕ-Setoid lzero)) lzero
+  _ : PSet (setoid (ℕ ∨ PSet ℕ-Setoid lzero)) (lstep lzero)
   _ = finite (∨-introᴸ 3 ∷ ∨-introᴿ (finite (3 ∷ 4 ∷ [])) ∷ ∨-introᴸ 4 ∷ [])
 
   -- To summarize so far...if x is an object and A is a set, then
@@ -172,45 +173,45 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Axiom 3.3 (Singleton sets and pair sets). If a is an object, then
   -- there exists a set (singleton a) whose only element is a
-  _ : El S → PSet S α
+  _ : {S : Setoid σ₁ σ₂} → El S → PSet S σ₂
   _ = singleton
 
-  -- i.e., for every object y, we have y ∈ singleton a if and only if y ≈ a
+  -- i.e., for every object y, we have y ∈ singleton a if and only if a ≈ y
   _ :
     {S : Setoid σ₁ σ₂} {a y : El S} →
-      let open Setoid S using (_≈_) in y ∈ singleton {S = S} {α = α} a ↔ y ≈ a
-  _ = x∈sa↔x≈a
+      let open Setoid S using (_≈_) in y ∈ singleton {S = S} a ↔ a ≈ y
+  _ = x∈sa↔a≈x
 
   -- Furthermore, if a and b are objects, then there exists a set
   -- (pair a b) whose only elements are a and b
-  _ : El S → El S → PSet S α
+  _ : {S : Setoid σ₁ σ₂} → El S → El S → PSet S σ₂
   _ = pair
 
   -- i.e., for every object y, we have y ∈ pair a b if and only if
-  -- y ≈ a or y ≈ b
+  -- a ≈ y or b ≈ y
   _ :
     {S : Setoid σ₁ σ₂} {a b y : El S} →
-      let open Setoid S using (_≈_) in y ∈ pair {S = S} {α} a b ↔ y ≈ a ∨ y ≈ b
-  _ = x∈pab↔x≈a∨x≈b
+      let open Setoid S using (_≈_) in y ∈ pair {S = S} a b ↔ a ≈ y ∨ b ≈ y
+  _ = x∈pab↔a≈x∨b≈x
 
   -- Remarks 3.1.9
   -- Just as there is only one empty set, there is only one singleton
   -- set for each object a, thanks to Definition 3.1.4.
   _ :
-    {S : Setoid σ₁ σ₂} {A : PSet S α} {a : El S} →
-      let open Setoid S using (_≈_) in (∀ {x} → x ∈ A ↔ x ≈ a) → singleton a ≃ A
+    {S : Setoid σ₁ σ₂} {A : PSet S σ₂} {a : El S} →
+      let open Setoid S using (_≈_) in (∀ {x} → x ∈ A ↔ a ≈ x) → singleton a ≃ A
   _ = singleton-unique
 
   -- Similarly, given any two objects a and b, there is only one pair
   -- set formed by a and b.
   _ :
-    {S : Setoid σ₁ σ₂} {A : PSet S α} {a b : El S} →
+    {S : Setoid σ₁ σ₂} {A : PSet S σ₂} {a b : El S} →
       let open Setoid S using (_≈_)
-       in (∀ {x} → x ∈ A ↔ x ≈ a ∨ x ≈ b) → pair a b ≃ A
+       in (∀ {x} → x ∈ A ↔ a ≈ x ∨ b ≈ x) → pair a b ≃ A
   _ = pair-unique
 
   -- Also, Definition 3.1.4 ensures that pair a b ≃ pair b a
-  pair-comm : {S : Setoid σ₁ σ₂} {a b : El S} → pair {S = S} {α} a b ≃ pair b a
+  pair-comm : {S : Setoid σ₁ σ₂} {a b : El S} → pair {S = S} a b ≃ pair b a
   pair-comm {S = S} = ⊆-antisym ab⊆ba ba⊆ab
     where
       ab⊆ba = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elim)
@@ -218,7 +219,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- and pair a a ≃ singleton a.
   pair-singleton :
-    {S : Setoid σ₁ σ₂} {a : El S} → pair {S = S} {α} a a ≃ singleton a
+    {S : Setoid σ₁ σ₂} {a : El S} → pair {S = S} a a ≃ singleton a
   pair-singleton = ⊆-antisym paa⊆sa sa⊆paa
     where
       paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elim)
@@ -226,39 +227,49 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Examples 3.1.10
   -- Exercise 3.1.2
-  sa≄∅ : (a : El S) → singleton {S = S} {α} a ≄ ∅
+  sa≄∅ : (a : El S) → singleton {S = S} a ≄ ∅
   sa≄∅ a sa≃∅ = x∉∅ (≃-elimᴸ sa≃∅ a∈sa)
 
-  pab≄∅ : (a b : El S) → pair {S = S} {α} a b ≄ ∅
+  pab≄∅ : (a b : El S) → pair {S = S} a b ≄ ∅
   pab≄∅ a b pab≃∅ = x∉∅ (≃-elimᴸ pab≃∅ a∈pab)
 
-  s∅≄∅ : singleton {S = PSet-Setoid S α} {β} ∅ ≄ ∅
+  s∅≄∅ : singleton {S = PSet-Setoid S α} ∅ ≄ ∅
   s∅≄∅ = sa≄∅ ∅
 
-  ss∅≄∅ : singleton {S = PSet-Setoid (PSet-Setoid S α) β} {χ} (singleton ∅) ≄ ∅
+  ss∅≄∅ :
+    {S : Setoid σ₁ σ₂} →
+      singleton {S = PSet-Setoid (PSet-Setoid S α) (σ₁ ⊔ α)} (singleton ∅) ≄ ∅
   ss∅≄∅ = sa≄∅ (singleton ∅)
 
-  p∅s∅≄∅ : pair {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅ (singleton ∅) ≄ ∅
+  p∅s∅≄∅ :
+    {S : Setoid σ₁ σ₂} →
+      pair {S = PSet-Setoid (PSet-Setoid S α) (σ₁ ⊔ α)} ∅ (singleton ∅) ≄ ∅
   p∅s∅≄∅ = pab≄∅ ∅ (singleton ∅)
 
-  s∅∉s∅ : singleton ∅ ∉ singleton {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅
-  s∅∉s∅ s∅∈s∅ = s∅≄∅ (x∈sa-elim s∅∈s∅)
+  s∅∉s∅ :
+    {S : Setoid σ₁ σ₂} →
+      singleton ∅ ∉ singleton {S = PSet-Setoid (PSet-Setoid S α) (σ₁ ⊔ α)} ∅
+  s∅∉s∅ s∅∈s∅ = s∅≄∅ (≃-sym (x∈sa-elim s∅∈s∅))
 
   ss∅≄s∅ :
-    let S″ = PSet-Setoid (PSet-Setoid S α) β
-     in singleton {S = S″} {χ} (singleton ∅) ≄ singleton ∅
+    {S : Setoid σ₁ σ₂} →
+      let S″ = PSet-Setoid (PSet-Setoid S α) (σ₁ ⊔ α)
+       in singleton {S = S″} (singleton ∅) ≄ singleton ∅
   ss∅≄s∅ ss∅≃s∅ = s∅∉s∅ (≃-elimᴸ ss∅≃s∅ (x∈sa-intro ≃-refl))
 
   p∅s∅≄s∅ :
-    pair {S = PSet-Setoid (PSet-Setoid S α) β} {χ} ∅ (singleton ∅) ≄ singleton ∅
+    {S : Setoid σ₁ σ₂} →
+      let S″ = PSet-Setoid (PSet-Setoid S α) (σ₁ ⊔ α)
+       in pair {S = S″} ∅ (singleton ∅) ≄ singleton ∅
   p∅s∅≄s∅ p∅s∅≃s∅ = s∅∉s∅ (≃-elimᴸ p∅s∅≃s∅ (x∈pab-introᴿ ≃-refl))
 
   p∅s∅≄ss∅ :
-    let S″ = PSet-Setoid (PSet-Setoid S α) β
-     in pair {S = S″} {χ} ∅ (singleton ∅) ≄ singleton (singleton ∅)
+    {S : Setoid σ₁ σ₂} →
+      let S″ = PSet-Setoid (PSet-Setoid S α) (σ₁ ⊔ α)
+       in pair {S = S″} ∅ (singleton ∅) ≄ singleton (singleton ∅)
   p∅s∅≄ss∅ p∅s∅≃ss∅ =
     let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-introᴸ ≃-refl)
-     in s∅≄∅ (≃-sym (x∈sa-elim ∅∈ss∅))
+     in s∅≄∅ (x∈sa-elim ∅∈ss∅)
 
   -- Axiom 3.4 (Pairwise union). Given any two sets A, B, there exists
   -- a set A ∪ B, called the _union_ A ∪ B of A and B, whose elements
@@ -294,7 +305,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- If a and b are objects, then pair a b ≃ singleton a ∪ singleton b.
   pab≃sa∪sb :
     {S : Setoid σ₁ σ₂} {a b : El S} →
-      pair a b ≃ singleton {S = S} {α} a ∪ singleton {α = α} b
+      pair a b ≃ singleton {S = S} a ∪ singleton b
   pab≃sa∪sb {S = S} {a} {b} = ⊆-antisym (⊆-intro forward) (⊆-intro backward)
     where
       open Setoid S using (_≈_)
@@ -401,3 +412,38 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Finally, if A ⊊ B and B ⊊ C then A ⊊ C.
   _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊊ B → B ⊊ C → A ⊊ C
   _ = ⊊-trans
+
+  -- Remark 3.1.20. ...given two distinct sets, it is not in general
+  -- true that one of them is a subset of the other.
+  [135] = 1 ∷ 3 ∷ 5 ∷ []
+  [246] = 2 ∷ 4 ∷ 6 ∷ []
+  ⟨135⟩ = finite {S = ℕ-Setoid} [135]
+  ⟨246⟩ = finite {S = ℕ-Setoid} [246]
+
+  _ : ⟨135⟩ ⊈ ⟨246⟩
+  _ = toWitnessFalse {Q = [135] ⊆? [246]} _
+
+  _ : ⟨246⟩ ⊈ ⟨135⟩
+  _ = toWitnessFalse {Q = [246] ⊆? [135]} _
+
+  -- Axiom 3.5 (Axiom of specification). Let A be a set, and for each
+  -- x ∈ A, let P(x) be a property pertaining to x (i.e., P(x) is
+  -- either a true statement or a false statement). Then there exists
+  -- a set, called {x ∈ A : P(x) is true} (or simply {x ∈ A : P(x)}
+  -- for short), whose elements are precisely the elements x in A for
+  -- which P(x) is true.
+
+  -- [note] We modify the above axiom slightly for a better fit with
+  -- type theory. Let S be a setoid with carrier type El S, and for
+  -- each x : El S, let P x : Set α be a property pertaining to x, and
+  -- let P-cong : ∀ {x y} → x ≈ y → P x → P y be a proof that P
+  -- respects the equivalence relation of S. Then there exists a
+  -- PSet S α, called ⟨ P ~ P-cong ⟩, whose elements are precisely the
+  -- elements x in El S for which P x is inhabited. In other words,
+  -- since our PSets already have an underlying "set" in the form of a
+  -- setoid, the predicate can just operate on those elements rather
+  -- than the elements of another PSet.
+  _ :
+    let open Setoid S using (_≈_)
+     in (P : El S → Set α) → (∀ {x y} → x ≈ y → P x → P y) → PSet S α
+  _ = ⟨_~_⟩
