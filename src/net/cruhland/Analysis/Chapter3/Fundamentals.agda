@@ -1,6 +1,6 @@
 open import Data.List using ([]; _∷_; _++_)
 import Data.List.Membership.DecPropositional as DecMembership
-open import Function using (_∘_)
+open import Function using (_∘_; const; id)
 open import Level using (_⊔_; Level) renaming (suc to lstep; zero to lzero)
 open import Relation.Binary using (DecSetoid)
 open import Relation.Binary.PropositionalEquality using (setoid; decSetoid)
@@ -8,7 +8,10 @@ open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Logic using
-  (_∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro)
+  ( _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
+  ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
+  ; ⊤; ⊥; ⊥-elim; ⊤-intro
+  )
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
@@ -25,7 +28,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
-    ; ⟨_~_⟩
+    ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
     )
 
@@ -400,6 +403,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A : PSet S α} → ∅ ⊆ A
   _ = ∅-⊆
 
+  A⊆∅→A≃∅ : {A : PSet S α} → A ⊆ (∅ {α = α}) → A ≃ ∅
+  A⊆∅→A≃∅ A⊆∅ = ⊆-antisym A⊆∅ ∅-⊆
+
   -- Proposition 3.1.18 (Sets are partially ordered by set
   -- inclusion). Let A, B, C be sets. If A ⊆ B and B ⊆ C then A ⊆ C.
   _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊆ B → B ⊆ C → A ⊆ C
@@ -447,3 +453,27 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     let open Setoid S using (_≈_)
      in (P : El S → Set α) → (∀ {x y} → x ≈ y → P x → P y) → PSet S α
   _ = ⟨_~_⟩
+
+  -- Note that {x ∈ A : P(x) is true} is always a subset of A, though
+  -- it could be as large as A or as small as the empty set.
+  -- [note] In our formulation, since A is a type (El S) and not a
+  -- set, we can't show that comprehension makes a subset of A
+  -- directly, but we can first show how to make a set of the entire
+  -- type A, and then show that comprehension always gives a subset of
+  -- that.
+  universe : PSet S lzero
+  universe = ⟨ const ⊤ ~ const id ⟩
+
+  _ : ⟨ const ⊥ ~ const id ⟩ ≃ (∅ {S = S})
+  _ = A⊆∅→A≃∅ (⊆-intro (⊥-elim ∘ x∈⟨P⟩-elim))
+
+  _ :
+    {S : Setoid σ₁ σ₂} {P : El S → Set α} {P-cong : congProp {S = S} P} →
+      ⟨ P ~ P-cong ⟩ ⊆ universe {S = S}
+  _ = ⊆-intro (const (x∈⟨P⟩-intro ⊤-intro))
+
+  -- One can verify that the axiom of substitution works for
+  -- specification, thus if A = A′ then {x ∈ A : P(x)} = {x ∈ A′ :
+  -- P(x)}.
+  -- [note] Again, because in our version A is not a set, we can't
+  -- verify this, nor is there a need to.
