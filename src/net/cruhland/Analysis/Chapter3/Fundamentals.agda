@@ -30,6 +30,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
+    ; _∩_
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
     )
 
@@ -502,3 +503,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   ⟨n<1⟩ : ℕSet
   ⟨n<1⟩ = ℕ⟨ _< 1 ⟩
+
+  -- Definition 3.1.23 (Intersections). The _intersection_ S₁ ∩ S₂ of
+  -- two sets is defined to be the set S₁ ∩ S₂ ≔ {x ∈ S₁ : x ∈ S₂}. In
+  -- other words, S₁ ∩ S₂ consists of all the elements which belong to
+  -- both S₁ and S₂.
+  -- [note] We can't use our version of specification to define this;
+  -- instead, we take an axiomatic approach like we did for unions.
+  _ : PSet S α → PSet S β → PSet S (α ⊔ β)
+  _ = _∩_
