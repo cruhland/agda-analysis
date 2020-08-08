@@ -511,8 +511,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- two sets is defined to be the set S₁ ∩ S₂ ≔ {x ∈ S₁ : x ∈ S₂}. In
   -- other words, S₁ ∩ S₂ consists of all the elements which belong to
   -- both S₁ and S₂.
-  -- [note] We can't use our version of specification to define this;
-  -- instead, we take an axiomatic approach like we did for unions.
+  -- [note] While we could define intersection in terms of
+  -- specification, by defining its predicate to be
+  -- P x = x ∈ S₁ ∧ x ∈ S₂, we instead take the axiomatic
+  -- approach to provide symmetry with union.
   _ : PSet S α → PSet S β → PSet S (α ⊔ β)
   _ = _∩_
 
