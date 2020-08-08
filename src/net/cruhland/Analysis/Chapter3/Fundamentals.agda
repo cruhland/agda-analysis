@@ -9,7 +9,8 @@ open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Logic using
-  ( _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
+  ( _∧_
+  ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
   )
@@ -27,11 +28,11 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; x∈pab-intro; x∈pab-introᴸ; x∈pab-introᴿ; pair-unique
     ; _∪_; x∈A∪B↔x∈A∨x∈B; ∪-∅ᴸ; ∪-∅ᴿ; ∪-assoc; ∪-comm; x∈A∪B-elim
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
-    ; _⊆_; _⊈_; _⊊_; ∅-⊆; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
+    ; _⊆_; _⊈_; _⊊_; ∅-⊆; A⊆∅→A≃∅; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
-    ; _∩_
-    ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite
+    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
+    ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite; ∩-finite
     )
 
   variable
@@ -295,7 +296,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   [12] = 1 ∷ 2 ∷ []
   [23] = 2 ∷ 3 ∷ []
   [123] = 1 ∷ 2 ∷ 3 ∷ []
-  _ : finite {S = ℕ-Setoid} [12] ∪ finite [23] ≃ finite [123]
+
+  ⟨12⟩ = finite {S = ℕ-Setoid} [12]
+  ⟨23⟩ = finite {S = ℕ-Setoid} [23]
+  ⟨123⟩ = finite {S = ℕ-Setoid} [123]
+
+  _ : ⟨12⟩ ∪ ⟨23⟩ ≃ ⟨123⟩
   _ = ≃-trans (∪-finite [12] [23]) (toWitness {Q = [12] ++ [23] ≃? [123]} _)
 
   -- Remark 3.1.12. If A, B, A′ are sets, and A is equal to A′, then A
@@ -408,9 +414,6 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A : PSet S α} → ∅ ⊆ A
   _ = ∅-⊆
 
-  A⊆∅→A≃∅ : {A : PSet S α} → A ⊆ (∅ {α = α}) → A ≃ ∅
-  A⊆∅→A≃∅ A⊆∅ = ⊆-antisym A⊆∅ ∅-⊆
-
   -- Proposition 3.1.18 (Sets are partially ordered by set
   -- inclusion). Let A, B, C be sets. If A ⊆ B and B ⊆ C then A ⊆ C.
   _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊆ B → B ⊆ C → A ⊆ C
@@ -512,3 +515,34 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- instead, we take an axiomatic approach like we did for unions.
   _ : PSet S α → PSet S β → PSet S (α ⊔ β)
   _ = _∩_
+
+  -- Thus, for all objects x, x ∈ S₁ ∩ S₂ ↔ x ∈ S₁ and x ∈ S₂.
+  _ :
+    {S : Setoid σ₁ σ₂} {S₁ : PSet S α} {S₂ : PSet S β} →
+      ∀ {x} → x ∈ S₁ ∩ S₂ ↔ x ∈ S₁ ∧ x ∈ S₂
+  _ = x∈A∩B↔x∈A∧x∈B
+
+  -- Remark 3.1.24. Note that this definition is well-defined (i.e.,
+  -- it obeys the axiom of substitution)...
+  _ : {A A′ : PSet S α} {B : PSet S β} → A ≃ A′ → A ∩ B ≃ A′ ∩ B
+  _ = ∩-substᴸ
+
+  _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ∩ B ≃ A ∩ B′
+  _ = ∩-substᴿ
+
+  -- Examples 3.1.25
+  [234] = 2 ∷ 3 ∷ 4 ∷ []
+  [24] = 2 ∷ 4 ∷ []
+  [34] = 3 ∷ 4 ∷ []
+
+  _ : finite [124] ∩ finite [234] ≃ finite [24]
+  _ = ∩-finite {DS = ℕ-DecSetoid} [124] [234]
+
+  _ : finite [12] ∩ finite [34] ≃ ∅
+  _ = ∩-finite {DS = ℕ-DecSetoid} [12] [34]
+
+  _ : ⟨23⟩ ∪ ∅ ≃ ⟨23⟩
+  _ = ∪-∅ᴿ
+
+  _ : ⟨23⟩ ∩ ∅ ≃ ∅
+  _ = ∩-∅ᴿ
