@@ -32,6 +32,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
+    ; _∖_
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite; ∩-finite
     )
 
@@ -548,3 +549,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   _ : ⟨23⟩ ∩ ∅ ≃ ∅
   _ = ∩-∅ᴿ
+
+  -- Definition 3.1.27 (Difference sets). Given two sets A and B, we
+  -- define the set A - B or A ∖ B to be the set A with any elements
+  -- of B removed
+  _ : PSet S α → PSet S β → PSet S (α ⊔ β)
+  _ = _∖_
