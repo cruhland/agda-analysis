@@ -33,6 +33,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_
+    ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite; ∩-finite
     )
 
@@ -43,10 +44,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ℕ-Setoid : Setoid lzero lzero
   ℕ-Setoid = setoid ℕ
 
-  ℕ-DecSetoid : DecSetoid lzero lzero
-  ℕ-DecSetoid = decSetoid _≡?_
+  instance
+    ℕ-DecSetoid : DecSetoid lzero lzero
+    ℕ-DecSetoid = decSetoid _≡?_
 
-  open Memberᴸ {DS = ℕ-DecSetoid} using (_∈?_)
   open Subsetᴸ {DS = ℕ-DecSetoid} using (_⊆?_; _≃?_)
 
   {- 3.1 Fundamentals -}
@@ -78,11 +79,11 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- For instance, 3 ∈ {1, 2, 3, 4, 5}
   _ : 3 ∈ ⟨12345⟩
-  _ = toWitness {Q = 3 ∈? [12345]} _
+  _ = toWitness {Q = 3 ∈? ⟨12345⟩} _
 
   -- but 7 ∉ {1, 2, 3, 4, 5}.
   _ : 7 ∉ ⟨12345⟩
-  _ = toWitnessFalse {Q = 7 ∈? [12345]} _
+  _ = toWitnessFalse {Q = 7 ∈? ⟨12345⟩} _
 
   -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
   -- object. In particular, given two sets A and B, it is meaningful to
@@ -404,8 +405,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : ⟨124⟩ ⊊ ⟨12345⟩
   _ = ⊊-intro 124⊆12345 3 3∉124 3∈12345
     where
-      3∉124 = toWitnessFalse {Q = 3 ∈? [124]} _
-      3∈12345 = toWitness {Q = 3 ∈? [12345]} _
+      3∉124 = toWitnessFalse {Q = 3 ∈? ⟨124⟩} _
+      3∈12345 = toWitness {Q = 3 ∈? ⟨12345⟩} _
 
   -- Given any set A, we always have A ⊆ A
   _ : {A : PSet S α} → A ⊆ A
@@ -492,9 +493,13 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- n < 4 is true, i.e., {n ∈ S : n < 4} = {1,2,3}. Similarly,
   -- the set {n ∈ S : n < 7} is the same as S itself, while
   -- {n ∈ S : n < 1} is the empty set.
-  -- [note] We can't define these sets with our version of
-  -- specification, but once we introduce intersection below, we will
-  -- be able to. For now, we'll just define the predicate portion of
+
+  -- [note] We could define these sets with our version of
+  -- specification, using logical conjunction:
+  -- ⟨ (λ n → n ∈ S ∧ n < 4) ~ (λ { refl → id }) ⟩.
+  -- But since set intersections are also defined using conjunction,
+  -- it would be clearer to wait until they are defined below. For
+  -- now, we will use specification to build the predicate portion of
   -- the sets.
   ℕ⟨_⟩ : (ℕ → Set) → ℕSet
   ℕ⟨ P ⟩ = ⟨ P ~ (λ { refl → id }) ⟩
