@@ -34,7 +34,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_
     ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
-    ; finite; module Memberᴸ; module Subsetᴸ; ∪-finite; ∩-finite
+    ; finite; module Subsetᴸ; ∪-finite; ∩-finite
     )
 
   variable
