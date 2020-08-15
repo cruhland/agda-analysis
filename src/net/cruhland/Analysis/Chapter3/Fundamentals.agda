@@ -13,11 +13,12 @@ open import net.cruhland.models.Logic using
   ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
+  ; Dec
   )
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
-  open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_)
+  open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_)
 
   open SetTheory ST using
     ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet-Setoid; Setoid
@@ -554,6 +555,20 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   _ : ⟨23⟩ ∩ ∅ ≃ ∅
   _ = ∩-∅ᴿ
+
+  -- Example 3.1.22 [revisited].
+  instance
+    <-dec : ∀ {n m} → Dec (n < m)
+    <-dec {n} {m} = n <? m
+
+  _ : ⟨12345⟩ ∩ ⟨n<4⟩ ≃ ⟨123⟩
+  _ = ∩-finite [12345] ⟨n<4⟩
+
+  _ : ⟨12345⟩ ∩ ⟨n<7⟩ ≃ ⟨12345⟩
+  _ = ∩-finite [12345] ⟨n<7⟩
+
+  _ : ⟨12345⟩ ∩ ⟨n<1⟩ ≃ ∅
+  _ = ∩-finite [12345] ⟨n<1⟩
 
   -- Definition 3.1.27 (Difference sets). Given two sets A and B, we
   -- define the set A - B or A ∖ B to be the set A with any elements
