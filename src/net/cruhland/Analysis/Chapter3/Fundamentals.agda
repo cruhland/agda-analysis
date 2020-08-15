@@ -398,7 +398,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   [124] = 1 ∷ 2 ∷ 4 ∷ []
   ⟨124⟩ = finite {S = ℕ-Setoid} [124]
   124⊆12345 : ⟨124⟩ ⊆ ⟨12345⟩
-  124⊆12345 = toWitness {Q = [124] ⊆? [12345]} _
+  124⊆12345 = toWitness {Q = [124] ⊆? ⟨12345⟩} _
 
   -- In fact we also have {1,2,4} ⊊ {1,2,3,4,5}, since the two sets
   -- {1,2,4} and {1,2,3,4,5} are not equal.
@@ -437,10 +437,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ⟨246⟩ = finite {S = ℕ-Setoid} [246]
 
   _ : ⟨135⟩ ⊈ ⟨246⟩
-  _ = toWitnessFalse {Q = [135] ⊆? [246]} _
+  _ = toWitnessFalse {Q = [135] ⊆? ⟨246⟩} _
 
   _ : ⟨246⟩ ⊈ ⟨135⟩
-  _ = toWitnessFalse {Q = [246] ⊆? [135]} _
+  _ = toWitnessFalse {Q = [246] ⊆? ⟨135⟩} _
 
   -- Axiom 3.5 (Axiom of specification). Let A be a set, and for each
   -- x ∈ A, let P(x) be a property pertaining to x (i.e., P(x) is
@@ -539,15 +539,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = ∩-substᴿ
 
   -- Examples 3.1.25
-  [234] = 2 ∷ 3 ∷ 4 ∷ []
+  ⟨234⟩ = finite {S = ℕ-Setoid} (2 ∷ 3 ∷ 4 ∷ [])
   [24] = 2 ∷ 4 ∷ []
-  [34] = 3 ∷ 4 ∷ []
+  ⟨34⟩ = finite {S = ℕ-Setoid} (3 ∷ 4 ∷ [])
 
-  _ : finite [124] ∩ finite [234] ≃ finite [24]
-  _ = ∩-finite {DS = ℕ-DecSetoid} [124] [234]
+  _ : finite [124] ∩ ⟨234⟩ ≃ finite [24]
+  _ = ∩-finite [124] ⟨234⟩
 
-  _ : finite [12] ∩ finite [34] ≃ ∅
-  _ = ∩-finite {DS = ℕ-DecSetoid} [12] [34]
+  _ : finite [12] ∩ ⟨34⟩ ≃ ∅
+  _ = ∩-finite [12] ⟨34⟩
 
   _ : ⟨23⟩ ∪ ∅ ≃ ⟨23⟩
   _ = ∪-∅ᴿ
