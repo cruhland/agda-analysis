@@ -35,7 +35,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_
     ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
-    ; finite; module Subsetᴸ; ∪-finite; ∩-finite
+    ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
     )
 
   variable
@@ -575,3 +575,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- of B removed
   _ : PSet S α → PSet S β → PSet S (α ⊔ β)
   _ = _∖_
+
+  -- For instance, {1,2,3,4} ∖ {2,4,6} = {1,3}.
+  [1234] = 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
+  _ : finite [1234] ∖ ⟨246⟩ ≃ finite (1 ∷ 3 ∷ [])
+  _ = ∖-finite [1234] ⟨246⟩
