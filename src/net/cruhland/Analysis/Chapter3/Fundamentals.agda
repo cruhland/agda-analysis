@@ -9,7 +9,7 @@ open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Logic using
-  ( _∧_
+  ( _∧_; ∧-dup
   ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
@@ -32,7 +32,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; A⊆∅→A≃∅; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
-    ; _∩_; x∈A∩B↔x∈A∧x∈B; x∈A∩B-elimᴸ; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
+    ; _∩_; x∈A∩B↔x∈A∧x∈B; x∈A∩B-elimᴸ; x∈A∩B-intro; x∈A∩B-intro₂
+    ; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_
     ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
@@ -607,3 +608,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       where
         backward : ∀ {x} → x ∈ A → x ∈ A ∩ X
         backward x∈A = x∈A∩B-intro₂ x∈A (⊆-elim A⊆X x∈A)
+
+    -- (c) (Identity) We have A ∩ A ≃ A
+    _ : A ∩ A ≃ A
+    _ = ⊆-antisym (⊆-intro x∈A∩B-elimᴸ) (⊆-intro (x∈A∩B-intro ∘ ∧-dup))
+
+    _ : A ∪ A ≃ A
+    _ = ⊆-antisym (⊆-intro (∨-merge ∘ x∈A∪B-elim)) (⊆-intro x∈A∪B-introᴸ)
