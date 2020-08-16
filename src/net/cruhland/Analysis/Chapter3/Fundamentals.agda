@@ -32,7 +32,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; A⊆∅→A≃∅; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
-    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
+    ; _∩_; x∈A∩B↔x∈A∧x∈B; x∈A∩B-elimᴸ; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_
     ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
@@ -583,9 +583,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Proposition 3.1.28 (Sets form a boolean algebra).
   -- Exercise 3.1.6
-  module _
-      {ξ} (A : PSet S α) (B : PSet S β) (C : PSet S χ) (X : PSet S ξ)
-      (A⊆X : A ⊆ X) (B⊆X : B ⊆ X) (C⊆X : C ⊆ X) where
+  module _ (A B C X : PSet S α) (A⊆X : A ⊆ X) (B⊆X : B ⊆ X) (C⊆X : C ⊆ X) where
     -- (a) (Minimal element) We have A ∪ ∅ ≃ A
     _ : A ∪ (∅ {α = α}) ≃ A
     _ = ∪-∅ᴿ
@@ -593,3 +591,19 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     -- and A ∩ ∅ ≃ ∅.
     _ : A ∩ (∅ {α = α}) ≃ ∅
     _ = ∩-∅ᴿ
+
+    -- (b) (Maximal element) We have A ∪ X ≃ X
+    _ : A ∪ X ≃ X
+    _ = ⊆-antisym (⊆-intro forward) (⊆-intro x∈A∪B-introᴿ)
+      where
+        forward : ∀ {x} → x ∈ A ∪ X → x ∈ X
+        forward x∈A∪X with x∈A∪B-elim x∈A∪X
+        ... | ∨-introᴸ x∈A = ⊆-elim A⊆X x∈A
+        ... | ∨-introᴿ x∈X = x∈X
+
+    -- and A ∩ X ≃ A.
+    _ : A ∩ X ≃ A
+    _ = ⊆-antisym (⊆-intro x∈A∩B-elimᴸ) (⊆-intro backward)
+      where
+        backward : ∀ {x} → x ∈ A → x ∈ A ∩ X
+        backward x∈A = x∈A∩B-intro₂ x∈A (⊆-elim A⊆X x∈A)
