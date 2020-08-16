@@ -580,3 +580,16 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   [1234] = 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
   _ : finite [1234] ∖ ⟨246⟩ ≃ finite (1 ∷ 3 ∷ [])
   _ = ∖-finite [1234] ⟨246⟩
+
+  -- Proposition 3.1.28 (Sets form a boolean algebra).
+  -- Exercise 3.1.6
+  module _
+      {ξ} (A : PSet S α) (B : PSet S β) (C : PSet S χ) (X : PSet S ξ)
+      (A⊆X : A ⊆ X) (B⊆X : B ⊆ X) (C⊆X : C ⊆ X) where
+    -- (a) (Minimal element) We have A ∪ ∅ ≃ A
+    _ : A ∪ (∅ {α = α}) ≃ A
+    _ = ∪-∅ᴿ
+
+    -- and A ∩ ∅ ≃ ∅.
+    _ : A ∩ (∅ {α = α}) ≃ ∅
+    _ = ∩-∅ᴿ
