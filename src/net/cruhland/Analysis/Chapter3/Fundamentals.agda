@@ -37,6 +37,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∖_
     ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
+    ; ∩-over-∪ᴸ; ∪-over-∩ᴸ
     )
 
   variable
@@ -627,3 +628,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
     _ : (A ∩ B) ∩ C ≃ A ∩ (B ∩ C)
     _ = ∩-assoc
+
+    -- (f) (Distributivity)
+    _ : A ∩ (B ∪ C) ≃ (A ∩ B) ∪ (A ∩ C)
+    _ = ∩-over-∪ᴸ
+
+    _ : A ∪ (B ∩ C) ≃ (A ∪ B) ∩ (A ∪ C)
+    _ = ∪-over-∩ᴸ
