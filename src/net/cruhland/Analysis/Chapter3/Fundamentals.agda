@@ -32,8 +32,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; A⊆∅→A≃∅; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
-    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-comm; x∈A∩B-elimᴸ; x∈A∩B-intro; x∈A∩B-intro₂
-    ; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
+    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elimᴸ
+    ; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_
     ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
@@ -620,3 +620,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
     _ : A ∩ B ≃ B ∩ A
     _ = ∩-comm
+
+    -- (e) (Associativity)
+    _ : (A ∪ B) ∪ C ≃ A ∪ (B ∪ C)
+    _ = ∪-assoc
+
+    _ : (A ∩ B) ∩ C ≃ A ∩ (B ∩ C)
+    _ = ∩-assoc
