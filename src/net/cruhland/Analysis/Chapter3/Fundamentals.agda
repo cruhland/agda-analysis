@@ -13,7 +13,7 @@ open import net.cruhland.models.Logic using
   ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
-  ; Dec
+  ; Dec; no; yes
   )
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
@@ -34,8 +34,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elimᴸ
     ; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
-    ; _∖_
-    ; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
+    ; _∖_; x∈A∖B-elimᴸ; x∈A∖B-intro₂
+    ; DecMembership; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
     ; ∩-over-∪ᴸ; ∪-over-∩ᴸ
     )
@@ -635,3 +635,23 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
     _ : A ∪ (B ∩ C) ≃ (A ∪ B) ∩ (A ∪ C)
     _ = ∪-over-∩ᴸ
+
+    -- (g) (Partition)
+    A∪[X∖A]⊆X : A ∪ (X ∖ A) ⊆ X
+    A∪[X∖A]⊆X = ⊆-intro forward
+      where
+        forward : ∀ {x} → x ∈ A ∪ (X ∖ A) → x ∈ X
+        forward x∈A∪[X∖A] with x∈A∪B-elim x∈A∪[X∖A]
+        ... | ∨-introᴸ x∈A = ⊆-elim A⊆X x∈A
+        ... | ∨-introᴿ x∈X∖A = x∈A∖B-elimᴸ x∈X∖A
+
+    X⊆A∪[X∖A] : {{_ : DecMembership A}} → X ⊆ A ∪ (X ∖ A)
+    X⊆A∪[X∖A] = ⊆-intro backward
+      where
+        backward : ∀ {x} → x ∈ X → x ∈ A ∪ (X ∖ A)
+        backward {x} x∈X with x ∈? A
+        ... | yes x∈A = x∈A∪B-introᴸ x∈A
+        ... | no x∉A = x∈A∪B-introᴿ (x∈A∖B-intro₂ x∈X x∉A)
+
+    A∪[X∖A]≃X : {{_ : DecMembership A}} → A ∪ (X ∖ A) ≃ X
+    A∪[X∖A]≃X = ⊆-antisym A∪[X∖A]⊆X X⊆A∪[X∖A]
