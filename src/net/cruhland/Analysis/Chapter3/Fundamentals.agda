@@ -37,7 +37,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∖_; x∈A∖B-elimᴸ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
-    ; ∩-over-∪ᴸ; ∪-over-∩ᴸ
+    ; ∪⊆-intro₂; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
     )
 
   variable
@@ -637,14 +637,23 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     _ = ∪-over-∩ᴸ
 
     -- (g) (Partition)
+    -- [note] This direction is easy, since we know both A ⊆ X and X ∖ A ⊆ X.
     A∪[X∖A]⊆X : A ∪ (X ∖ A) ⊆ X
-    A∪[X∖A]⊆X = ⊆-intro forward
-      where
-        forward : ∀ {x} → x ∈ A ∪ (X ∖ A) → x ∈ X
-        forward x∈A∪[X∖A] with x∈A∪B-elim x∈A∪[X∖A]
-        ... | ∨-introᴸ x∈A = ⊆-elim A⊆X x∈A
-        ... | ∨-introᴿ x∈X∖A = x∈A∖B-elimᴸ x∈X∖A
+    A∪[X∖A]⊆X = ∪⊆-intro₂ A⊆X A∖B⊆A
 
+    -- [note] This direction is easy in classical logic because LEM
+    -- holds, so we know that either x ∈ A or x ∉ A without knowing
+    -- which one is the case. But we can't get away with that in type
+    -- theory: to show x ∈ A ∨ x ∉ A, we must have an actual term that
+    -- provides evidence of one of the two cases. So we need to add
+    -- the assumption that x ∈ A is decidable (i.e., obeys LEM).  From
+    -- a computational perspective this makes sense: suppose X is ℝ²
+    -- and A is some fractal set such as the Mandelbrot set or the
+    -- Sierpiński triangle. Then determining whether some point x : ℝ²
+    -- is inside A could require computing x to an arbitrary number of
+    -- decimal places. Even if those situations end up being
+    -- decidable, there might be others where we don't yet know an
+    -- algorithm for determining membership in all cases.
     X⊆A∪[X∖A] : {{_ : DecMembership A}} → X ⊆ A ∪ (X ∖ A)
     X⊆A∪[X∖A] = ⊆-intro backward
       where
@@ -653,5 +662,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         ... | yes x∈A = x∈A∪B-introᴸ x∈A
         ... | no x∉A = x∈A∪B-introᴿ (x∈A∖B-intro₂ x∈X x∉A)
 
+    -- [note] Because we needed the DecMembership assumption for the
+    -- second case, we need it for the full proof as well.
     A∪[X∖A]≃X : {{_ : DecMembership A}} → A ∪ (X ∖ A) ≃ X
     A∪[X∖A]≃X = ⊆-antisym A∪[X∖A]⊆X X⊆A∪[X∖A]
