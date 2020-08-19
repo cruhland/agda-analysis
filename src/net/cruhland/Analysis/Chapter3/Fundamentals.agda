@@ -34,7 +34,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elim; x∈A∩B-elimᴸ
     ; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
-    ; _∖_; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
+    ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
     ; ∪⊆-intro₂; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
@@ -674,3 +674,14 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         forward x∈A∩[X∖A] =
           let ∧-intro x∈A x∈X∖A = x∈A∩B-elim x∈A∩[X∖A]
            in ⊥-elim (x∈A∖B-elimᴿ x∈X∖A x∈A)
+
+    -- (h) (De Morgan laws)
+    X∖[A∪B]⊆[X∖A]∩[X∖B] : X ∖ (A ∪ B) ⊆ X ∖ A ∩ X ∖ B
+    X∖[A∪B]⊆[X∖A]∩[X∖B] = ⊆-intro forward
+      where
+        forward : ∀ {x} → x ∈ X ∖ (A ∪ B) → x ∈ X ∖ A ∩ X ∖ B
+        forward x∈X∖[A∪B] =
+          let ∧-intro x∈X x∉A∪B = x∈A∖B-elim x∈X∖[A∪B]
+              x∈X∖A = x∈A∖B-intro₂ x∈X (x∉A∪B ∘ x∈A∪B-introᴸ)
+              x∈X∖B = x∈A∖B-intro₂ x∈X (x∉A∪B ∘ x∈A∪B-introᴿ)
+           in x∈A∩B-intro₂ x∈X∖A x∈X∖B
