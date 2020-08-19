@@ -9,7 +9,7 @@ open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Logic using
-  ( _∧_; ∧-dup
+  ( _∧_; ∧-dup; ∧-intro
   ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
@@ -32,9 +32,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; A⊆∅→A≃∅; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
-    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elimᴸ
+    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elim; x∈A∩B-elimᴸ
     ; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
-    ; _∖_; x∈A∖B-elimᴸ; x∈A∖B-intro₂
+    ; _∖_; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
     ; ∪⊆-intro₂; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
@@ -666,3 +666,11 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     -- second case, we need it for the full proof as well.
     A∪[X∖A]≃X : {{_ : DecMembership A}} → A ∪ (X ∖ A) ≃ X
     A∪[X∖A]≃X = ⊆-antisym A∪[X∖A]⊆X X⊆A∪[X∖A]
+
+    _ : A ∩ (X ∖ A) ≃ ∅
+    _ = ⊆-antisym (⊆-intro forward) (⊆-intro (⊥-elim ∘ x∉∅))
+      where
+        forward : ∀ {x} → x ∈ A ∩ (X ∖ A) → x ∈ ∅
+        forward x∈A∩[X∖A] =
+          let ∧-intro x∈A x∈X∖A = x∈A∩B-elim x∈A∩[X∖A]
+           in ⊥-elim (x∈A∖B-elimᴿ x∈X∖A x∈A)
