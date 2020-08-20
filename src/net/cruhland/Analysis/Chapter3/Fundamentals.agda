@@ -10,7 +10,7 @@ open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Logic using
   ( _∧_; ∧-dup; ∧-intro
-  ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge
+  ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
   ; Dec; no; yes
@@ -685,3 +685,16 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
               x∈X∖A = x∈A∖B-intro₂ x∈X (x∉A∪B ∘ x∈A∪B-introᴸ)
               x∈X∖B = x∈A∖B-intro₂ x∈X (x∉A∪B ∘ x∈A∪B-introᴿ)
            in x∈A∩B-intro₂ x∈X∖A x∈X∖B
+
+    [X∖A]∩[X∖B]⊆X∖[A∪B] : X ∖ A ∩ X ∖ B ⊆ X ∖ (A ∪ B)
+    [X∖A]∩[X∖B]⊆X∖[A∪B] = ⊆-intro backward
+      where
+        backward : ∀ {x} → x ∈ X ∖ A ∩ X ∖ B → x ∈ X ∖ (A ∪ B)
+        backward x∈[X∖A]∩[X∖B] =
+          let ∧-intro x∈X∖A x∈X∖B = x∈A∩B-elim x∈[X∖A]∩[X∖B]
+              ∧-intro x∈X x∉A = x∈A∖B-elim x∈X∖A
+              x∉B = x∈A∖B-elimᴿ x∈X∖B
+           in x∈A∖B-intro₂ x∈X (∨-rec x∉A x∉B ∘ x∈A∪B-elim)
+
+    X∖[A∪B]≃[X∖A]∩[X∖B] : X ∖ (A ∪ B) ≃ X ∖ A ∩ X ∖ B
+    X∖[A∪B]≃[X∖A]∩[X∖B] = ⊆-antisym X∖[A∪B]⊆[X∖A]∩[X∖B] [X∖A]∩[X∖B]⊆X∖[A∪B]
