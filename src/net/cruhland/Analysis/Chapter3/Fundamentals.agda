@@ -32,7 +32,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; A⊆∅→A≃∅; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
-    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elim; x∈A∩B-elimᴸ
+    ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elim; x∈A∩B-elimᴸ; x∈A∩B-elimᴿ
     ; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
@@ -698,3 +698,35 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
     X∖[A∪B]≃[X∖A]∩[X∖B] : X ∖ (A ∪ B) ≃ X ∖ A ∩ X ∖ B
     X∖[A∪B]≃[X∖A]∩[X∖B] = ⊆-antisym X∖[A∪B]⊆[X∖A]∩[X∖B] [X∖A]∩[X∖B]⊆X∖[A∪B]
+
+    X∖[A∩B]⊆[X∖A]∪[X∖B] :
+      {{_ : DecMembership A}} {{_ : DecMembership B}} →
+        X ∖ (A ∩ B) ⊆ X ∖ A ∪ X ∖ B
+    X∖[A∩B]⊆[X∖A]∪[X∖B] = ⊆-intro forward
+      where
+        forward : ∀ {x} → x ∈ X ∖ (A ∩ B) → x ∈ X ∖ A ∪ X ∖ B
+        forward {x} x∈X∖[A∩B] with x ∈? A | x ∈? B
+        ... | yes x∈A | yes x∈B =
+          let ∧-intro x∈X x∉A∩B = x∈A∖B-elim x∈X∖[A∩B]
+           in ⊥-elim (x∉A∩B (x∈A∩B-intro₂ x∈A x∈B))
+        ... | yes x∈A | no x∉B =
+          x∈A∪B-introᴿ (x∈A∖B-intro₂ (x∈A∖B-elimᴸ x∈X∖[A∩B]) x∉B)
+        ... | no x∉A | _ =
+          x∈A∪B-introᴸ (x∈A∖B-intro₂ (x∈A∖B-elimᴸ x∈X∖[A∩B]) x∉A)
+
+    [X∖A]∪[X∖B]⊆X∖[A∩B] : X ∖ A ∪ X ∖ B ⊆ X ∖ (A ∩ B)
+    [X∖A]∪[X∖B]⊆X∖[A∩B] = ⊆-intro backward
+      where
+        backward : ∀ {x} → x ∈ X ∖ A ∪ X ∖ B → x ∈ X ∖ (A ∩ B)
+        backward {x} x∈[X∖A]∪[X∖B] with x∈A∪B-elim x∈[X∖A]∪[X∖B]
+        ... | ∨-introᴸ x∈X∖A =
+          let ∧-intro x∈X x∉A = x∈A∖B-elim x∈X∖A
+           in x∈A∖B-intro₂ x∈X (x∉A ∘ x∈A∩B-elimᴸ)
+        ... | ∨-introᴿ x∈X∖B =
+          let ∧-intro x∈X x∉B = x∈A∖B-elim x∈X∖B
+           in x∈A∖B-intro₂ x∈X (x∉B ∘ x∈A∩B-elimᴿ)
+
+    X∖[A∩B]≃[X∖A]∪[X∖B] :
+      {{_ : DecMembership A}} {{_ : DecMembership B}} →
+        X ∖ (A ∩ B) ≃ X ∖ A ∪ X ∖ B
+    X∖[A∩B]≃[X∖A]∪[X∖B] = ⊆-antisym X∖[A∩B]⊆[X∖A]∪[X∖B] [X∖A]∪[X∖B]⊆X∖[A∩B]
