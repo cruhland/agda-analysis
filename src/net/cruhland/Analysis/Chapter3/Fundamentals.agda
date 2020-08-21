@@ -37,7 +37,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
-    ; ∪⊆-intro₂; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
+    ; ∪⊆-intro₂; pab≃sa∪sb; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
     )
 
   variable
@@ -322,22 +322,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Lemma 3.1.13.
   -- If a and b are objects, then pair a b ≃ singleton a ∪ singleton b.
-  pab≃sa∪sb :
+  _ :
     {S : Setoid σ₁ σ₂} {a b : El S} →
       pair a b ≃ singleton {S = S} a ∪ singleton b
-  pab≃sa∪sb {S = S} {a} {b} = ⊆-antisym (⊆-intro forward) (⊆-intro backward)
-    where
-      open Setoid S using (_≈_)
-
-      forward : ∀ {x} → x ∈ pair a b → x ∈ singleton a ∪ singleton b
-      forward x∈pab with x∈pab-elim x∈pab
-      ... | ∨-introᴸ x≈a = x∈A∪B-introᴸ (x∈sa-intro x≈a)
-      ... | ∨-introᴿ x≈b = x∈A∪B-introᴿ (x∈sa-intro x≈b)
-
-      backward : ∀ {x} → x ∈ singleton a ∪ singleton b → x ∈ pair a b
-      backward x∈sa∪sb with x∈A∪B-elim x∈sa∪sb
-      ... | ∨-introᴸ x∈sa = x∈pab-introᴸ (x∈sa-elim x∈sa)
-      ... | ∨-introᴿ x∈sb = x∈pab-introᴿ (x∈sa-elim x∈sb)
+  _ = pab≃sa∪sb
 
   -- If A, B, C are sets, then the union operation is commutative and
   -- associative.
