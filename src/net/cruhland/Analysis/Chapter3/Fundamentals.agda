@@ -35,8 +35,11 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elim; x∈A∩B-elimᴸ; x∈A∩B-elimᴿ
     ; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
-    ; DecMembership; _∈?_; ∅-∈?; ∩-∈?; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
-    ; finite; module Subsetᴸ; ∪-finite; ∩-finite; ∖-finite
+    ; DecMembership; _∈?_; ∁-∈?; ∖-∈?; ∅-∈?; ∩-∈?
+    ; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
+    ; finite; module Subsetᴸ; ∪-finite; ∩-finite
+    ; Finite; Finite-∅; Finite-singleton; Finite-pair
+    ; Finite-∪; Finite-∩ᴸ; Finite-∖
     ; ∪⊆-intro₂; pab≃sa∪sb; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
     )
 
@@ -119,26 +122,26 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = _≃_
 
   -- Example 3.1.5
-  [34215] = 3 ∷ 4 ∷ 2 ∷ 1 ∷ 5 ∷ []
-  _ : ⟨12345⟩ ≃ finite [34215]
-  _ = toWitness {Q = [12345] ≃? [34215]} _
+  ⟨34215⟩ = finite {S = ℕ-Setoid} (3 ∷ 4 ∷ 2 ∷ 1 ∷ 5 ∷ [])
+  _ : ⟨12345⟩ ≃ ⟨34215⟩
+  _ = toWitness {Q = ⟨12345⟩ ≃? ⟨34215⟩} _
 
-  [3315242] = 3 ∷ 3 ∷ 1 ∷ 5 ∷ 2 ∷ 4 ∷ 2 ∷ []
-  _ : ⟨12345⟩ ≃ finite [3315242]
-  _ = toWitness {Q = [12345] ≃? [3315242]} _
+  ⟨3315242⟩ = finite {S = ℕ-Setoid} (3 ∷ 3 ∷ 1 ∷ 5 ∷ 2 ∷ 4 ∷ 2 ∷ [])
+  _ : ⟨12345⟩ ≃ ⟨3315242⟩
+  _ = toWitness {Q = ⟨12345⟩ ≃? ⟨3315242⟩} _
 
   -- [note] informal examples given prior to Definition 3.1.4
-  [2358] = 2 ∷ 3 ∷ 5 ∷ 8 ∷ []
-  _ : ⟨3852⟩ ≃ finite [2358]
-  _ = toWitness {Q = [3852] ≃? [2358]} _
+  ⟨2358⟩ = finite {S = ℕ-Setoid} (2 ∷ 3 ∷ 5 ∷ 8 ∷ [])
+  _ : ⟨3852⟩ ≃ ⟨2358⟩
+  _ = toWitness {Q = ⟨3852⟩ ≃? ⟨2358⟩} _
 
-  [38521] = 3 ∷ 8 ∷ 5 ∷ 2 ∷ 1 ∷ []
-  _ : ⟨3852⟩ ≄ finite [38521]
-  _ = toWitnessFalse {Q = [3852] ≃? [38521]} _
+  ⟨38521⟩ = finite {S = ℕ-Setoid} (3 ∷ 8 ∷ 5 ∷ 2 ∷ 1 ∷ [])
+  _ : ⟨3852⟩ ≄ ⟨38521⟩
+  _ = toWitnessFalse {Q = ⟨3852⟩ ≃? ⟨38521⟩} _
 
-  [385] = 3 ∷ 8 ∷ 5 ∷ []
-  _ : ⟨3852⟩ ≄ finite [385]
-  _ = toWitnessFalse {Q = [3852] ≃? [385]} _
+  ⟨385⟩ = finite {S = ℕ-Setoid} (3 ∷ 8 ∷ 5 ∷ [])
+  _ : ⟨3852⟩ ≄ ⟨385⟩
+  _ = toWitnessFalse {Q = ⟨3852⟩ ≃? ⟨385⟩} _
 
   -- Exercise 3.1.1
   -- One can easily verify that this notion of equality is reflexive,
@@ -307,7 +310,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ⟨123⟩ = finite {S = ℕ-Setoid} [123]
 
   _ : ⟨12⟩ ∪ ⟨23⟩ ≃ ⟨123⟩
-  _ = ≃-trans (∪-finite [12] [23]) (toWitness {Q = [12] ++ [23] ≃? [123]} _)
+  _ = toWitness {Q = ⟨12⟩ ∪ ⟨23⟩ ≃? ⟨123⟩} _
 
   -- Remark 3.1.12. If A, B, A′ are sets, and A is equal to A′, then A
   -- ∪ B is equal to A′ ∪ B.
@@ -386,10 +389,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Examples 3.1.17
   -- We have {1,2,4} ⊆ {1,2,3,4,5}, because every element of {1,2,4}
   -- is also an element of {1,2,3,4,5}.
-  [124] = 1 ∷ 2 ∷ 4 ∷ []
-  ⟨124⟩ = finite {S = ℕ-Setoid} [124]
+  ⟨124⟩ = finite {S = ℕ-Setoid} (1 ∷ 2 ∷ 4 ∷ [])
   124⊆12345 : ⟨124⟩ ⊆ ⟨12345⟩
-  124⊆12345 = toWitness {Q = [124] ⊆? ⟨12345⟩} _
+  124⊆12345 = toWitness {Q = ⟨124⟩ ⊆? ⟨12345⟩} _
 
   -- In fact we also have {1,2,4} ⊊ {1,2,3,4,5}, since the two sets
   -- {1,2,4} and {1,2,3,4,5} are not equal.
@@ -428,10 +430,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ⟨246⟩ = finite {S = ℕ-Setoid} [246]
 
   _ : ⟨135⟩ ⊈ ⟨246⟩
-  _ = toWitnessFalse {Q = [135] ⊆? ⟨246⟩} _
+  _ = toWitnessFalse {Q = ⟨135⟩ ⊆? ⟨246⟩} _
 
   _ : ⟨246⟩ ⊈ ⟨135⟩
-  _ = toWitnessFalse {Q = [246] ⊆? ⟨135⟩} _
+  _ = toWitnessFalse {Q = ⟨246⟩ ⊆? ⟨135⟩} _
 
   -- Axiom 3.5 (Axiom of specification). Let A be a set, and for each
   -- x ∈ A, let P(x) be a property pertaining to x (i.e., P(x) is
@@ -531,11 +533,11 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Examples 3.1.25
   ⟨234⟩ = finite {S = ℕ-Setoid} (2 ∷ 3 ∷ 4 ∷ [])
-  [24] = 2 ∷ 4 ∷ []
+  ⟨24⟩ = finite {S = ℕ-Setoid} (2 ∷ 4 ∷ [])
   ⟨34⟩ = finite {S = ℕ-Setoid} (3 ∷ 4 ∷ [])
 
-  _ : finite [124] ∩ ⟨234⟩ ≃ finite [24]
-  _ = ∩-finite [124] ⟨234⟩
+  _ : ⟨124⟩ ∩ ⟨234⟩ ≃ ⟨24⟩
+  _ = toWitness {Q = ⟨124⟩ ∩ ⟨234⟩ ≃? ⟨24⟩} _
 
   _ : finite [12] ∩ ⟨34⟩ ≃ ∅
   _ = ∩-finite [12] ⟨34⟩
@@ -567,9 +569,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = _∖_
 
   -- For instance, {1,2,3,4} ∖ {2,4,6} = {1,3}.
-  [1234] = 1 ∷ 2 ∷ 3 ∷ 4 ∷ []
-  _ : finite [1234] ∖ ⟨246⟩ ≃ finite (1 ∷ 3 ∷ [])
-  _ = ∖-finite [1234] ⟨246⟩
+  ⟨1234⟩ = finite {S = ℕ-Setoid} (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
+  ⟨13⟩ = finite {S = ℕ-Setoid} (1 ∷ 3 ∷ [])
+  _ : ⟨1234⟩ ∖ ⟨246⟩ ≃ ⟨13⟩
+  _ = toWitness {Q = ⟨1234⟩ ∖ ⟨246⟩ ≃? ⟨13⟩} _
 
   -- Proposition 3.1.28 (Sets form a boolean algebra).
   -- Exercise 3.1.6
