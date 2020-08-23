@@ -1,4 +1,4 @@
-open import Data.List using ([]; _∷_; _++_)
+open import Data.List using ([]; _∷_; _++_; List)
 import Data.List.Membership.DecPropositional as DecMembership
 open import Function using (_∘_; const; id)
 open import Level using (_⊔_; Level) renaming (suc to lstep; zero to lzero)
@@ -37,9 +37,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∁-∈?; ∖-∈?; ∅-∈?; ∩-∈?
     ; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
-    ; finite; module Subsetᴸ; ∪-finite; ∩-finite
-    ; Finite; Finite-∅; Finite-singleton; Finite-pair
-    ; Finite-∪; Finite-∩ᴸ; Finite-∖
+    ; finite; Finite; Finite-∅; Finite-singleton; Finite-pair
+    ; Finite-∪; Finite-∩ᴸ; Finite-∖; module Subsetᴸ
     ; ∪⊆-intro₂; pab≃sa∪sb; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
     )
 
@@ -66,10 +65,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ℕSet : Set₁
   ℕSet = PSet ℕ-Setoid lzero
 
+  fromListℕ : List ℕ → ℕSet
+  fromListℕ = finite
+
   -- e.g., {3, 8, 5, 2} is a set.
-  [3852] = 3 ∷ 8 ∷ 5 ∷ 2 ∷ []
   ⟨3852⟩ : ℕSet
-  ⟨3852⟩ = finite {S = ℕ-Setoid} [3852]
+  ⟨3852⟩ = fromListℕ (3 ∷ 8 ∷ 5 ∷ 2 ∷ [])
 
   -- If x is an object, we say that x _is an element of_ A or x ∈ A if
   -- x lies in the collection
@@ -80,8 +81,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : El S → PSet S α → Set α
   _ = _∉_
 
-  [12345] = 1 ∷ 2 ∷ 3 ∷ 4 ∷ 5 ∷ []
-  ⟨12345⟩ = finite {S = ℕ-Setoid} [12345]
+  ⟨12345⟩ = fromListℕ (1 ∷ 2 ∷ 3 ∷ 4 ∷ 5 ∷ [])
 
   -- For instance, 3 ∈ {1, 2, 3, 4, 5}
   _ : 3 ∈ ⟨12345⟩
@@ -104,7 +104,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- require all elements to have the same type. Apart from that, this
   -- set will behave identically to the one given in the example.
   _ : PSet (setoid (ℕ ∨ ℕSet)) (lstep lzero)
-  _ = finite (∨-introᴸ 3 ∷ ∨-introᴿ (finite (3 ∷ 4 ∷ [])) ∷ ∨-introᴸ 4 ∷ [])
+  _ = finite (∨-introᴸ 3 ∷ ∨-introᴿ (fromListℕ (3 ∷ 4 ∷ [])) ∷ ∨-introᴸ 4 ∷ [])
 
   -- To summarize so far...if x is an object and A is a set, then
   -- either x ∈ A is true or x ∈ A is false.
@@ -122,24 +122,24 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = _≃_
 
   -- Example 3.1.5
-  ⟨34215⟩ = finite {S = ℕ-Setoid} (3 ∷ 4 ∷ 2 ∷ 1 ∷ 5 ∷ [])
+  ⟨34215⟩ = fromListℕ (3 ∷ 4 ∷ 2 ∷ 1 ∷ 5 ∷ [])
   _ : ⟨12345⟩ ≃ ⟨34215⟩
   _ = toWitness {Q = ⟨12345⟩ ≃? ⟨34215⟩} _
 
-  ⟨3315242⟩ = finite {S = ℕ-Setoid} (3 ∷ 3 ∷ 1 ∷ 5 ∷ 2 ∷ 4 ∷ 2 ∷ [])
+  ⟨3315242⟩ = fromListℕ (3 ∷ 3 ∷ 1 ∷ 5 ∷ 2 ∷ 4 ∷ 2 ∷ [])
   _ : ⟨12345⟩ ≃ ⟨3315242⟩
   _ = toWitness {Q = ⟨12345⟩ ≃? ⟨3315242⟩} _
 
   -- [note] informal examples given prior to Definition 3.1.4
-  ⟨2358⟩ = finite {S = ℕ-Setoid} (2 ∷ 3 ∷ 5 ∷ 8 ∷ [])
+  ⟨2358⟩ = fromListℕ (2 ∷ 3 ∷ 5 ∷ 8 ∷ [])
   _ : ⟨3852⟩ ≃ ⟨2358⟩
   _ = toWitness {Q = ⟨3852⟩ ≃? ⟨2358⟩} _
 
-  ⟨38521⟩ = finite {S = ℕ-Setoid} (3 ∷ 8 ∷ 5 ∷ 2 ∷ 1 ∷ [])
+  ⟨38521⟩ = fromListℕ (3 ∷ 8 ∷ 5 ∷ 2 ∷ 1 ∷ [])
   _ : ⟨3852⟩ ≄ ⟨38521⟩
   _ = toWitnessFalse {Q = ⟨3852⟩ ≃? ⟨38521⟩} _
 
-  ⟨385⟩ = finite {S = ℕ-Setoid} (3 ∷ 8 ∷ 5 ∷ [])
+  ⟨385⟩ = fromListℕ (3 ∷ 8 ∷ 5 ∷ [])
   _ : ⟨3852⟩ ≄ ⟨385⟩
   _ = toWitnessFalse {Q = ⟨3852⟩ ≃? ⟨385⟩} _
 
@@ -301,13 +301,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = x∈A∪B↔x∈A∨x∈B
 
   -- Example 3.1.11
-  [12] = 1 ∷ 2 ∷ []
-  [23] = 2 ∷ 3 ∷ []
-  [123] = 1 ∷ 2 ∷ 3 ∷ []
-
-  ⟨12⟩ = finite {S = ℕ-Setoid} [12]
-  ⟨23⟩ = finite {S = ℕ-Setoid} [23]
-  ⟨123⟩ = finite {S = ℕ-Setoid} [123]
+  ⟨12⟩ = fromListℕ (1 ∷ 2 ∷ [])
+  ⟨23⟩ = fromListℕ (2 ∷ 3 ∷ [])
+  ⟨123⟩ = fromListℕ (1 ∷ 2 ∷ 3 ∷ [])
 
   _ : ⟨12⟩ ∪ ⟨23⟩ ≃ ⟨123⟩
   _ = toWitness {Q = ⟨12⟩ ∪ ⟨23⟩ ≃? ⟨123⟩} _
@@ -389,7 +385,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Examples 3.1.17
   -- We have {1,2,4} ⊆ {1,2,3,4,5}, because every element of {1,2,4}
   -- is also an element of {1,2,3,4,5}.
-  ⟨124⟩ = finite {S = ℕ-Setoid} (1 ∷ 2 ∷ 4 ∷ [])
+  ⟨124⟩ = fromListℕ (1 ∷ 2 ∷ 4 ∷ [])
   124⊆12345 : ⟨124⟩ ⊆ ⟨12345⟩
   124⊆12345 = toWitness {Q = ⟨124⟩ ⊆? ⟨12345⟩} _
 
@@ -424,10 +420,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Remark 3.1.20. ...given two distinct sets, it is not in general
   -- true that one of them is a subset of the other.
-  [135] = 1 ∷ 3 ∷ 5 ∷ []
-  [246] = 2 ∷ 4 ∷ 6 ∷ []
-  ⟨135⟩ = finite {S = ℕ-Setoid} [135]
-  ⟨246⟩ = finite {S = ℕ-Setoid} [246]
+  ⟨135⟩ = fromListℕ (1 ∷ 3 ∷ 5 ∷ [])
+  ⟨246⟩ = fromListℕ (2 ∷ 4 ∷ 6 ∷ [])
 
   _ : ⟨135⟩ ⊈ ⟨246⟩
   _ = toWitnessFalse {Q = ⟨135⟩ ⊆? ⟨246⟩} _
@@ -497,13 +491,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ℕ⟨_⟩ : (ℕ → Set) → ℕSet
   ℕ⟨ P ⟩ = ⟨ P ~ (λ { refl → id }) ⟩
 
-  ⟨n<4⟩ : ℕSet
   ⟨n<4⟩ = ℕ⟨ _< 4 ⟩
-
-  ⟨n<7⟩ : ℕSet
   ⟨n<7⟩ = ℕ⟨ _< 7 ⟩
-
-  ⟨n<1⟩ : ℕSet
   ⟨n<1⟩ = ℕ⟨ _< 1 ⟩
 
   -- Definition 3.1.23 (Intersections). The _intersection_ S₁ ∩ S₂ of
@@ -532,15 +521,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = ∩-substᴿ
 
   -- Examples 3.1.25
-  ⟨234⟩ = finite {S = ℕ-Setoid} (2 ∷ 3 ∷ 4 ∷ [])
-  ⟨24⟩ = finite {S = ℕ-Setoid} (2 ∷ 4 ∷ [])
-  ⟨34⟩ = finite {S = ℕ-Setoid} (3 ∷ 4 ∷ [])
+  ⟨234⟩ = fromListℕ (2 ∷ 3 ∷ 4 ∷ [])
+  ⟨24⟩ = fromListℕ (2 ∷ 4 ∷ [])
+  ⟨34⟩ = fromListℕ (3 ∷ 4 ∷ [])
 
   _ : ⟨124⟩ ∩ ⟨234⟩ ≃ ⟨24⟩
   _ = toWitness {Q = ⟨124⟩ ∩ ⟨234⟩ ≃? ⟨24⟩} _
 
-  _ : finite [12] ∩ ⟨34⟩ ≃ ∅
-  _ = ∩-finite [12] ⟨34⟩
+  _ : ⟨12⟩ ∩ ⟨34⟩ ≃ ∅
+  _ = toWitness {Q = ⟨12⟩ ∩ ⟨34⟩ ≃? ∅} _
 
   _ : ⟨23⟩ ∪ ∅ ≃ ⟨23⟩
   _ = ∪-∅ᴿ
@@ -554,13 +543,13 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     <-dec {n} {m} = n <? m
 
   _ : ⟨12345⟩ ∩ ⟨n<4⟩ ≃ ⟨123⟩
-  _ = ∩-finite [12345] ⟨n<4⟩
+  _ = toWitness {Q = ⟨12345⟩ ∩ ⟨n<4⟩ ≃? ⟨123⟩} _
 
   _ : ⟨12345⟩ ∩ ⟨n<7⟩ ≃ ⟨12345⟩
-  _ = ∩-finite [12345] ⟨n<7⟩
+  _ = toWitness {Q = ⟨12345⟩ ∩ ⟨n<7⟩ ≃? ⟨12345⟩} _
 
   _ : ⟨12345⟩ ∩ ⟨n<1⟩ ≃ ∅
-  _ = ∩-finite [12345] ⟨n<1⟩
+  _ = toWitness {Q = ⟨12345⟩ ∩ ⟨n<1⟩ ≃? ∅} _
 
   -- Definition 3.1.27 (Difference sets). Given two sets A and B, we
   -- define the set A - B or A ∖ B to be the set A with any elements
@@ -569,8 +558,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = _∖_
 
   -- For instance, {1,2,3,4} ∖ {2,4,6} = {1,3}.
-  ⟨1234⟩ = finite {S = ℕ-Setoid} (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
-  ⟨13⟩ = finite {S = ℕ-Setoid} (1 ∷ 3 ∷ [])
+  ⟨1234⟩ = fromListℕ (1 ∷ 2 ∷ 3 ∷ 4 ∷ [])
+  ⟨13⟩ = fromListℕ (1 ∷ 3 ∷ [])
   _ : ⟨1234⟩ ∖ ⟨246⟩ ≃ ⟨13⟩
   _ = toWitness {Q = ⟨1234⟩ ∖ ⟨246⟩ ≃? ⟨13⟩} _
 
