@@ -115,13 +115,13 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- interesting consequences that we'll have to deal with in later
   -- chapters.
 
-  -- Definition 3.1.4 (Equality of sets). Two sets A and B are
+  -- Axioms 3.2 (Equality of sets). Two sets A and B are
   -- _equal_, A ≃ B, iff every element of A is an element of B and
   -- vice versa.
   _ : {S : Setoid σ₁ σ₂} → PSet S α → PSet S α → Set (σ₁ ⊔ α)
   _ = _≃_
 
-  -- Example 3.1.5
+  -- Example 3.1.4
   ⟨34215⟩ = fromListℕ (3 ∷ 4 ∷ 2 ∷ 1 ∷ 5 ∷ [])
   _ : ⟨12345⟩ ≃ ⟨34215⟩
   _ = toWitness {Q = ⟨12345⟩ ≃? ⟨34215⟩} _
@@ -155,19 +155,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A B C : PSet S α} → A ≃ B → B ≃ C → A ≃ C
   _ = ≃-trans
 
-  -- Observe that if x ∈ A and A ≃ B, then x ∈ B, by Definition
-  -- 3.1.4. This the "is an element of" relation _∈_ obeys the axiom
-  -- of substitution.
+  -- The "is an element of" relation _∈_ obeys the axiom of
+  -- substitution.
   _ : {S : Setoid σ₁ σ₂} {A B : PSet S α} {x : El S} → A ≃ B → x ∈ A → x ∈ B
   _ = ∈-substᴿ
 
-  -- [note] Tao only mentions substitution for the right-hand side of
-  -- _∈_, but it's also important that it works for the left-hand
-  -- side:
   _ : {A B : PSet S α} {C : PSet (PSet-Setoid S α) β} → A ≃ B → A ∈ C → B ∈ C
   _ = ∈-substᴸ
 
-  -- Axiom 3.2 (Empty set). There exists a set ∅, known as the _empty set_
+  -- Axiom 3.3 (Empty set). There exists a set ∅, known as the _empty set_
   _ : PSet S α
   _ = ∅
 
@@ -176,19 +172,19 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = x∉∅
 
   -- Note that there can only be one empty set; if there were two sets
-  -- ∅ and ∅′ which were both empty, then by Definition 3.1.4 they
-  -- would be equal to each other.
+  -- ∅ and ∅′ which were both empty, then by Axiom 3.2 they would be
+  -- equal to each other.
   _ : {S : Setoid σ₁ σ₂} {∅′ : PSet S α} → (∀ {x} → x ∉ ∅′) → ∅ ≃ ∅′
   _ = ∅-unique
 
-  -- Lemma 3.1.6 (Single choice). Let A be a non-empty set. Then there
+  -- Lemma 3.1.5 (Single choice). Let A be a non-empty set. Then there
   -- exists an object x such that x ∈ A.
   -- [note] This is not provable in Agda because it's nonconstructive.
   -- Instead of using evidence that a set is not equal to the empty
   -- set, we will need to use direct evidence that an element of a set
   -- exists.
 
-  -- Axiom 3.3 (Singleton sets and pair sets). If a is an object, then
+  -- Axiom 3.4 (Singleton sets and pair sets). If a is an object, then
   -- there exists a set (singleton a) whose only element is a
   _ : {S : Setoid σ₁ σ₂} → El S → PSet S σ₂
   _ = singleton
@@ -211,9 +207,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       let open Setoid S using (_≈_) in y ∈ pair {S = S} a b ↔ a ≈ y ∨ b ≈ y
   _ = x∈pab↔a≈x∨b≈x
 
-  -- Remarks 3.1.9
+  -- Remarks 3.1.8
   -- Just as there is only one empty set, there is only one singleton
-  -- set for each object a, thanks to Definition 3.1.4.
+  -- set for each object a, thanks to Axiom 3.2.
   _ :
     {S : Setoid σ₁ σ₂} {A : PSet S σ₂} {a : El S} →
       let open Setoid S using (_≈_) in (∀ {x} → x ∈ A ↔ a ≈ x) → singleton a ≃ A
@@ -227,7 +223,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
        in (∀ {x} → x ∈ A ↔ a ≈ x ∨ b ≈ x) → pair a b ≃ A
   _ = pair-unique
 
-  -- Also, Definition 3.1.4 ensures that pair a b ≃ pair b a
+  -- Also, Axiom 3.2 ensures that pair a b ≃ pair b a
   pair-comm : {S : Setoid σ₁ σ₂} {a b : El S} → pair {S = S} a b ≃ pair b a
   pair-comm {S = S} = ⊆-antisym ab⊆ba ba⊆ab
     where
@@ -242,7 +238,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elim)
       sa⊆paa = ⊆-intro (x∈pab-introᴸ ∘ x∈sa-elim)
 
-  -- Examples 3.1.10
+  -- Examples 3.1.9
   -- Exercise 3.1.2
   sa≄∅ : (a : El S) → singleton {S = S} a ≄ ∅
   sa≄∅ a sa≃∅ = x∉∅ (≃-elimᴸ sa≃∅ a∈sa)
@@ -288,9 +284,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-introᴸ ≃-refl)
      in s∅≄∅ (x∈sa-elim ∅∈ss∅)
 
-  -- Axiom 3.4 (Pairwise union). Given any two sets A, B, there exists
-  -- a set A ∪ B, called the _union_ A ∪ B of A and B, whose elements
-  -- consist of all the elements which belong to A or B or both.
+  -- Axiom 3.5 (Pairwise union). Given any two sets A, B, there exists
+  -- a set A ∪ B, called the _union_ A ∪ B of A and B, which consists
+  -- of all the elements which belong to A or B or both.
   _ : PSet S α → PSet S β → PSet S (α ⊔ β)
   _ = _∪_
 
@@ -300,7 +296,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       ∀ {x} → x ∈ A ∪ B ↔ x ∈ A ∨ x ∈ B
   _ = x∈A∪B↔x∈A∨x∈B
 
-  -- Example 3.1.11
+  -- Example 3.1.10
   ⟨12⟩ = fromListℕ (1 ∷ 2 ∷ [])
   ⟨23⟩ = fromListℕ (2 ∷ 3 ∷ [])
   ⟨123⟩ = fromListℕ (1 ∷ 2 ∷ 3 ∷ [])
@@ -308,7 +304,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : ⟨12⟩ ∪ ⟨23⟩ ≃ ⟨123⟩
   _ = toWitness {Q = ⟨12⟩ ∪ ⟨23⟩ ≃? ⟨123⟩} _
 
-  -- Remark 3.1.12. If A, B, A′ are sets, and A is equal to A′, then A
+  -- Remark 3.1.11. If A, B, A′ are sets, and A is equal to A′, then A
   -- ∪ B is equal to A′ ∪ B.
   _ : {A A′ : PSet S α} {B : PSet S β} → A ≃ A′ → A ∪ B ≃ A′ ∪ B
   _ = ∪-substᴸ
@@ -319,7 +315,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ∪ B ≃ A ∪ B′
   _ = ∪-substᴿ
 
-  -- Lemma 3.1.13.
+  -- Lemma 3.1.12.
   -- If a and b are objects, then pair a b ≃ singleton a ∪ singleton b.
   _ :
     {S : Setoid σ₁ σ₂} {a b : El S} →
@@ -344,7 +340,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {S : Setoid σ₁ σ₂} {A : PSet S α} → ∅ ∪ A ≃ A
   _ = ∪-∅ᴸ
 
-  -- Definition 3.1.15 (Subsets). Let A, B be sets. We say that A is a
+  -- Definition 3.1.14 (Subsets). Let A, B be sets. We say that A is a
   -- _subset_ of B, denoted A ⊆ B
   _ : {S : Setoid σ₁ σ₂} → PSet S α → PSet S β → Set (σ₁ ⊔ α ⊔ β)
   _ = _⊆_
@@ -365,7 +361,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {S : Setoid σ₁ σ₂} → PSet S α → PSet S β → Set (σ₁ ⊔ α ⊔ β)
   _ = _⊊_
 
-  -- Remark 3.1.16. Because these definitions involve only the notions
+  -- Remark 3.1.15. Because these definitions involve only the notions
   -- of equality and the "is an element of" relation, both of which
   -- already obey the axiom of substitution, the notion of subset also
   -- automatically obeys the axiom of substitution. Thus for instance
@@ -382,7 +378,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ⊊ B → A ⊊ B′
   _ = ⊊-substᴿ
 
-  -- Examples 3.1.17
+  -- Examples 3.1.16
   -- We have {1,2,4} ⊆ {1,2,3,4,5}, because every element of {1,2,4}
   -- is also an element of {1,2,3,4,5}.
   ⟨124⟩ = fromListℕ (1 ∷ 2 ∷ 4 ∷ [])
@@ -405,7 +401,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A : PSet S α} → ∅ ⊆ A
   _ = ∅-⊆
 
-  -- Proposition 3.1.18 (Sets are partially ordered by set
+  -- Proposition 3.1.17 (Sets are partially ordered by set
   -- inclusion). Let A, B, C be sets. If A ⊆ B and B ⊆ C then A ⊆ C.
   _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊆ B → B ⊆ C → A ⊆ C
   _ = ⊆-trans
@@ -418,7 +414,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊊ B → B ⊊ C → A ⊊ C
   _ = ⊊-trans
 
-  -- Remark 3.1.20. ...given two distinct sets, it is not in general
+  -- Remark 3.1.19. ...given two distinct sets, it is not in general
   -- true that one of them is a subset of the other.
   ⟨135⟩ = fromListℕ (1 ∷ 3 ∷ 5 ∷ [])
   ⟨246⟩ = fromListℕ (2 ∷ 4 ∷ 6 ∷ [])
@@ -429,7 +425,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : ⟨246⟩ ⊈ ⟨135⟩
   _ = toWitnessFalse {Q = ⟨246⟩ ⊆? ⟨135⟩} _
 
-  -- Axiom 3.5 (Axiom of specification). Let A be a set, and for each
+  -- Axiom 3.6 (Axiom of specification). Let A be a set, and for each
   -- x ∈ A, let P(x) be a property pertaining to x (i.e., P(x) is
   -- either a true statement or a false statement). Then there exists
   -- a set, called {x ∈ A : P(x) is true} (or simply {x ∈ A : P(x)}
@@ -475,7 +471,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- [note] Again, because in our version A is not a set, we can't
   -- verify this, nor is there a need to.
 
-  -- Example 3.1.22. Let S := {1,2,3,4,5}. Then the set
+  -- Example 3.1.21. Let S := {1,2,3,4,5}. Then the set
   -- {n ∈ S : n < 4} is the set of those elements n in S for which
   -- n < 4 is true, i.e., {n ∈ S : n < 4} = {1,2,3}. Similarly,
   -- the set {n ∈ S : n < 7} is the same as S itself, while
@@ -495,7 +491,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ⟨n<7⟩ = ℕ⟨ _< 7 ⟩
   ⟨n<1⟩ = ℕ⟨ _< 1 ⟩
 
-  -- Definition 3.1.23 (Intersections). The _intersection_ S₁ ∩ S₂ of
+  -- Definition 3.1.22 (Intersections). The _intersection_ S₁ ∩ S₂ of
   -- two sets is defined to be the set S₁ ∩ S₂ ≔ {x ∈ S₁ : x ∈ S₂}. In
   -- other words, S₁ ∩ S₂ consists of all the elements which belong to
   -- both S₁ and S₂.
@@ -512,7 +508,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       ∀ {x} → x ∈ S₁ ∩ S₂ ↔ x ∈ S₁ ∧ x ∈ S₂
   _ = x∈A∩B↔x∈A∧x∈B
 
-  -- Remark 3.1.24. Note that this definition is well-defined (i.e.,
+  -- Remark 3.1.23. Note that this definition is well-defined (i.e.,
   -- it obeys the axiom of substitution)...
   _ : {A A′ : PSet S α} {B : PSet S β} → A ≃ A′ → A ∩ B ≃ A′ ∩ B
   _ = ∩-substᴸ
@@ -520,7 +516,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A : PSet S α} {B B′ : PSet S β} → B ≃ B′ → A ∩ B ≃ A ∩ B′
   _ = ∩-substᴿ
 
-  -- Examples 3.1.25
+  -- Examples 3.1.24
   ⟨234⟩ = fromListℕ (2 ∷ 3 ∷ 4 ∷ [])
   ⟨24⟩ = fromListℕ (2 ∷ 4 ∷ [])
   ⟨34⟩ = fromListℕ (3 ∷ 4 ∷ [])
@@ -537,7 +533,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : ⟨23⟩ ∩ ∅ ≃ ∅
   _ = ∩-∅ᴿ
 
-  -- Example 3.1.22 [revisited].
+  -- Example 3.1.21 [revisited].
   instance
     <-dec : ∀ {n m} → Dec (n < m)
     <-dec {n} {m} = n <? m
@@ -551,7 +547,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : ⟨12345⟩ ∩ ⟨n<1⟩ ≃ ∅
   _ = toWitness {Q = ⟨12345⟩ ∩ ⟨n<1⟩ ≃? ∅} _
 
-  -- Definition 3.1.27 (Difference sets). Given two sets A and B, we
+  -- Definition 3.1.26 (Difference sets). Given two sets A and B, we
   -- define the set A - B or A ∖ B to be the set A with any elements
   -- of B removed
   _ : PSet S α → PSet S β → PSet S (α ⊔ β)
@@ -563,7 +559,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : ⟨1234⟩ ∖ ⟨246⟩ ≃ ⟨13⟩
   _ = toWitness {Q = ⟨1234⟩ ∖ ⟨246⟩ ≃? ⟨13⟩} _
 
-  -- Proposition 3.1.28 (Sets form a boolean algebra).
+  -- Proposition 3.1.27 (Sets form a boolean algebra).
   -- Exercise 3.1.6
   module _ (A B C X : PSet S α) (A⊆X : A ⊆ X) (B⊆X : B ⊆ X) (C⊆X : C ⊆ X) where
     -- (a) (Minimal element)
