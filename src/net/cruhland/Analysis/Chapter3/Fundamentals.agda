@@ -40,6 +40,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; finite; Finite; Finite-∅; Finite-singleton; Finite-pair
     ; Finite-∪; Finite-∩ᴸ; Finite-∖; module Subsetᴸ
     ; ∪⊆-intro₂; pab≃sa∪sb; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
+    ; replacement; replProp
     )
 
   variable
@@ -706,3 +707,14 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       {{_ : DecMembership A}} {{_ : DecMembership B}} →
         X ∖ (A ∩ B) ≃ X ∖ A ∪ X ∖ B
     X∖[A∩B]≃[X∖A]∪[X∖B] = ⊆-antisym X∖[A∩B]⊆[X∖A]∪[X∖B] [X∖A]∪[X∖B]⊆X∖[A∩B]
+
+  -- Axiom 3.7 (Replacement). Let A be a set. For any object x ∈ A,
+  -- and any object y, suppose we have a statement P(x, y) pertaining
+  -- to x and y, such that for each x ∈ A there is at most one y for
+  -- which P(x, y) is true. Then there exists a set {y : P(x, y) is
+  -- true for some x ∈ A}
+  _ :
+    ∀ {τ₁ τ₂ ψ} {S : Setoid σ₁ σ₂} {T : Setoid τ₁ τ₂} →
+      (P : El S → El T → Set ψ) → (A : PSet S α) → replProp {T = T} {A} P →
+        PSet T (σ₁ ⊔ α ⊔ ψ)
+  _ = replacement
