@@ -1,10 +1,9 @@
 open import Data.List using ([]; _∷_; _++_; List)
-import Data.List.Membership.DecPropositional as DecMembership
 open import Function using (_∘_; const; id)
 open import Level using (_⊔_; Level) renaming (suc to lstep; zero to lzero)
 open import Relation.Binary using (DecSetoid)
 open import Relation.Binary.PropositionalEquality using
-  (refl; setoid; decSetoid)
+  (_≡_; decSetoid; refl; setoid; sym; trans)
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
@@ -13,15 +12,15 @@ open import net.cruhland.models.Logic using
   ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
-  ; Dec; no; yes
+  ; Dec; dec-map; no; yes
   )
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
-  open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_)
+  open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_; step)
 
   open SetTheory ST using
-    ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet-Setoid; Setoid
+    ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet₀; PSet-Setoid; Setoid; Setoid₀
     ; ≃-elimᴸ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
     ; ∅; x∉∅; ∅-unique
     ; singleton; singleton-unique; a∈sa; x∈sa↔a≈x; x∈sa-elim; x∈sa-intro
@@ -40,7 +39,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; finite; Finite; Finite-∅; Finite-singleton; Finite-pair
     ; Finite-∪; Finite-∩ᴸ; Finite-∖; module Subsetᴸ
     ; ∪⊆-intro₂; pab≃sa∪sb; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
-    ; replacement; replProp
+    ; replacement; ReplFun; ReplMembership; ReplProp
+    ; x∈rep↔Pax; rep-∈?; rep-finite
     )
 
   variable
@@ -104,8 +104,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- [note] We wrap the elements in a sum type because our sets
   -- require all elements to have the same type. Apart from that, this
   -- set will behave identically to the one given in the example.
-  _ : PSet (setoid (ℕ ∨ ℕSet)) (lstep lzero)
-  _ = finite (∨-introᴸ 3 ∷ ∨-introᴿ (fromListℕ (3 ∷ 4 ∷ [])) ∷ ∨-introᴸ 4 ∷ [])
+  -- TODO: Restore level parameters to finite, but carefully
+  -- _ : PSet (setoid (ℕ ∨ ℕSet)) (lstep lzero)
+  -- _ = finite (∨-introᴸ 3 ∷ ∨-introᴿ (fromListℕ (3 ∷ 4 ∷ [])) ∷ ∨-introᴸ 4 ∷ [])
 
   -- To summarize so far...if x is an object and A is a set, then
   -- either x ∈ A is true or x ∈ A is false.
@@ -714,7 +715,42 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- which P(x, y) is true. Then there exists a set {y : P(x, y) is
   -- true for some x ∈ A}
   _ :
-    ∀ {τ₁ τ₂ ψ} {S : Setoid σ₁ σ₂} {T : Setoid τ₁ τ₂} →
-      (P : El S → El T → Set ψ) → (A : PSet S α) → replProp {T = T} {A} P →
-        PSet T (σ₁ ⊔ α ⊔ ψ)
+    {S T : Setoid₀} →
+      (P : El S → El T → Set) → (A : PSet₀ S) → ReplProp {T = T} {A} P →
+        PSet₀ T
   _ = replacement
+
+  -- such that for any object z, z ∈ {y : P(x, y) is true for some x ∈ A} ↔
+  -- P(x, z) is true for some x ∈ A
+  _ :
+    {S T : Setoid₀} {z : El T}
+      {A : PSet₀ S} {P : El S → El T → Set} {rp : ReplProp {T = T} P} →
+        z ∈ replacement {T = T} P A rp ↔ ReplMembership {T = T} {A} z P
+  _ = x∈rep↔Pax
+
+  -- Example 3.1.30. Let A := {3,5,9}, and let P(x,y) be the statement
+  -- y = step x, i.e., y is the successor of x. Observe that for every
+  -- x ∈ A, there is exactly one y for which P(x,y) is true --
+  -- specifically, the successor of x. Thus, the above axiom asserts
+  -- that the set {y : y = step x for some x ∈ {3,5,9}} exists; in
+  -- this case, it is clearly the same set as {4,6,10}.
+  ⟨359⟩ = fromListℕ (3 ∷ 5 ∷ 9 ∷ [])
+  ⟨46A⟩ = fromListℕ (4 ∷ 6 ∷ 10 ∷ [])
+
+  step-P = λ x y → y ≡ step x
+
+  step-P-prop : ReplProp {T = ℕ-Setoid} {A = ⟨359⟩} step-P
+  step-P-prop = record
+    { P-cong = λ { refl refl → id }
+    ; P-most = λ _ y≡x z≡x → trans y≡x (sym z≡x)
+    }
+
+  instance
+    y≡?sx : ∀ {x y} → Dec (y ≡ step x)
+    y≡?sx {x} {y} = dec-map sym sym (step x ≡? y)
+
+    step-P-fun : ReplFun {T = ℕ-Setoid} {A = ⟨359⟩} step-P
+    step-P-fun = record { f = step ; Pf = const refl }
+
+  _ : replacement step-P ⟨359⟩ step-P-prop ≃ ⟨46A⟩
+  _ = toWitness {Q = replacement step-P ⟨359⟩ step-P-prop ≃? ⟨46A⟩} _
