@@ -110,7 +110,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- To summarize so far...if x is an object and A is a set, then
   -- either x ∈ A is true or x ∈ A is false.
-  -- [note] This statement is not actually correct in type theory, as
+  -- [note] This general statement is not provable in type theory, as
   -- it would amount to the relation _∈_ always being decidable. For
   -- specific types (such as finite sets of natural numbers) this is
   -- the case, but it doesn't hold in general. This will have
