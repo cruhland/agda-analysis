@@ -21,10 +21,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   open SetTheory ST using
     ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet₀; PSet-Setoid; Setoid; Setoid₀
-    ; ≃-elimᴸ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
+    ; ≃-elimᴸ; ≃-elimᴿ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
     ; ∅; x∉∅; ∅-unique
     ; singleton; singleton-unique; a∈sa; x∈sa↔a≈x; x∈sa-elim; x∈sa-intro
-    ; pair; x∈pab↔a≈x∨b≈x; a∈pab; x∈pab-elim
+    ; pair; x∈pab↔a≈x∨b≈x; a∈pab; b∈pab; x∈pab-elimᴸ; x∈pab-elimᴿ
     ; x∈pab-intro; x∈pab-introᴸ; x∈pab-introᴿ; pair-unique
     ; _∪_; x∈A∪B↔x∈A∨x∈B; ∪-∅ᴸ; ∪-∅ᴿ; ∪-assoc; ∪-comm; x∈A∪B-elim
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
@@ -229,15 +229,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   pair-comm : {S : Setoid σ₁ σ₂} {a b : El S} → pair {S = S} a b ≃ pair b a
   pair-comm {S = S} = ⊆-antisym ab⊆ba ba⊆ab
     where
-      ab⊆ba = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elim)
-      ba⊆ab = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elim)
+      ab⊆ba = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elimᴿ)
+      ba⊆ab = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elimᴿ)
 
   -- and pair a a ≃ singleton a.
   pair-singleton :
     {S : Setoid σ₁ σ₂} {a : El S} → pair {S = S} a a ≃ singleton a
   pair-singleton = ⊆-antisym paa⊆sa sa⊆paa
     where
-      paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elim)
+      paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elimᴿ)
       sa⊆paa = ⊆-intro (x∈pab-introᴸ ∘ x∈sa-elim)
 
   -- Examples 3.1.9
@@ -754,3 +754,31 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   _ : replacement step-P ⟨359⟩ step-P-prop ≃ ⟨46A⟩
   _ = toWitness {Q = replacement step-P ⟨359⟩ step-P-prop ≃? ⟨46A⟩} _
+
+  -- TODO: remaining examples of replacement
+
+  -- Exercise 3.1.1
+  module _ {S : Setoid₀} where
+    open Setoid S using (_≈_) renaming (sym to ≈-sym; trans to ≈-trans)
+
+    ex3-1-1 :
+      {a b c d : El S} → pair {S = S} a b ≃ pair c d →
+        a ≈ c ∧ b ≈ d ∨ a ≈ d ∧ b ≈ c
+    ex3-1-1 {a} ab≃cd
+      with x∈pab-elimᴸ (≃-elimᴸ ab≃cd a∈pab) | x∈pab-elimᴸ (≃-elimᴸ ab≃cd b∈pab)
+    ex3-1-1 ab≃cd | ∨-introᴸ a≈c | ∨-introᴸ b≈c
+      with x∈pab-elimᴿ (≃-elimᴿ ab≃cd b∈pab)
+    ex3-1-1 ab≃cd | ∨-introᴸ a≈c | ∨-introᴸ b≈c | ∨-introᴸ a≈d =
+      ∨-introᴿ (∧-intro a≈d b≈c)
+    ex3-1-1 ab≃cd | ∨-introᴸ a≈c | ∨-introᴸ b≈c | ∨-introᴿ b≈d =
+      ∨-introᴸ (∧-intro a≈c b≈d)
+    ex3-1-1 ab≃cd | ∨-introᴸ a≈c | ∨-introᴿ b≈d =
+      ∨-introᴸ (∧-intro a≈c b≈d)
+    ex3-1-1 ab≃cd | ∨-introᴿ a≈d | ∨-introᴸ b≈c =
+      ∨-introᴿ (∧-intro a≈d b≈c)
+    ex3-1-1 ab≃cd | ∨-introᴿ a≈d | ∨-introᴿ b≈d
+      with x∈pab-elimᴿ (≃-elimᴿ ab≃cd a∈pab)
+    ex3-1-1 ab≃cd | ∨-introᴿ a≈d | ∨-introᴿ b≈d | ∨-introᴸ a≈c =
+      ∨-introᴸ (∧-intro a≈c b≈d)
+    ex3-1-1 ab≃cd | ∨-introᴿ a≈d | ∨-introᴿ b≈d | ∨-introᴿ b≈c =
+      ∨-introᴿ (∧-intro a≈d b≈c)
