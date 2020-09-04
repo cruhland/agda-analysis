@@ -21,7 +21,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   open SetTheory ST using
     ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet₀; PSet-Setoid; Setoid; Setoid₀
-    ; ≃-elimᴸ; ≃-elimᴿ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
+    ; ≃→⊆ᴸ; ≃→⊆ᴿ; ≃-elimᴸ; ≃-elimᴿ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
+    ; module ≃-Reasoning
     ; ∅; x∉∅; ∅-unique
     ; singleton; singleton-unique; a∈sa; x∈sa↔a≈x; x∈sa-elim; x∈sa-intro
     ; pair; x∈pab↔a≈x∨b≈x; a∈pab; b∈pab; x∈pab-elimᴸ; x∈pab-elimᴿ
@@ -32,16 +33,18 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
     ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elim; x∈A∩B-elimᴸ; x∈A∩B-elimᴿ
-    ; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
+    ; ∩-idempotent; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∁-∈?; ∖-∈?; ∅-∈?; ∩-∈?
     ; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; Finite; Finite-∅; Finite-singleton; Finite-pair
     ; Finite-∪; Finite-∩ᴸ; Finite-∖; module Subsetᴸ
-    ; ∪⊆-intro₂; pab≃sa∪sb; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
+    ; ∪⊆-elimᴸ; ∪⊆-elimᴿ; ∪⊆-intro₂; pab≃sa∪sb; ∩⊆-introᴸ; ∩⊆-introᴿ
+    ; ∩-preserves-⊆ᴸ; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
     ; replacement; ReplFun; ReplMembership; ReplProp
     ; x∈rep↔Pax; rep-∈?; rep-finite
     )
+  open ≃-Reasoning
 
   variable
     σ₁ σ₂ α β χ : Level
@@ -318,6 +321,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = ∪-substᴿ
 
   -- Lemma 3.1.12.
+  -- Exercise 3.1.3.
   -- If a and b are objects, then pair a b ≃ singleton a ∪ singleton b.
   _ :
     {S : Setoid σ₁ σ₂} {a b : El S} →
@@ -405,6 +409,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Proposition 3.1.17 (Sets are partially ordered by set
   -- inclusion). Let A, B, C be sets. If A ⊆ B and B ⊆ C then A ⊆ C.
+  -- Exercise 3.1.4.
   _ : {A : PSet S α} {B : PSet S β} {C : PSet S χ} → A ⊆ B → B ⊆ C → A ⊆ C
   _ = ⊆-trans
 
@@ -563,12 +568,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Proposition 3.1.27 (Sets form a boolean algebra).
   -- Exercise 3.1.6
-  module _ (A B C X : PSet S α) (A⊆X : A ⊆ X) (B⊆X : B ⊆ X) (C⊆X : C ⊆ X) where
+  module _ (A B C X : PSet₀ S) (A⊆X : A ⊆ X) (B⊆X : B ⊆ X) (C⊆X : C ⊆ X) where
     -- (a) (Minimal element)
-    _ : A ∪ (∅ {α = α}) ≃ A
+    _ : A ∪ ∅ ≃ A
     _ = ∪-∅ᴿ
 
-    _ : A ∩ (∅ {α = α}) ≃ ∅
+    _ : A ∩ ∅ ≃ ∅
     _ = ∩-∅ᴿ
 
     -- (b) (Maximal element)
@@ -588,7 +593,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
     -- (c) (Identity)
     _ : A ∩ A ≃ A
-    _ = ⊆-antisym (⊆-intro x∈A∩B-elimᴸ) (⊆-intro (x∈A∩B-intro ∘ ∧-dup))
+    _ = ∩-idempotent
 
     _ : A ∪ A ≃ A
     _ = ⊆-antisym (⊆-intro (∨-merge ∘ x∈A∪B-elim)) (⊆-intro x∈A∪B-introᴸ)
@@ -782,3 +787,29 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       ∨-introᴸ (∧-intro a≈c b≈d)
     ex3-1-1 ab≃cd | ∨-introᴿ a≈d | ∨-introᴿ b≈d | ∨-introᴿ b≈c =
       ∨-introᴿ (∧-intro a≈d b≈c)
+
+  -- Exercise 3.1.2 (see Examples 3.1.9).
+  -- Exercise 3.1.3 (see Lemma 3.1.12).
+  -- Exercise 3.1.4 (see Proposition 3.1.17).
+
+  -- Exercise 3.1.5. Let A, B be sets. Show that the three statements
+  -- A ⊆ B, A ∪ B ≃ B, A ∩ B ≃ A are logically equivalent (any one of
+  -- them implies the other two).
+  module _ {S : Setoid₀} {A B : PSet₀ S} where
+    1→2 : A ⊆ B → A ∪ B ≃ B
+    1→2 A⊆B = ⊆-antisym (∪⊆-intro₂ A⊆B ⊆-refl) (∪⊆-elimᴿ ⊆-refl)
+
+    1→3 : A ⊆ B → A ∩ B ≃ A
+    1→3 A⊆B = ⊆-antisym ∩⊆-introᴸ (⊆-substᴸ ∩-idempotent (∩-preserves-⊆ᴸ A⊆B))
+
+    2→1 : A ∪ B ≃ B → A ⊆ B
+    2→1 A∪B≃B = ∪⊆-elimᴸ (≃→⊆ᴸ A∪B≃B)
+
+    2→3 : A ∪ B ≃ B → A ∩ B ≃ A
+    2→3 = 1→3 ∘ 2→1
+
+    3→1 : A ∩ B ≃ A → A ⊆ B
+    3→1 A∩B≃A = ⊆-trans (≃→⊆ᴿ A∩B≃A) ∩⊆-introᴿ
+
+    3→2 : A ∩ B ≃ A → A ∪ B ≃ B
+    3→2 = 1→2 ∘ 3→1
