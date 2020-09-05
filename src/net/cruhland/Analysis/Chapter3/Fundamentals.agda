@@ -15,12 +15,13 @@ open import net.cruhland.models.Logic using
   ; Dec; dec-map; no; yes
   )
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
+open import net.cruhland.models.Setoid using (El; Setoid; Setoid₀)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_; step)
 
   open SetTheory ST using
-    ( _∈_; _∉_; _≃_; _≄_; El; ≃-intro; PSet; PSet₀; PSet-Setoid; Setoid; Setoid₀
+    ( _∈_; _∉_; _≃_; _≄_; ≃-intro; PSet; PSet₀; PSet-Setoid
     ; ≃→⊆ᴸ; ≃→⊆ᴿ; ≃-elimᴸ; ≃-elimᴿ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
     ; module ≃-Reasoning
     ; ∅; x∉∅; ∅-unique
@@ -813,3 +814,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
     3→2 : A ∩ B ≃ A → A ∪ B ≃ B
     3→2 = 1→2 ∘ 3→1
+
+  -- Exercise 3.1.6 (see Proposition 3.1.27).
+
+  -- Exercise 3.1.7.
