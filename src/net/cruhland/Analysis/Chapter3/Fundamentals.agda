@@ -8,7 +8,7 @@ open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Logic using
-  ( _∧_; ∧-dup; ∧-intro
+  ( _∧_; ∧-dup; ∧-intro; uncurry
   ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
@@ -40,8 +40,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; Finite; Finite-∅; Finite-singleton; Finite-pair
     ; Finite-∪; Finite-∩ᴸ; Finite-∖; module Subsetᴸ
-    ; ∪⊆-elimᴸ; ∪⊆-elimᴿ; ∪⊆-intro₂; pab≃sa∪sb; ∩⊆-introᴸ; ∩⊆-introᴿ
-    ; ∩-preserves-⊆ᴸ; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
+    ; ∪⊆-elimᴸ; ∪⊆-elimᴿ; ⊆∪-introᴸ; ⊆∪-introᴿ; ∪⊆-intro₂
+    ; pab≃sa∪sb; ∩⊆-introᴸ; ∩⊆-introᴿ; ∩-preserves-⊆ᴸ
+    ; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
     ; replacement; ReplFun; ReplMembership; ReplProp
     ; x∈rep↔Pax; rep-∈?; rep-finite
     )
@@ -818,3 +819,34 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Exercise 3.1.6 (see Proposition 3.1.27).
 
   -- Exercise 3.1.7.
+  module _ {A B C : PSet₀ S} where
+    _ : A ∩ B ⊆ A
+    _ = ∩⊆-introᴸ
+
+    _ : A ∩ B ⊆ B
+    _ = ∩⊆-introᴿ
+
+    _ : C ⊆ A ∧ C ⊆ B ↔ C ⊆ A ∩ B
+    _ = ↔-intro fwd rev
+      where
+        fwd : C ⊆ A ∧ C ⊆ B → C ⊆ A ∩ B
+        fwd (∧-intro (⊆-intro x∈C→x∈A) (⊆-intro x∈C→x∈B)) =
+          ⊆-intro λ x∈C → x∈A∩B-intro₂ (x∈C→x∈A x∈C) (x∈C→x∈B x∈C)
+
+        rev : C ⊆ A ∩ B → C ⊆ A ∧ C ⊆ B
+        rev (⊆-intro x∈C→x∈A∩B) = ∧-intro C⊆A C⊆B
+          where
+            C⊆A = ⊆-intro (x∈A∩B-elimᴸ ∘ x∈C→x∈A∩B)
+            C⊆B = ⊆-intro (x∈A∩B-elimᴿ ∘ x∈C→x∈A∩B)
+
+    _ : A ⊆ A ∪ B
+    _ = ⊆∪-introᴸ
+
+    _ : B ⊆ A ∪ B
+    _ = ⊆∪-introᴿ
+
+    _ : A ⊆ C ∧ B ⊆ C ↔ A ∪ B ⊆ C
+    _ = ↔-intro fwd rev
+      where
+        fwd = uncurry ∪⊆-intro₂
+        rev = λ A∪B⊆C → ∧-intro (∪⊆-elimᴸ A∪B⊆C) (∪⊆-elimᴿ A∪B⊆C)
