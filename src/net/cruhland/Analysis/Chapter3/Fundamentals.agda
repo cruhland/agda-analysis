@@ -41,8 +41,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
     ; finite; Finite; Finite-∅; Finite-singleton; Finite-pair
     ; Finite-∪; Finite-∩ᴸ; Finite-∖; module Subsetᴸ
-    ; ∪⊆-elimᴸ; ∪⊆-elimᴿ; ⊆∪-introᴸ; ⊆∪-introᴿ; ∪⊆-intro₂
-    ; pab≃sa∪sb; ∩⊆-introᴸ; ∩⊆-introᴿ; ∩-preserves-⊆ᴸ
+    ; ∪⊆-elim; ∪⊆-elimᴸ; ∪⊆-elimᴿ; ⊆∪-introᴸ; ⊆∪-introᴿ; ∪⊆-intro₂
+    ; pab≃sa∪sb; ⊆∩-elim; ⊆∩-intro₂; ∩⊆-introᴸ; ∩⊆-introᴿ; ∩-preserves-⊆ᴸ
     ; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
     ; replacement; ReplFun; ReplMembership; ReplProp
     ; x∈rep↔Pax; rep-∈?; rep-finite
@@ -826,17 +826,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     _ = ∩⊆-introᴿ
 
     _ : C ⊆ A ∧ C ⊆ B ↔ C ⊆ A ∩ B
-    _ = ↔-intro fwd rev
-      where
-        fwd : C ⊆ A ∧ C ⊆ B → C ⊆ A ∩ B
-        fwd (∧-intro (⊆-intro x∈C→x∈A) (⊆-intro x∈C→x∈B)) =
-          ⊆-intro λ x∈C → x∈A∩B-intro₂ (x∈C→x∈A x∈C) (x∈C→x∈B x∈C)
-
-        rev : C ⊆ A ∩ B → C ⊆ A ∧ C ⊆ B
-        rev (⊆-intro x∈C→x∈A∩B) = ∧-intro C⊆A C⊆B
-          where
-            C⊆A = ⊆-intro (x∈A∩B-elimᴸ ∘ x∈C→x∈A∩B)
-            C⊆B = ⊆-intro (x∈A∩B-elimᴿ ∘ x∈C→x∈A∩B)
+    _ = ↔-intro (uncurry ⊆∩-intro₂) ⊆∩-elim
 
     _ : A ⊆ A ∪ B
     _ = ⊆∪-introᴸ
@@ -845,7 +835,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     _ = ⊆∪-introᴿ
 
     _ : A ⊆ C ∧ B ⊆ C ↔ A ∪ B ⊆ C
-    _ = ↔-intro fwd rev
-      where
-        fwd = uncurry ∪⊆-intro₂
-        rev = λ A∪B⊆C → ∧-intro (∪⊆-elimᴸ A∪B⊆C) (∪⊆-elimᴿ A∪B⊆C)
+    _ = ↔-intro (uncurry ∪⊆-intro₂) ∪⊆-elim
+
+  -- Exercise 3.1.8
+  module _ {A B : PSet₀ S} where
+    _ : A ∩ (A ∪ B) ≃ A
+    _ = ⊆-antisym ∩⊆-introᴸ (⊆∩-intro₂ ⊆-refl ⊆∪-introᴸ)
+
+    _ : A ∪ (A ∩ B) ≃ A
+    _ = ⊆-antisym (∪⊆-intro₂ ⊆-refl ∩⊆-introᴸ) ⊆∪-introᴸ
