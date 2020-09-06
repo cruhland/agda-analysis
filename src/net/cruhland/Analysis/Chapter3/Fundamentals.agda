@@ -15,7 +15,8 @@ open import net.cruhland.models.Logic using
   ; Dec; dec-map; no; yes
   )
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
-open import net.cruhland.models.Setoid using (El; Setoid; Setoid₀)
+open import net.cruhland.models.Setoid using
+  (El; equivalence-id; Setoid; Setoid₀; SPred₀; SPred-const)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_; step)
@@ -32,7 +33,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; x∈A∪B-introᴸ; x∈A∪B-introᴿ; ∪-substᴸ; ∪-substᴿ
     ; _⊆_; _⊈_; _⊊_; ∅-⊆; A⊆∅→A≃∅; ⊆-antisym; ⊆-elim; ⊆-intro; ⊊-intro
     ; ⊆-refl; ⊆-substᴸ; ⊆-substᴿ; ⊊-substᴸ; ⊊-substᴿ; ⊆-trans; ⊊-trans
-    ; ⟨_~_⟩; x∈⟨P⟩↔Px; congProp; x∈⟨P⟩-elim; x∈⟨P⟩-intro
+    ; ⟨_⟩; x∈⟨P⟩↔Px; x∈⟨P⟩-elim; x∈⟨P⟩-intro
     ; _∩_; x∈A∩B↔x∈A∧x∈B; ∩-assoc; ∩-comm; x∈A∩B-elim; x∈A∩B-elimᴸ; x∈A∩B-elimᴿ
     ; ∩-idempotent; x∈A∩B-intro; x∈A∩B-intro₂; ∩-substᴸ; ∩-substᴿ; ∩-∅ᴿ
     ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
@@ -443,18 +444,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- [note] We modify the above axiom slightly for a better fit with
   -- type theory. Let S be a setoid with carrier type El S, and for
-  -- each x : El S, let P x : Set α be a property pertaining to x, and
-  -- let P-cong : ∀ {x y} → x ≈ y → P x → P y be a proof that P
-  -- respects the equivalence relation of S. Then there exists a
-  -- PSet S α, called ⟨ P ~ P-cong ⟩, whose elements are precisely the
-  -- elements x in El S for which P x is inhabited. In other words,
-  -- since our PSets already have an underlying "set" in the form of a
+  -- each x : El S, let (P ⟨$⟩ x) : Set be a property pertaining to x
+  -- that respects the equivalence relation on S.  Then there exists a
+  -- PSet₀ S, called ⟨ P ⟩, whose elements are precisely the elements
+  -- x in El S for which (P ⟨$⟩ x) is inhabited. In other words, since
+  -- our PSets already have an underlying "set" in the form of a
   -- setoid, the predicate can just operate on those elements rather
   -- than the elements of another PSet.
-  _ :
-    let open Setoid S using (_≈_)
-     in (P : El S → Set α) → (∀ {x y} → x ≈ y → P x → P y) → PSet S α
-  _ = ⟨_~_⟩
+  _ : {S : Setoid₀} → SPred₀ S → PSet₀ S
+  _ = ⟨_⟩
 
   -- Note that {x ∈ A : P(x) is true} is always a subset of A, though
   -- it could be as large as A or as small as the empty set.
@@ -463,15 +461,13 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- directly, but we can first show how to make a set of the entire
   -- type A, and then show that comprehension always gives a subset of
   -- that.
-  universe : PSet S lzero
-  universe = ⟨ const ⊤ ~ const id ⟩
+  universe : {S : Setoid₀} → PSet₀ S
+  universe = ⟨ SPred-const ⊤ ⟩
 
-  _ : ⟨ const ⊥ ~ const id ⟩ ≃ (∅ {S = S})
+  _ : {S : Setoid₀} → ⟨ SPred-const ⊥ ⟩ ≃ (∅ {S = S})
   _ = A⊆∅→A≃∅ (⊆-intro (⊥-elim ∘ x∈⟨P⟩-elim))
 
-  _ :
-    {S : Setoid σ₁ σ₂} {P : El S → Set α} {P-cong : congProp {S = S} P} →
-      ⟨ P ~ P-cong ⟩ ⊆ universe {S = S}
+  _ : {S : Setoid₀} {P : SPred₀ S} → ⟨ P ⟩ ⊆ universe
   _ = ⊆-intro (const (x∈⟨P⟩-intro ⊤-intro))
 
   -- One can verify that the axiom of substitution works for
@@ -488,13 +484,16 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- [note] We could define these sets with our version of
   -- specification, using logical conjunction:
-  -- ⟨ (λ n → n ∈ S ∧ n < 4) ~ (λ { refl → id }) ⟩.
+  -- ⟨ record
+  --   { _⟨$⟩_ = λ n → n ∈ S ∧ n < 4
+  --   ; cong = λ { refl → equivalence-id }
+  --   } ⟩
   -- But since set intersections are also defined using conjunction,
   -- it would be clearer to wait until they are defined below. For
   -- now, we will use specification to build the predicate portion of
   -- the sets.
   ℕ⟨_⟩ : (ℕ → Set) → ℕSet
-  ℕ⟨ P ⟩ = ⟨ P ~ (λ { refl → id }) ⟩
+  ℕ⟨ P ⟩ = ⟨ record { _⟨$⟩_ = P ; cong = λ { refl → equivalence-id } } ⟩
 
   ⟨n<4⟩ = ℕ⟨ _< 4 ⟩
   ⟨n<7⟩ = ℕ⟨ _< 7 ⟩
