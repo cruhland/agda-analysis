@@ -16,7 +16,7 @@ open import net.cruhland.models.Logic using
   )
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using
-  (El; equivalence-id; Setoid; Setoid₀; SPred₀; SPred-const)
+  (El; equivalence-id; Π; Setoid; Setoid₀; SPred₀; SPred-const; SRel₀)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_; step)
@@ -721,16 +721,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- which P(x, y) is true. Then there exists a set {y : P(x, y) is
   -- true for some x ∈ A}
   _ :
-    {S T : Setoid₀} →
-      (P : El S → El T → Set) → (A : PSet₀ S) → ReplProp {T = T} {A} P →
-        PSet₀ T
+    {S T : Setoid₀} (P : SRel₀ S T) (A : PSet₀ S) → ReplProp {T = T} {A} P →
+      PSet₀ T
   _ = replacement
 
   -- such that for any object z, z ∈ {y : P(x, y) is true for some x ∈ A} ↔
   -- P(x, z) is true for some x ∈ A
   _ :
     {S T : Setoid₀} {z : El T}
-      {A : PSet₀ S} {P : El S → El T → Set} {rp : ReplProp {T = T} P} →
+      {A : PSet₀ S} {P : SRel₀ S T} {rp : ReplProp {T = T} P} →
         z ∈ replacement {T = T} P A rp ↔ ReplMembership {T = T} {A} z P
   _ = x∈rep↔Pax
 
@@ -743,13 +742,17 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ⟨359⟩ = fromListℕ (3 ∷ 5 ∷ 9 ∷ [])
   ⟨46A⟩ = fromListℕ (4 ∷ 6 ∷ 10 ∷ [])
 
-  step-P = λ x y → y ≡ step x
+  step-P : SRel₀ ℕ-Setoid ℕ-Setoid
+  step-P = record
+    { _⟨$⟩_ = λ x → record
+      { _⟨$⟩_ = λ y → y ≡ step x
+      ; cong = λ { refl → equivalence-id }
+      }
+    ; cong = λ { refl refl → equivalence-id }
+    }
 
   step-P-prop : ReplProp {T = ℕ-Setoid} {A = ⟨359⟩} step-P
-  step-P-prop = record
-    { P-cong = λ { refl refl → id }
-    ; P-most = λ _ y≡x z≡x → trans y≡x (sym z≡x)
-    }
+  step-P-prop = record { P-most = λ _ y≡x z≡x → trans y≡x (sym z≡x) }
 
   instance
     y≡?sx : ∀ {x y} → Dec (y ≡ step x)
