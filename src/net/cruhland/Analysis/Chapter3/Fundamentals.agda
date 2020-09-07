@@ -9,7 +9,7 @@ open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Logic using
   ( _∧_; ∧-dup; ∧-intro; uncurry
-  ; _∨_; ∨-comm; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
+  ; _∨_; ∨-comm; ∨-forceᴸ; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
   ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
   ; ⊤; ⊥; ⊥-elim; ⊤-intro
   ; Dec; dec-map; no; yes
@@ -847,3 +847,21 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
     _ : A ∪ (A ∩ B) ≃ A
     _ = ⊆-antisym (∪⊆-intro₂ ⊆-refl ∩⊆-introᴸ) ⊆∪-introᴸ
+
+  -- Exercise 3.1.9
+  A≃X∖B : {A B X : PSet₀ S} → A ∪ B ≃ X → A ∩ B ≃ ∅ → A ≃ X ∖ B
+  A≃X∖B {A = A} {B} {X} A∪B≃X A∩B≃∅ = ⊆-antisym (⊆-intro fwd) (⊆-intro rev)
+    where
+      fwd : ∀ {x} → x ∈ A → x ∈ X ∖ B
+      fwd x∈A =
+        let x∈X = ⊆-elim (⊆-trans ⊆∪-introᴸ (≃→⊆ᴸ A∪B≃X)) x∈A
+            x∉B = x∉∅ ∘ ∈-substᴿ A∩B≃∅ ∘ x∈A∩B-intro₂ x∈A
+         in x∈A∖B-intro₂ x∈X x∉B
+
+      rev : ∀ {x} → x ∈ X ∖ B → x ∈ A
+      rev x∈X∖B =
+        let ∧-intro x∈X x∉B = x∈A∖B-elim x∈X∖B
+         in ∨-forceᴸ x∉B (x∈A∪B-elim (∈-substᴿ (≃-sym A∪B≃X) x∈X))
+
+  B≃X∖A : {A B X : PSet₀ S} → A ∪ B ≃ X → A ∩ B ≃ ∅ → B ≃ X ∖ A
+  B≃X∖A A∪B≃X A∩B≃∅ = A≃X∖B (≃-trans ∪-comm A∪B≃X) (≃-trans ∩-comm A∩B≃∅)
