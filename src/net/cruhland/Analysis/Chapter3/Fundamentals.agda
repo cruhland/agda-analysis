@@ -766,7 +766,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- TODO: remaining examples of replacement
 
-  -- Exercise 3.1.1
+  -- Exercise 3.1.1.
   module _ {S : Setoid₀} where
     open Setoid S using (_≈_) renaming (sym to ≈-sym; trans to ≈-trans)
 
@@ -840,7 +840,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     _ : A ⊆ C ∧ B ⊆ C ↔ A ∪ B ⊆ C
     _ = ↔-intro (uncurry ∪⊆-intro₂) ∪⊆-elim
 
-  -- Exercise 3.1.8
+  -- Exercise 3.1.8.
   module _ {A B : PSet₀ S} where
     _ : A ∩ (A ∪ B) ≃ A
     _ = ⊆-antisym ∩⊆-introᴸ (⊆∩-intro₂ ⊆-refl ⊆∪-introᴸ)
@@ -848,7 +848,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     _ : A ∪ (A ∩ B) ≃ A
     _ = ⊆-antisym (∪⊆-intro₂ ⊆-refl ∩⊆-introᴸ) ⊆∪-introᴸ
 
-  -- Exercise 3.1.9
+  -- Exercise 3.1.9.
   A≃X∖B : {A B X : PSet₀ S} → A ∪ B ≃ X → A ∩ B ≃ ∅ → A ≃ X ∖ B
   A≃X∖B {A = A} {B} {X} A∪B≃X A∩B≃∅ = ⊆-antisym (⊆-intro fwd) (⊆-intro rev)
     where
@@ -865,3 +865,63 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   B≃X∖A : {A B X : PSet₀ S} → A ∪ B ≃ X → A ∩ B ≃ ∅ → B ≃ X ∖ A
   B≃X∖A A∪B≃X A∩B≃∅ = A≃X∖B (≃-trans ∪-comm A∪B≃X) (≃-trans ∩-comm A∩B≃∅)
+
+  -- Exercise 3.1.10.
+  module _ {A B : PSet₀ S} where
+    _ : (A ∖ B) ∩ (A ∩ B) ≃ ∅
+    _ = A⊆∅→A≃∅ (⊆-intro fwd)
+      where
+        fwd : ∀ {x} → x ∈ (A ∖ B) ∩ (A ∩ B) → x ∈ ∅
+        fwd x∈[A∖B]∩[A∩B] =
+          let ∧-intro x∈A∖B x∈A∩B = x∈A∩B-elim x∈[A∖B]∩[A∩B]
+              x∈B = x∈A∩B-elimᴿ x∈A∩B
+              x∉B = x∈A∖B-elimᴿ x∈A∖B
+           in ⊥-elim (x∉B x∈B)
+
+    _ : (B ∖ A) ∩ (A ∩ B) ≃ ∅
+    _ = A⊆∅→A≃∅ (⊆-intro fwd)
+      where
+        fwd : ∀ {x} → x ∈ (B ∖ A) ∩ (A ∩ B) → x ∈ ∅
+        fwd x∈[B∖A]∩[A∩B] =
+          let ∧-intro x∈B∖A x∈A∩B = x∈A∩B-elim x∈[B∖A]∩[A∩B]
+              x∈A = x∈A∩B-elimᴸ x∈A∩B
+              x∉A = x∈A∖B-elimᴿ x∈B∖A
+           in ⊥-elim (x∉A x∈A)
+
+    _ : (A ∖ B) ∩ (B ∖ A) ≃ ∅
+    _ = A⊆∅→A≃∅ (⊆-intro fwd)
+      where
+        fwd : ∀ {x} → x ∈ (A ∖ B) ∩ (B ∖ A) → x ∈ ∅
+        fwd x∈[A∖B]∩[B∖A] =
+          let ∧-intro x∈A∖B x∈B∖A = x∈A∩B-elim x∈[A∖B]∩[B∖A]
+              x∈A = x∈A∖B-elimᴸ x∈A∖B
+              x∉A = x∈A∖B-elimᴿ x∈B∖A
+           in ⊥-elim (x∉A x∈A)
+
+    _ :
+      {{_ : DecMembership A}} {{_ : DecMembership B}} →
+        (A ∖ B) ∪ (A ∩ B) ∪ (B ∖ A) ≃ A ∪ B
+    _ = ⊆-antisym (⊆-intro fwd) (⊆-intro rev)
+      where
+        fwd : ∀ {x} → x ∈ (A ∖ B) ∪ (A ∩ B) ∪ (B ∖ A) → x ∈ A ∪ B
+        fwd x∈123 with x∈A∪B-elim x∈123
+        fwd x∈123 | ∨-introᴸ x∈[A∖B]∪[A∩B] with x∈A∪B-elim x∈[A∖B]∪[A∩B]
+        fwd x∈123 | ∨-introᴸ x∈[A∖B]∪[A∩B] | ∨-introᴸ x∈A∖B =
+          x∈A∪B-introᴸ (x∈A∖B-elimᴸ x∈A∖B)
+        fwd x∈123 | ∨-introᴸ x∈[A∖B]∪[A∩B] | ∨-introᴿ x∈A∩B =
+          x∈A∪B-introᴸ (x∈A∩B-elimᴸ x∈A∩B)
+        fwd x∈123 | ∨-introᴿ x∈B∖A =
+          x∈A∪B-introᴿ (x∈A∖B-elimᴸ x∈B∖A)
+
+        rev : ∀ {x} → x ∈ A ∪ B → x ∈ (A ∖ B) ∪ (A ∩ B) ∪ (B ∖ A)
+        rev {x} x∈A∪B with x∈A∪B-elim x∈A∪B
+        rev {x} x∈A∪B | ∨-introᴸ x∈A with x ∈? B
+        rev {x} x∈A∪B | ∨-introᴸ x∈A | yes x∈B =
+          x∈A∪B-introᴸ (x∈A∪B-introᴿ (x∈A∩B-intro₂ x∈A x∈B))
+        rev {x} x∈A∪B | ∨-introᴸ x∈A | no x∉B =
+          x∈A∪B-introᴸ (x∈A∪B-introᴸ (x∈A∖B-intro₂ x∈A x∉B))
+        rev {x} x∈A∪B | ∨-introᴿ x∈B with x ∈? A
+        rev {x} x∈A∪B | ∨-introᴿ x∈B | yes x∈A =
+          x∈A∪B-introᴸ (x∈A∪B-introᴿ (x∈A∩B-intro₂ x∈A x∈B))
+        rev {x} x∈A∪B | ∨-introᴿ x∈B | no x∉A =
+          x∈A∪B-introᴿ (x∈A∖B-intro₂ x∈B x∉A)
