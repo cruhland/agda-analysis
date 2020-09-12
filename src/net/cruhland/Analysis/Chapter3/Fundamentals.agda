@@ -925,3 +925,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
           x∈A∪B-introᴸ (x∈A∪B-introᴿ (x∈A∩B-intro₂ x∈A x∈B))
         rev {x} x∈A∪B | ∨-introᴿ x∈B | no x∉A =
           x∈A∪B-introᴿ (x∈A∖B-intro₂ x∈B x∉A)
+
+  -- Exercise 3.1.11.
+  -- Leaving this for later because it requires changing the axiom of
+  -- replacement in a way that will break prior examples. The required
+  -- machinery to avoid the breakage won't be available until the end
+  -- of Chapter 3.
