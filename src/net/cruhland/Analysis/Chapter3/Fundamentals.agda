@@ -44,8 +44,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; ∪⊆-elim; ∪⊆-elimᴸ; ∪⊆-elimᴿ; ⊆∪-introᴸ; ⊆∪-introᴿ; ∪⊆-intro₂
     ; pab≃sa∪sb; ⊆∩-elim; ⊆∩-intro₂; ∩⊆-introᴸ; ∩⊆-introᴿ; ∩-preserves-⊆ᴸ
     ; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
-    ; replacement; ReplFun; ReplMembership; ReplProp
-    ; x∈rep↔Pax; rep-∈?; rep-finite
+    ; replacement; ReplFun; ReplMem; ReplRel; x∈rep↔Rax; rep-∈?; rep-finite
     )
   open ≃-Reasoning
 
@@ -720,18 +719,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- to x and y, such that for each x ∈ A there is at most one y for
   -- which P(x, y) is true. Then there exists a set {y : P(x, y) is
   -- true for some x ∈ A}
-  _ :
-    {S T : Setoid₀} (P : SRel₀ S T) (A : PSet₀ S) → ReplProp {T = T} {A} P →
-      PSet₀ T
+  _ : {S T : Setoid₀} (A : PSet₀ S) → ReplRel A T → PSet₀ T
   _ = replacement
 
   -- such that for any object z, z ∈ {y : P(x, y) is true for some x ∈ A} ↔
   -- P(x, z) is true for some x ∈ A
   _ :
-    {S T : Setoid₀} {z : El T}
-      {A : PSet₀ S} {P : SRel₀ S T} {rp : ReplProp {T = T} P} →
-        z ∈ replacement {T = T} P A rp ↔ ReplMembership {T = T} {A} z P
-  _ = x∈rep↔Pax
+    {S T : Setoid₀} {z : El T} {A : PSet₀ S} {RR : ReplRel A T} →
+      z ∈ replacement A RR ↔ ReplMem z RR
+  _ = x∈rep↔Rax
 
   -- Example 3.1.30. Let A := {3,5,9}, and let P(x,y) be the statement
   -- y = step x, i.e., y is the successor of x. Observe that for every
@@ -742,8 +738,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ⟨359⟩ = fromListℕ (3 ∷ 5 ∷ 9 ∷ [])
   ⟨46A⟩ = fromListℕ (4 ∷ 6 ∷ 10 ∷ [])
 
-  step-P : SRel₀ ℕ-Setoid ℕ-Setoid
-  step-P = record
+  step-R : SRel₀ ℕ-Setoid ℕ-Setoid
+  step-R = record
     { _⟨$⟩_ = λ x → record
       { _⟨$⟩_ = λ y → y ≡ step x
       ; cong = λ { refl → equivalence-id }
@@ -751,18 +747,18 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; cong = λ { refl refl → equivalence-id }
     }
 
-  step-P-prop : ReplProp {T = ℕ-Setoid} {A = ⟨359⟩} step-P
-  step-P-prop = record { P-most = λ _ y≡x z≡x → trans y≡x (sym z≡x) }
+  step-RR : ReplRel ⟨359⟩ ℕ-Setoid
+  step-RR = record { R = step-R ; R-most = λ _ y≡x z≡x → trans y≡x (sym z≡x) }
 
   instance
-    y≡?sx : ∀ {x y} → Dec (y ≡ step x)
-    y≡?sx {x} {y} = dec-map sym sym (step x ≡? y)
+    ℕ≡? : ∀ {x y} → Dec (x ≡ y)
+    ℕ≡? {x} {y} = x ≡? y
 
-    step-P-fun : ReplFun {T = ℕ-Setoid} {A = ⟨359⟩} step-P
-    step-P-fun = record { f = step ; Pf = const refl }
+    step-RF : ReplFun step-RR
+    step-RF = record { f = step ; Rxfx = const refl }
 
-  _ : replacement step-P ⟨359⟩ step-P-prop ≃ ⟨46A⟩
-  _ = toWitness {Q = replacement step-P ⟨359⟩ step-P-prop ≃? ⟨46A⟩} _
+  _ : replacement ⟨359⟩ step-RR ≃ ⟨46A⟩
+  _ = toWitness {Q = replacement ⟨359⟩ step-RR ≃? ⟨46A⟩} _
 
   -- TODO: remaining examples of replacement
 
