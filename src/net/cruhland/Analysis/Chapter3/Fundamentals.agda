@@ -24,7 +24,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_; step)
 
   open SetTheory ST using
-    ( _∈_; _∉_; _≃_; _≄_; ≃-intro; PSet; PSet₀; PSet-Setoid; PSet-Setoid₀
+    ( _∈_; _∉_; _≃_; _≄_; ≃-intro; PSet; PSet₀; PSet-Setoid
     ; ≃→⊆ᴸ; ≃→⊆ᴿ; ≃-elimᴸ; ≃-elimᴿ; ≃-refl; ∈-substᴸ; ∈-substᴿ; ≃-sym; ≃-trans
     ; module ≃-Reasoning
     ; ∅; x∉∅; ∅-unique
@@ -51,6 +51,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open ≃-Reasoning
 
   variable
+    σ₁ σ₂ : Level
     S T : Setoid₀
     A B C : PSet₀ S
 
@@ -67,7 +68,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Definition 3.1.1. (Informal) We define a _set_ A to be any
   -- unordered collection of objects
-  _ : ∀ {σ₁ σ₂} → Setoid σ₁ σ₂ → ∀ α → Set (σ₁ ⊔ σ₂ ⊔ sℓ α)
+  _ : Setoid σ₁ σ₂ → Set (σ₁ ⊔ sℓ σ₂ ⊔ sℓ 0ℓ)
   _ = PSet
 
   ℕSet : Set₁
@@ -102,7 +103,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Axiom 3.1 (Sets are objects). If A is a set, then A is also an
   -- object. In particular, given two sets A and B, it is meaningful to
   -- ask whether A is also an element of B.
-  set-in-set? : PSet₀ S → PSet (PSet-Setoid₀ S) 0ℓ → Set
+  set-in-set? : PSet₀ S → PSet (PSet-Setoid S) → Set
   set-in-set? A B = A ∈ B
 
   -- Example 3.1.2. The set {3, {3, 4}, 4} is a set of three distinct
@@ -169,7 +170,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ : {A B : PSet₀ S} {x : El S} → A ≃ B → x ∈ A → x ∈ B
   _ = ∈-substᴿ
 
-  _ : {A B : PSet₀ S} {C : PSet (PSet-Setoid₀ S) 0ℓ} → A ≃ B → A ∈ C → B ∈ C
+  _ : {A B : PSet₀ S} {C : PSet (PSet-Setoid S)} → A ≃ B → A ∈ C → B ∈ C
   _ = ∈-substᴸ
 
   -- Axiom 3.3 (Empty set). There exists a set ∅, known as the _empty set_
@@ -177,7 +178,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = ∅
 
   -- which contains no elements, i.e., for every object x we have x ∉ ∅.
-  _ : {x : El S} → x ∉ (∅ {S = S} {α = 0ℓ})
+  _ : {x : El S} → x ∉ (∅ {S = S})
   _ = x∉∅
 
   -- Note that there can only be one empty set; if there were two sets
@@ -192,6 +193,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Instead of using evidence that a set is not equal to the empty
   -- set, we will need to use direct evidence that an element of a set
   -- exists.
+  -- TODO: Try to prove LEM from this
 
   -- Axiom 3.4 (Singleton sets and pair sets). If a is an object, then
   -- there exists a set (singleton a) whose only element is a
@@ -233,15 +235,14 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   _ = pair-unique
 
   -- Also, Axiom 3.2 ensures that pair a b ≃ pair b a
-  pair-comm : {S : Setoid₀} {a b : El S} → pair {S = S} a b ≃ pair b a
+  pair-comm : {a b : El S} → pair {S = S} a b ≃ pair b a
   pair-comm {S = S} = ⊆-antisym ab⊆ba ba⊆ab
     where
       ab⊆ba = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elimᴿ)
       ba⊆ab = ⊆-intro (x∈pab-intro ∘ ∨-comm ∘ x∈pab-elimᴿ)
 
   -- and pair a a ≃ singleton a.
-  pair-singleton :
-    {S : Setoid₀} {a : El S} → pair {S = S} a a ≃ singleton a
+  pair-singleton : {a : El S} → pair {S = S} a a ≃ singleton a
   pair-singleton = ⊆-antisym paa⊆sa sa⊆paa
     where
       paa⊆sa = ⊆-intro (x∈sa-intro ∘ ∨-merge ∘ x∈pab-elimᴿ)
@@ -249,46 +250,34 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Examples 3.1.9
   -- Exercise 3.1.2
-  sa≄∅ : ∀ {σ₁ σ₂} {S : Setoid σ₁ σ₂} (a : El S) → singleton {S = S} a ≄ ∅
+  sa≄∅ : {S : Setoid σ₁ σ₂} (a : El S) → singleton {S = S} a ≄ ∅
   sa≄∅ a sa≃∅ = x∉∅ (≃-elimᴸ sa≃∅ a∈sa)
 
-  pab≄∅ : ∀ {σ₁ σ₂} {S : Setoid σ₁ σ₂} (a b : El S) → pair {S = S} a b ≄ ∅
+  pab≄∅ : {S : Setoid σ₁ σ₂} (a b : El S) → pair {S = S} a b ≄ ∅
   pab≄∅ a b pab≃∅ = x∉∅ (≃-elimᴸ pab≃∅ a∈pab)
 
-  s∅≄∅ : singleton {S = PSet-Setoid₀ S} ∅ ≄ ∅
+  s∅≄∅ : singleton {S = PSet-Setoid S} ∅ ≄ ∅
   s∅≄∅ = sa≄∅ ∅
 
-  ss∅≄∅ :
-    {S : Setoid₀} →
-      singleton {S = PSet-Setoid₀ (PSet-Setoid₀ S)} (singleton ∅) ≄ ∅
+  ss∅≄∅ : singleton {S = PSet-Setoid (PSet-Setoid S)} (singleton ∅) ≄ ∅
   ss∅≄∅ = sa≄∅ (singleton ∅)
 
-  p∅s∅≄∅ :
-    {S : Setoid₀} →
-      pair {S = PSet-Setoid₀ (PSet-Setoid₀ S)} ∅ (singleton ∅) ≄ ∅
+  p∅s∅≄∅ : pair {S = PSet-Setoid (PSet-Setoid S)} ∅ (singleton ∅) ≄ ∅
   p∅s∅≄∅ = pab≄∅ ∅ (singleton ∅)
 
-  s∅∉s∅ :
-    {S : Setoid₀} →
-      singleton ∅ ∉ singleton {S = PSet-Setoid₀ (PSet-Setoid₀ S)} ∅
+  s∅∉s∅ : singleton ∅ ∉ singleton {S = PSet-Setoid (PSet-Setoid S)} ∅
   s∅∉s∅ s∅∈s∅ = s∅≄∅ (≃-sym (x∈sa-elim s∅∈s∅))
 
   ss∅≄s∅ :
-    {S : Setoid₀} →
-      let S″ = PSet-Setoid₀ (PSet-Setoid₀ S)
-       in singleton {S = S″} (singleton ∅) ≄ singleton ∅
+    singleton {S = PSet-Setoid (PSet-Setoid S)} (singleton ∅) ≄ singleton ∅
   ss∅≄s∅ ss∅≃s∅ = s∅∉s∅ (≃-elimᴸ ss∅≃s∅ (x∈sa-intro ≃-refl))
 
-  p∅s∅≄s∅ :
-    {S : Setoid₀} →
-      let S″ = PSet-Setoid₀ (PSet-Setoid₀ S)
-       in pair {S = S″} ∅ (singleton ∅) ≄ singleton ∅
+  p∅s∅≄s∅ : pair {S = PSet-Setoid (PSet-Setoid S)} ∅ (singleton ∅) ≄ singleton ∅
   p∅s∅≄s∅ p∅s∅≃s∅ = s∅∉s∅ (≃-elimᴸ p∅s∅≃s∅ (x∈pab-introᴿ ≃-refl))
 
   p∅s∅≄ss∅ :
-    {S : Setoid₀} →
-      let S″ = PSet-Setoid₀ (PSet-Setoid₀ S)
-       in pair {S = S″} ∅ (singleton ∅) ≄ singleton (singleton ∅)
+    let S″ = PSet-Setoid (PSet-Setoid S)
+     in pair {S = S″} ∅ (singleton ∅) ≄ singleton (singleton ∅)
   p∅s∅≄ss∅ p∅s∅≃ss∅ =
     let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-introᴸ ≃-refl)
      in s∅≄∅ (x∈sa-elim ∅∈ss∅)
