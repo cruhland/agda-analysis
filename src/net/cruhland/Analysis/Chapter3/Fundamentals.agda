@@ -68,7 +68,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   -- Definition 3.1.1. (Informal) We define a _set_ A to be any
   -- unordered collection of objects
-  _ : Setoid σ₁ σ₂ → Set (σ₁ ⊔ sℓ σ₂ ⊔ sℓ 0ℓ)
+  _ : Setoid σ₁ σ₂ → Set (σ₁ ⊔ sℓ σ₂)
   _ = PSet
 
   ℕSet : Set₁
