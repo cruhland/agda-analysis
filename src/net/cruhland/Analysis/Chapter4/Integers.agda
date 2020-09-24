@@ -11,7 +11,7 @@ open import net.cruhland.models.Setoid using (Setoid₀)
 open ≡-Reasoning
 open PeanoArithmetic peanoArithmetic using (ℕ) renaming
   ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm
-  ; _*_ to _*ᴺ_
+  ; _*_ to _*ᴺ_; *-comm to *ᴺ-comm; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
   )
 
 {- 4.1 The integers -}
@@ -74,8 +74,8 @@ regroup a b c d =
     a +ᴺ ((b +ᴺ d) +ᴺ c)
   ∎
 
-perm-adcb : ∀ a b c d → (a +ᴺ d) +ᴺ (c +ᴺ b) ≡ (a +ᴺ b) +ᴺ (c +ᴺ d)
-perm-adcb a b c d =
+perm-adcb : ∀ {a b c d} → (a +ᴺ d) +ᴺ (c +ᴺ b) ≡ (a +ᴺ b) +ᴺ (c +ᴺ d)
+perm-adcb {a} {b} {c} {d} =
   begin
     (a +ᴺ d) +ᴺ (c +ᴺ b)
   ≡⟨ regroup a d c b ⟩
@@ -93,11 +93,11 @@ perm-adcb a b c d =
     [a⁺+c⁻]+[b⁺+b⁻]≡[c⁺+a⁻]+[b⁺+b⁻] =
       begin
         (a⁺ +ᴺ c⁻) +ᴺ (b⁺ +ᴺ b⁻)
-      ≡˘⟨ perm-adcb a⁺ c⁻ b⁺ b⁻ ⟩
+      ≡˘⟨ perm-adcb {a⁺} ⟩
         (a⁺ +ᴺ b⁻) +ᴺ (b⁺ +ᴺ c⁻)
       ≡⟨ a≡b+c≡d a⁺+b⁻≡b⁺+a⁻ b⁺+c⁻≡c⁺+b⁻ ⟩
         (b⁺ +ᴺ a⁻) +ᴺ (c⁺ +ᴺ b⁻)
-      ≡⟨ perm-adcb b⁺ b⁻ c⁺ a⁻ ⟩
+      ≡⟨ perm-adcb {b⁺} ⟩
         (b⁺ +ᴺ b⁻) +ᴺ (c⁺ +ᴺ a⁻)
       ≡⟨ +ᴺ-comm {n = b⁺ +ᴺ b⁻} ⟩
         (c⁺ +ᴺ a⁻) +ᴺ (b⁺ +ᴺ b⁻)
@@ -158,3 +158,64 @@ _ = refl
       ≡˘⟨ [ab][cd]≡a[[bc]d] {w} ⟩
         (w +ᴺ y) +ᴺ (x +ᴺ z)
       ∎
+
++-comm : ∀ {a b} → a + b ≃ b + a
++-comm {a⁺ — a⁻} {b⁺ — b⁻} =
+  begin
+    (a⁺ +ᴺ b⁺) +ᴺ (b⁻ +ᴺ a⁻)
+  ≡⟨ cong (_+ᴺ (b⁻ +ᴺ a⁻)) (+ᴺ-comm {a⁺}) ⟩
+    (b⁺ +ᴺ a⁺) +ᴺ (b⁻ +ᴺ a⁻)
+  ≡⟨ cong ((b⁺ +ᴺ a⁺) +ᴺ_) (+ᴺ-comm {b⁻}) ⟩
+    (b⁺ +ᴺ a⁺) +ᴺ (a⁻ +ᴺ b⁻)
+  ∎
+
++-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
++-substᴿ b₁≃b₂ = ≃-trans (≃-trans +-comm (+-substᴸ b₁≃b₂)) +-comm
+
+*-substᴸ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
+*-substᴸ {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} {b⁺ — b⁻} a₁⁺a₂⁻≡a₂⁺a₁⁻ =
+  begin
+    (a₁⁺ *ᴺ b⁺ +ᴺ a₁⁻ *ᴺ b⁻) +ᴺ (a₂⁺ *ᴺ b⁻ +ᴺ a₂⁻ *ᴺ b⁺)
+  ≡⟨ rearr {w = a₁⁺} {y = a₂⁺} ⟩
+    (a₁⁺ +ᴺ a₂⁻) *ᴺ b⁺ +ᴺ (a₂⁺ +ᴺ a₁⁻) *ᴺ b⁻
+  ≡⟨ cong (λ k → k *ᴺ b⁺ +ᴺ (a₂⁺ +ᴺ a₁⁻) *ᴺ b⁻) a₁⁺a₂⁻≡a₂⁺a₁⁻ ⟩
+    (a₂⁺ +ᴺ a₁⁻) *ᴺ b⁺ +ᴺ (a₂⁺ +ᴺ a₁⁻) *ᴺ b⁻
+  ≡˘⟨ cong (λ k → (a₂⁺ +ᴺ a₁⁻) *ᴺ b⁺ +ᴺ k *ᴺ b⁻) a₁⁺a₂⁻≡a₂⁺a₁⁻ ⟩
+    (a₂⁺ +ᴺ a₁⁻) *ᴺ b⁺ +ᴺ (a₁⁺ +ᴺ a₂⁻) *ᴺ b⁻
+  ≡˘⟨ rearr {w = a₂⁺} {y = a₁⁺} ⟩
+    (a₂⁺ *ᴺ b⁺ +ᴺ a₂⁻ *ᴺ b⁻) +ᴺ (a₁⁺ *ᴺ b⁻ +ᴺ a₁⁻ *ᴺ b⁺)
+  ∎
+  where
+    rearr :
+      ∀ {u v w x y z} →
+        (w *ᴺ u +ᴺ x *ᴺ v) +ᴺ (y *ᴺ v +ᴺ z *ᴺ u) ≡
+          (w +ᴺ z) *ᴺ u +ᴺ (y +ᴺ x) *ᴺ v
+    rearr {u} {v} {w} {x} {y} {z} =
+      begin
+        (w *ᴺ u +ᴺ x *ᴺ v) +ᴺ (y *ᴺ v +ᴺ z *ᴺ u)
+      ≡⟨ perm-adcb {w *ᴺ u} ⟩
+        (w *ᴺ u +ᴺ z *ᴺ u) +ᴺ (y *ᴺ v +ᴺ x *ᴺ v)
+      ≡˘⟨ cong (_+ᴺ (y *ᴺ v +ᴺ x *ᴺ v)) (*ᴺ-distrib-+ᴺᴿ {w}) ⟩
+        (w +ᴺ z) *ᴺ u +ᴺ (y *ᴺ v +ᴺ x *ᴺ v)
+      ≡˘⟨ cong ((w +ᴺ z) *ᴺ u +ᴺ_) (*ᴺ-distrib-+ᴺᴿ {y}) ⟩
+        (w +ᴺ z) *ᴺ u +ᴺ (y +ᴺ x) *ᴺ v
+      ∎
+
+*-comm : ∀ {a b} → a * b ≃ b * a
+*-comm {a⁺ — a⁻} {b⁺ — b⁻} =
+  begin
+    (a⁺ *ᴺ b⁺ +ᴺ a⁻ *ᴺ b⁻) +ᴺ (b⁺ *ᴺ a⁻ +ᴺ b⁻ *ᴺ a⁺)
+  ≡⟨ cong (λ x → (x +ᴺ a⁻ *ᴺ b⁻) +ᴺ (b⁺ *ᴺ a⁻ +ᴺ b⁻ *ᴺ a⁺)) (*ᴺ-comm {a⁺}) ⟩
+    (b⁺ *ᴺ a⁺ +ᴺ a⁻ *ᴺ b⁻) +ᴺ (b⁺ *ᴺ a⁻ +ᴺ b⁻ *ᴺ a⁺)
+  ≡⟨ cong (λ x → (b⁺ *ᴺ a⁺ +ᴺ x) +ᴺ (b⁺ *ᴺ a⁻ +ᴺ b⁻ *ᴺ a⁺)) (*ᴺ-comm {a⁻}) ⟩
+    (b⁺ *ᴺ a⁺ +ᴺ b⁻ *ᴺ a⁻) +ᴺ (b⁺ *ᴺ a⁻ +ᴺ b⁻ *ᴺ a⁺)
+  ≡⟨ cong ((b⁺ *ᴺ a⁺ +ᴺ b⁻ *ᴺ a⁻) +ᴺ_) (+ᴺ-comm {b⁺ *ᴺ a⁻}) ⟩
+    (b⁺ *ᴺ a⁺ +ᴺ b⁻ *ᴺ a⁻) +ᴺ (b⁻ *ᴺ a⁺ +ᴺ b⁺ *ᴺ a⁻)
+  ≡⟨ cong (λ x → (b⁺ *ᴺ a⁺ +ᴺ b⁻ *ᴺ a⁻) +ᴺ (x +ᴺ b⁺ *ᴺ a⁻)) (*ᴺ-comm {b⁻}) ⟩
+    (b⁺ *ᴺ a⁺ +ᴺ b⁻ *ᴺ a⁻) +ᴺ (a⁺ *ᴺ b⁻ +ᴺ b⁺ *ᴺ a⁻)
+  ≡⟨ cong (λ x → (b⁺ *ᴺ a⁺ +ᴺ b⁻ *ᴺ a⁻) +ᴺ (a⁺ *ᴺ b⁻ +ᴺ x)) (*ᴺ-comm {b⁺}) ⟩
+    (b⁺ *ᴺ a⁺ +ᴺ b⁻ *ᴺ a⁻) +ᴺ (a⁺ *ᴺ b⁻ +ᴺ a⁻ *ᴺ b⁺)
+  ∎
+
+*-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
+*-substᴿ b₁≃b₂ = ≃-trans (≃-trans *-comm (*-substᴸ b₁≃b₂)) *-comm
