@@ -4,7 +4,7 @@ open import Relation.Binary using (IsEquivalence)
 open import Relation.Binary.PropositionalEquality using
   (_≡_; cong; refl; sym; trans; module ≡-Reasoning)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.models.Logic using (¬_)
+open import net.cruhland.models.Logic using (¬_; _↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
@@ -12,6 +12,7 @@ open ≡-Reasoning
 open PeanoArithmetic peanoArithmetic using (ℕ) renaming
   ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm
   ; _*_ to _*ᴺ_; *-comm to *ᴺ-comm; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
+  ; *-zeroᴿ to *ᴺ-zeroᴿ
   )
 
 {- 4.1 The integers -}
@@ -219,3 +220,23 @@ _ = refl
 
 *-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
 *-substᴿ b₁≃b₂ = ≃-trans (≃-trans *-comm (*-substᴸ b₁≃b₂)) *-comm
+
+-- The integers n—0 behave in the same way as the natural numbers n;
+-- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
+-- (n—0) × (m—0) = nm—0.
+_ : ∀ {n m} → n — 0 + m — 0 ≃ (n +ᴺ m) — 0
+_ = refl
+
+*-compat-*ᴺ : ∀ {n m} → n — 0 * m — 0 ≃ (n *ᴺ m) — 0
+*-compat-*ᴺ {n} {m} =
+  begin
+    n *ᴺ m +ᴺ 0 +ᴺ 0
+  ≡⟨ +ᴺ-assoc {n *ᴺ m} ⟩
+    n *ᴺ m +ᴺ (0 +ᴺ 0)
+  ≡˘⟨ cong (λ x → n *ᴺ m +ᴺ (x +ᴺ 0)) (*ᴺ-zeroᴿ {n}) ⟩
+    n *ᴺ m +ᴺ (n *ᴺ 0 +ᴺ 0)
+  ∎
+
+-- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
+_ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≡ m
+_ = ↔-intro +ᴺ-cancelᴿ (cong (_+ᴺ 0))
