@@ -1,10 +1,13 @@
 module net.cruhland.Analysis.Chapter4.Integers where
 
+open import Agda.Builtin.FromNat using (Number)
+import Agda.Builtin.Nat as Nat
+open import Function using (const)
 open import Relation.Binary using (IsEquivalence)
 open import Relation.Binary.PropositionalEquality using
   (_≡_; cong; refl; sym; trans; module ≡-Reasoning)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.models.Logic using (¬_; _↔_; ↔-intro)
+open import net.cruhland.models.Logic using (⊤; ¬_; _↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
@@ -13,6 +16,7 @@ open PeanoArithmetic peanoArithmetic using (ℕ) renaming
   ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm
   ; _*_ to _*ᴺ_; *-comm to *ᴺ-comm; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
   ; *-zeroᴿ to *ᴺ-zeroᴿ
+  ; number to ℕ-number
   )
 
 {- 4.1 The integers -}
@@ -240,3 +244,85 @@ _ = refl
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≡ m
 _ = ↔-intro +ᴺ-cancelᴿ (cong (_+ᴺ 0))
+
+-- Thus we may _identify_ the natural numbers with integers by setting
+-- n ≡ n—0; this does not affect our definitions of addition or
+-- multiplication or equality since they are consistent with each
+-- other.
+-- [note] We can't make this identification in type theory because
+-- both propositional equality and setoid equality require that their
+-- associated values belong to the same type. However, we can use the
+-- Number typeclass to interpret numeric literals as elements of
+-- ℤ. And we can define a function to convert natural numbers to their
+-- integer equivalent.
+fromNat : Nat.Nat → {{_ : ⊤}} → ℤ
+fromNat Nat.zero = 0 — 0
+fromNat (Nat.suc n) = 1 — 0 + fromNat n
+
+instance
+  ℤ-number : Number ℤ
+  ℤ-number = record { Constraint = const ⊤ ; fromNat = fromNat }
+
+-- For instance the natural number 3 is now considered to be the same
+-- as the integer 3—0, thus 3 = 3—0.
+_ : 3 ≃ 3 — 0
+_ = refl
+
+-- In particular 0 is equal to 0—0 and 1 is equal to 1—0.
+_ : 0 ≃ 0 — 0
+_ = refl
+
+_ : 1 ≃ 1 — 0
+_ = refl
+
+-- Of course, if we set n equal to n—0, then it will also be equal to
+-- any other integer which is equal to n—0, for instance 3 is equal
+-- not only to 3—0, but also to 4—1, 5—2, etc.
+_ : 3 ≃ 4 — 1
+_ = refl
+
+_ : 3 ≃ 5 — 2
+_ = refl
+
+-- We can now define incrementation on the integers by defining
+-- step x ≔ x + 1 for any integer x; this is of course consistent with
+-- our definition of the increment operation for natural
+-- numbers. However, this is no longer an important operation for us,
+-- as it has been now superceded by the more general notion of
+-- addition.
+step : ℤ → ℤ
+step x = x + 1
+
+-- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
+-- define the negation -(a—b) to be the integer (b—a).
+infix 8 -_
+-_ : ℤ → ℤ
+- a — b = b — a
+
+-- In particular if n = n—0 is a positive natural number, we can
+-- define its negation -n = 0—n.
+-- [note] Here we must use a conversion function since n is not a
+-- literal.
+fromℕ : ℕ → ℤ
+fromℕ n = n — 0
+
+_ : ∀ {n} → - (fromℕ n) ≃ 0 — n
+_ = refl
+
+-- For instance -(3—5) = (5—3).
+_ : -(3 — 5) ≃ 5 — 3
+_ = refl
+
+-- One can check this definition is well-defined.
+-- Exercise 4.1.2
+neg-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → - a₁ ≃ - a₂
+neg-subst {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} a₁⁺+a₂⁻≡a₂⁺+a₁⁻ =
+  begin
+    a₁⁻ +ᴺ a₂⁺
+  ≡⟨ +ᴺ-comm {a₁⁻} ⟩
+    a₂⁺ +ᴺ a₁⁻
+  ≡˘⟨ a₁⁺+a₂⁻≡a₂⁺+a₁⁻ ⟩
+    a₁⁺ +ᴺ a₂⁻
+  ≡⟨ +ᴺ-comm {a₁⁺} ⟩
+    a₂⁻ +ᴺ a₁⁺
+  ∎
