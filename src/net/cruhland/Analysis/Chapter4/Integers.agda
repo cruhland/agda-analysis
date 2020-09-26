@@ -12,11 +12,14 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
 open ≡-Reasoning
-open PeanoArithmetic peanoArithmetic using (ℕ) renaming
-  ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm
+open PeanoArithmetic peanoArithmetic using
+  ( ℕ; <→<⁺; tri-<; tri-≡; tri->) renaming
+  ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-cancelᴸ to +ᴺ-cancelᴸ
+  ; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm; +-zeroᴿ to +ᴺ-zeroᴿ
+  ; +-positive to +ᴺ-positive; +-unchanged to +ᴺ-unchanged
   ; _*_ to _*ᴺ_; *-comm to *ᴺ-comm; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
   ; *-zeroᴿ to *ᴺ-zeroᴿ
-  ; number to ℕ-number
+  ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
   )
 
 {- 4.1 The integers -}
@@ -326,3 +329,79 @@ neg-subst {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} a₁⁺+a₂⁻≡a₂⁺+
   ≡⟨ +ᴺ-comm {a₁⁺} ⟩
     a₂⁻ +ᴺ a₁⁺
   ∎
+
+-- Lemma 4.1.5 (Trichotomy of integers). Let x be an integer. Then
+-- exactly one of the following three statements is true: (a) x is
+-- zero; (b) x is equal to a positive natural number n; or (c) x is
+-- the negation -n of a positive natural number n.
+record IsPositive (x : ℤ) : Set where
+  field
+    n : ℕ
+    pos : Positiveᴺ n
+    eq : x ≃ fromℕ n
+
+record IsNegative (x : ℤ) : Set where
+  field
+    n : ℕ
+    pos : Positiveᴺ n
+    eq : x ≃ - fromℕ n
+
+data AtLeastOne (x : ℤ) : Set where
+  nil : x ≃ 0 → AtLeastOne x
+  pos : IsPositive x → AtLeastOne x
+  neg : IsNegative x → AtLeastOne x
+
+data MoreThanOne (x : ℤ) : Set where
+  nil∧pos : x ≃ 0 → IsPositive x → MoreThanOne x
+  nil∧neg : x ≃ 0 → IsNegative x → MoreThanOne x
+  pos∧neg : IsPositive x → IsNegative x → MoreThanOne x
+
+record Trichotomy (x : ℤ) : Set where
+  field
+    at-least : AtLeastOne x
+    at-most : ¬ MoreThanOne x
+
+trichotomy : ∀ {x} → Trichotomy x
+trichotomy {x⁺ — x⁻} = record { at-least = at-least ; at-most = at-most }
+  where
+    at-least : AtLeastOne (x⁺ — x⁻)
+    at-least with trichotomyᴺ {x⁺} {x⁻}
+    at-least | tri-< x⁺<x⁻ =
+      let record { d = n ; d≢z = pos-n ; n+d≡m = x⁺+n≡x⁻ } = <→<⁺ x⁺<x⁻
+       in neg (record { n = n ; pos = pos-n ; eq = x⁺+n≡x⁻ })
+    at-least | tri-≡ x⁺≡x⁻ = nil (trans +ᴺ-zeroᴿ x⁺≡x⁻)
+    at-least | tri-> x⁺>x⁻ =
+      let record { d = n ; d≢z = pos-n ; n+d≡m = x⁻+n≡x⁺ } = <→<⁺ x⁺>x⁻
+          x⁺—x⁻≃n =
+            begin
+              x⁺ +ᴺ 0
+            ≡⟨ +ᴺ-zeroᴿ ⟩
+              x⁺
+            ≡˘⟨ x⁻+n≡x⁺ ⟩
+              x⁻ +ᴺ n
+            ≡⟨ +ᴺ-comm {x⁻} ⟩
+              n +ᴺ x⁻
+            ∎
+       in pos (record { n = n ; pos = pos-n ; eq = x⁺—x⁻≃n })
+
+    at-most : ¬ MoreThanOne (x⁺ — x⁻)
+    at-most (nil∧pos x⁺+0≡x⁻ record { n = n ; pos = n≢0 ; eq = x⁺+0≡n+x⁻ }) =
+      let x⁻+n≡x⁻ = trans (+ᴺ-comm {x⁻}) (trans (sym x⁺+0≡n+x⁻) x⁺+0≡x⁻)
+       in n≢0 (+ᴺ-unchanged x⁻+n≡x⁻)
+    at-most (nil∧neg x⁺+0≡x⁻ record { n = n ; pos = n≢0 ; eq = x⁺+n≡x⁻ }) =
+      n≢0 (+ᴺ-cancelᴸ (trans x⁺+n≡x⁻ (sym x⁺+0≡x⁻)))
+    at-most (pos∧neg record { n = n₁ ; pos = n₁≢0 ; eq = x⁺+0≡n₁+x⁻ }
+                     record { n = n₂ ; pos = n₂≢0 ; eq = x⁺+n₂≡x⁻ }) =
+      let x⁺+[n₂+n₁]≡x⁺+0 =
+            begin
+              x⁺ +ᴺ (n₂ +ᴺ n₁)
+            ≡˘⟨ +ᴺ-assoc {x⁺} ⟩
+              (x⁺ +ᴺ n₂) +ᴺ n₁
+            ≡⟨ cong (_+ᴺ n₁) x⁺+n₂≡x⁻ ⟩
+              x⁻ +ᴺ n₁
+            ≡⟨ +ᴺ-comm {x⁻} ⟩
+              n₁ +ᴺ x⁻
+            ≡˘⟨ x⁺+0≡n₁+x⁻ ⟩
+              x⁺ +ᴺ 0
+            ∎
+       in +ᴺ-positive n₂≢0 (+ᴺ-cancelᴸ x⁺+[n₂+n₁]≡x⁺+0)
