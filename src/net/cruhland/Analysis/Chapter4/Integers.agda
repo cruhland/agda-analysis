@@ -15,9 +15,10 @@ open ≡-Reasoning
 open PeanoArithmetic peanoArithmetic using
   ( ℕ; <→<⁺; tri-<; tri-≡; tri->) renaming
   ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-cancelᴸ to +ᴺ-cancelᴸ
-  ; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm; +-zeroᴿ to +ᴺ-zeroᴿ
+  ; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm; +-zeroᴿ to +ᴺ-identityᴿ
   ; +-positive to +ᴺ-positive; +-unchanged to +ᴺ-unchanged
-  ; _*_ to _*ᴺ_; *-comm to *ᴺ-comm; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
+  ; _*_ to _*ᴺ_; *-assoc to *ᴺ-assoc; *-comm to *ᴺ-comm
+  ; *-distrib-+ᴸ to *ᴺ-distrib-+ᴺᴸ; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
   ; *-zeroᴿ to *ᴺ-zeroᴿ
   ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
   )
@@ -143,29 +144,29 @@ _ : 3 — 5 + 1 — 4 ≃ 2 — 4 + 1 — 4
 _ = refl
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
+transpose : ∀ {w x y z} → (w +ᴺ x) +ᴺ (y +ᴺ z) ≡ (w +ᴺ y) +ᴺ (x +ᴺ z)
+transpose {w} {x} {y} {z} =
+  begin
+    (w +ᴺ x) +ᴺ (y +ᴺ z)
+  ≡⟨ [ab][cd]≡a[[bc]d] {w} ⟩
+    w +ᴺ ((x +ᴺ y) +ᴺ z)
+  ≡⟨ swap-middle {w} {x} ⟩
+    w +ᴺ ((y +ᴺ x) +ᴺ z)
+  ≡˘⟨ [ab][cd]≡a[[bc]d] {w} ⟩
+    (w +ᴺ y) +ᴺ (x +ᴺ z)
+  ∎
+
 +-substᴸ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
 +-substᴸ {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} {b⁺ — b⁻} a₁⁺+a₂⁻≡a₂⁺+a₁⁻ =
   begin
     (a₁⁺ +ᴺ b⁺) +ᴺ (a₂⁻ +ᴺ b⁻)
-  ≡⟨ rearr {a₁⁺} ⟩
+  ≡⟨ transpose {a₁⁺} ⟩
     (a₁⁺ +ᴺ a₂⁻) +ᴺ (b⁺ +ᴺ b⁻)
   ≡⟨ cong (_+ᴺ (b⁺ +ᴺ b⁻)) a₁⁺+a₂⁻≡a₂⁺+a₁⁻ ⟩
     (a₂⁺ +ᴺ a₁⁻) +ᴺ (b⁺ +ᴺ b⁻)
-  ≡⟨ rearr {a₂⁺} ⟩
+  ≡⟨ transpose {a₂⁺} ⟩
     (a₂⁺ +ᴺ b⁺) +ᴺ (a₁⁻ +ᴺ b⁻)
   ∎
-  where
-    rearr : ∀ {w x y z} → (w +ᴺ x) +ᴺ (y +ᴺ z) ≡ (w +ᴺ y) +ᴺ (x +ᴺ z)
-    rearr {w} {x} {y} {z} =
-      begin
-        (w +ᴺ x) +ᴺ (y +ᴺ z)
-      ≡⟨ [ab][cd]≡a[[bc]d] {w} ⟩
-        w +ᴺ ((x +ᴺ y) +ᴺ z)
-      ≡⟨ swap-middle {w} {x} ⟩
-        w +ᴺ ((y +ᴺ x) +ᴺ z)
-      ≡˘⟨ [ab][cd]≡a[[bc]d] {w} ⟩
-        (w +ᴺ y) +ᴺ (x +ᴺ z)
-      ∎
 
 +-comm : ∀ {a b} → a + b ≃ b + a
 +-comm {a⁺ — a⁻} {b⁺ — b⁻} =
@@ -179,6 +180,32 @@ _ = refl
 
 +-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 +-substᴿ b₁≃b₂ = ≃-trans (≃-trans +-comm (+-substᴸ b₁≃b₂)) +-comm
+
+distrib-twoᴸ :
+  ∀ {a b c d e f} →
+    a *ᴺ (b +ᴺ c) +ᴺ d *ᴺ (e +ᴺ f) ≡
+      (a *ᴺ b +ᴺ a *ᴺ c) +ᴺ (d *ᴺ e +ᴺ d *ᴺ f)
+distrib-twoᴸ {a} {b} {c} {d} {e} {f} =
+  begin
+    a *ᴺ (b +ᴺ c) +ᴺ d *ᴺ (e +ᴺ f)
+  ≡⟨ cong (_+ᴺ d *ᴺ (e +ᴺ f)) (*ᴺ-distrib-+ᴺᴸ {a}) ⟩
+    (a *ᴺ b +ᴺ a *ᴺ c) +ᴺ d *ᴺ (e +ᴺ f)
+  ≡⟨ cong ((a *ᴺ b +ᴺ a *ᴺ c) +ᴺ_) (*ᴺ-distrib-+ᴺᴸ {d}) ⟩
+    (a *ᴺ b +ᴺ a *ᴺ c) +ᴺ (d *ᴺ e +ᴺ d *ᴺ f)
+  ∎
+
+distrib-twoᴿ :
+  ∀ {a b c d e f} →
+    (a +ᴺ b) *ᴺ c +ᴺ (d +ᴺ e) *ᴺ f ≡
+      (a *ᴺ c +ᴺ b *ᴺ c) +ᴺ (d *ᴺ f +ᴺ e *ᴺ f)
+distrib-twoᴿ {a} {b} {c} {d} {e} {f} =
+  begin
+    (a +ᴺ b) *ᴺ c +ᴺ (d +ᴺ e) *ᴺ f
+  ≡⟨ cong (_+ᴺ (d +ᴺ e) *ᴺ f) (*ᴺ-distrib-+ᴺᴿ {a}) ⟩
+    (a *ᴺ c +ᴺ b *ᴺ c) +ᴺ (d +ᴺ e) *ᴺ f
+  ≡⟨ cong ((a *ᴺ c +ᴺ b *ᴺ c) +ᴺ_) (*ᴺ-distrib-+ᴺᴿ {d}) ⟩
+    (a *ᴺ c +ᴺ b *ᴺ c) +ᴺ (d *ᴺ f +ᴺ e *ᴺ f)
+  ∎
 
 *-substᴸ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
 *-substᴸ {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} {b⁺ — b⁻} a₁⁺a₂⁻≡a₂⁺a₁⁻ =
@@ -203,9 +230,7 @@ _ = refl
         (w *ᴺ u +ᴺ x *ᴺ v) +ᴺ (y *ᴺ v +ᴺ z *ᴺ u)
       ≡⟨ perm-adcb {w *ᴺ u} ⟩
         (w *ᴺ u +ᴺ z *ᴺ u) +ᴺ (y *ᴺ v +ᴺ x *ᴺ v)
-      ≡˘⟨ cong (_+ᴺ (y *ᴺ v +ᴺ x *ᴺ v)) (*ᴺ-distrib-+ᴺᴿ {w}) ⟩
-        (w +ᴺ z) *ᴺ u +ᴺ (y *ᴺ v +ᴺ x *ᴺ v)
-      ≡˘⟨ cong ((w +ᴺ z) *ᴺ u +ᴺ_) (*ᴺ-distrib-+ᴺᴿ {y}) ⟩
+      ≡˘⟨ distrib-twoᴿ {a = w} {d = y} ⟩
         (w +ᴺ z) *ᴺ u +ᴺ (y +ᴺ x) *ᴺ v
       ∎
 
@@ -369,13 +394,13 @@ trichotomy {x⁺ — x⁻} = record { at-least = at-least ; at-most = at-most }
     at-least | tri-< x⁺<x⁻ =
       let record { d = n ; d≢z = pos-n ; n+d≡m = x⁺+n≡x⁻ } = <→<⁺ x⁺<x⁻
        in neg (record { n = n ; pos = pos-n ; eq = x⁺+n≡x⁻ })
-    at-least | tri-≡ x⁺≡x⁻ = nil (trans +ᴺ-zeroᴿ x⁺≡x⁻)
+    at-least | tri-≡ x⁺≡x⁻ = nil (trans +ᴺ-identityᴿ x⁺≡x⁻)
     at-least | tri-> x⁺>x⁻ =
       let record { d = n ; d≢z = pos-n ; n+d≡m = x⁻+n≡x⁺ } = <→<⁺ x⁺>x⁻
           x⁺—x⁻≃n =
             begin
               x⁺ +ᴺ 0
-            ≡⟨ +ᴺ-zeroᴿ ⟩
+            ≡⟨ +ᴺ-identityᴿ ⟩
               x⁺
             ≡˘⟨ x⁻+n≡x⁺ ⟩
               x⁻ +ᴺ n
@@ -405,3 +430,104 @@ trichotomy {x⁺ — x⁻} = record { at-least = at-least ; at-most = at-most }
               x⁺ +ᴺ 0
             ∎
        in +ᴺ-positive n₂≢0 (+ᴺ-cancelᴸ x⁺+[n₂+n₁]≡x⁺+0)
+
+-- Proposition 4.1.6 (Laws of algebra for integers).
+-- Exercise 4.1.4
+_ : ∀ {x y} → x + y ≃ y + x
+_ = +-comm
+
++-assoc : ∀ {x y z} → (x + y) + z ≃ x + (y + z)
++-assoc {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} =
+  begin
+    ((x⁺ +ᴺ y⁺) +ᴺ z⁺) +ᴺ (x⁻ +ᴺ (y⁻ +ᴺ z⁻))
+  ≡⟨ cong (_+ᴺ (x⁻ +ᴺ (y⁻ +ᴺ z⁻))) (+ᴺ-assoc {x⁺}) ⟩
+    (x⁺ +ᴺ (y⁺ +ᴺ z⁺)) +ᴺ (x⁻ +ᴺ (y⁻ +ᴺ z⁻))
+  ≡˘⟨ cong ((x⁺ +ᴺ (y⁺ +ᴺ z⁺)) +ᴺ_) (+ᴺ-assoc {x⁻}) ⟩
+    (x⁺ +ᴺ (y⁺ +ᴺ z⁺)) +ᴺ ((x⁻ +ᴺ y⁻) +ᴺ z⁻)
+  ∎
+
++-identityᴸ : ∀ {x} → 0 + x ≃ x
++-identityᴸ {x⁺ — x⁻} = refl
+
++-identityᴿ : ∀ {x} → x + 0 ≃ x
++-identityᴿ = ≃-trans +-comm +-identityᴸ
+
++-inverseᴸ : ∀ {x} → - x + x ≃ 0
++-inverseᴸ {x⁺ — x⁻} =
+  begin
+    (x⁻ +ᴺ x⁺) +ᴺ 0
+  ≡⟨ +ᴺ-identityᴿ ⟩
+    x⁻ +ᴺ x⁺
+  ≡⟨ +ᴺ-comm {x⁻} ⟩
+    x⁺ +ᴺ x⁻
+  ∎
+
++-inverseᴿ : ∀ {x} → x + - x ≃ 0
++-inverseᴿ = ≃-trans +-comm +-inverseᴸ
+
+_ : ∀ {x y} → x * y ≃ y * x
+_ = *-comm
+
+*-assoc : ∀ {x y z} → (x * y) * z ≃ x * (y * z)
+*-assoc {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} =
+    a≡b+c≡d (refactor {z⁺} {z⁻} {x⁺} {x⁻}) (sym (refactor {z⁻} {z⁺} {x⁺} {x⁻}))
+  where
+    assoc-four :
+      ∀ {a₁ a₂ a₃ b₁ b₂ b₃ c₁ c₂ c₃ d₁ d₂ d₃} →
+        ((a₁ *ᴺ a₂) *ᴺ a₃ +ᴺ (b₁ *ᴺ b₂) *ᴺ b₃) +ᴺ
+        ((c₁ *ᴺ c₂) *ᴺ c₃ +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃) ≡
+        (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ b₁ *ᴺ (b₂ *ᴺ b₃)) +ᴺ
+        (c₁ *ᴺ (c₂ *ᴺ c₃) +ᴺ d₁ *ᴺ (d₂ *ᴺ d₃))
+    assoc-four {a₁} {a₂} {a₃} {b₁} {b₂} {b₃} {c₁} {c₂} {c₃} {d₁} {d₂} {d₃} =
+      begin
+        ((a₁ *ᴺ a₂) *ᴺ a₃ +ᴺ (b₁ *ᴺ b₂) *ᴺ b₃) +ᴺ
+        ((c₁ *ᴺ c₂) *ᴺ c₃ +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃)
+      ≡⟨ cong
+           (λ x → (x +ᴺ (b₁ *ᴺ b₂) *ᴺ b₃) +ᴺ
+                  ((c₁ *ᴺ c₂) *ᴺ c₃ +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃))
+           (*ᴺ-assoc {a₁}) ⟩
+        (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ (b₁ *ᴺ b₂) *ᴺ b₃) +ᴺ
+        ((c₁ *ᴺ c₂) *ᴺ c₃ +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃)
+      ≡⟨ cong
+           (λ x → (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ x) +ᴺ
+                  ((c₁ *ᴺ c₂) *ᴺ c₃ +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃))
+           (*ᴺ-assoc {b₁}) ⟩
+        (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ b₁ *ᴺ (b₂ *ᴺ b₃)) +ᴺ
+        ((c₁ *ᴺ c₂) *ᴺ c₃ +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃)
+      ≡⟨ cong
+           (λ x → (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ b₁ *ᴺ (b₂ *ᴺ b₃)) +ᴺ
+                  (x +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃))
+           (*ᴺ-assoc {c₁}) ⟩
+        (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ b₁ *ᴺ (b₂ *ᴺ b₃)) +ᴺ
+        (c₁ *ᴺ (c₂ *ᴺ c₃) +ᴺ (d₁ *ᴺ d₂) *ᴺ d₃)
+      ≡⟨ cong
+            (λ x → (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ b₁ *ᴺ (b₂ *ᴺ b₃)) +ᴺ
+                   (c₁ *ᴺ (c₂ *ᴺ c₃) +ᴺ x))
+            (*ᴺ-assoc {d₁}) ⟩
+        (a₁ *ᴺ (a₂ *ᴺ a₃) +ᴺ b₁ *ᴺ (b₂ *ᴺ b₃)) +ᴺ
+        (c₁ *ᴺ (c₂ *ᴺ c₃) +ᴺ d₁ *ᴺ (d₂ *ᴺ d₃))
+      ∎
+
+    refactor :
+      ∀ {b₁ b₂ a₁ a₂ a₃ a₄} →
+        (a₁ *ᴺ a₃ +ᴺ a₂ *ᴺ a₄) *ᴺ b₁ +ᴺ (a₁ *ᴺ a₄ +ᴺ a₂ *ᴺ a₃) *ᴺ b₂ ≡
+          a₁ *ᴺ (a₃ *ᴺ b₁ +ᴺ a₄ *ᴺ b₂) +ᴺ a₂ *ᴺ (a₃ *ᴺ b₂ +ᴺ a₄ *ᴺ b₁)
+    refactor {b₁} {b₂} {a₁} {a₂} {a₃} {a₄} =
+      begin
+        (a₁ *ᴺ a₃ +ᴺ a₂ *ᴺ a₄) *ᴺ b₁ +ᴺ (a₁ *ᴺ a₄ +ᴺ a₂ *ᴺ a₃) *ᴺ b₂
+      ≡⟨ distrib-twoᴿ {a = a₁ *ᴺ a₃} {d = a₁ *ᴺ a₄} ⟩
+        ((a₁ *ᴺ a₃) *ᴺ b₁ +ᴺ (a₂ *ᴺ a₄) *ᴺ b₁) +ᴺ
+        ((a₁ *ᴺ a₄) *ᴺ b₂ +ᴺ (a₂ *ᴺ a₃) *ᴺ b₂)
+      ≡⟨ transpose {(a₁ *ᴺ a₃) *ᴺ b₁}⟩
+        ((a₁ *ᴺ a₃) *ᴺ b₁ +ᴺ (a₁ *ᴺ a₄) *ᴺ b₂) +ᴺ
+        ((a₂ *ᴺ a₄) *ᴺ b₁ +ᴺ (a₂ *ᴺ a₃) *ᴺ b₂)
+      ≡⟨ cong (((a₁ *ᴺ a₃) *ᴺ b₁ +ᴺ (a₁ *ᴺ a₄) *ᴺ b₂) +ᴺ_)
+              (+ᴺ-comm {(a₂ *ᴺ a₄) *ᴺ b₁}) ⟩
+        ((a₁ *ᴺ a₃) *ᴺ b₁ +ᴺ (a₁ *ᴺ a₄) *ᴺ b₂) +ᴺ
+        ((a₂ *ᴺ a₃) *ᴺ b₂ +ᴺ (a₂ *ᴺ a₄) *ᴺ b₁)
+      ≡⟨ assoc-four {a₁ = a₁} {b₁ = a₁} {c₁ = a₂} {d₁ = a₂} ⟩
+        (a₁ *ᴺ (a₃ *ᴺ b₁) +ᴺ a₁ *ᴺ (a₄ *ᴺ b₂)) +ᴺ
+        (a₂ *ᴺ (a₃ *ᴺ b₂) +ᴺ a₂ *ᴺ (a₄ *ᴺ b₁))
+      ≡˘⟨ distrib-twoᴸ {a = a₁} {d = a₂} ⟩
+        a₁ *ᴺ (a₃ *ᴺ b₁ +ᴺ a₄ *ᴺ b₂) +ᴺ a₂ *ᴺ (a₃ *ᴺ b₂ +ᴺ a₄ *ᴺ b₁)
+      ∎
