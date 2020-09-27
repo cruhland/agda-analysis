@@ -629,18 +629,20 @@ natsub {a} {b} = cong (_+ᴺ b) +ᴺ-identityᴿ
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
 -- Exercise 4.1.5
-*-both-zero : ∀ {a b} → a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0
-*-both-zero {a} {b} ab≃0 with at-least (trichotomy {a})
-*-both-zero {a} {b} ab≃0 | nil a≃0 =
+*-either-zero : ∀ {a b} → a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0
+*-either-zero {a} {b} ab≃0 with at-least (trichotomy {a})
+*-either-zero {a} {b} ab≃0 | nil a≃0 =
   ∨-introᴸ a≃0
-*-both-zero {a} {b⁺ — b⁻} ab≃0 | pos record { n = n ; pos = n≢0 ; eq = a≃n—0 } =
+*-either-zero {a} {b⁺ — b⁻} ab≃0
+    | pos record { n = n ; pos = n≢0 ; eq = a≃n—0 } =
   let nb⁺+0+0≡nb⁻+0 = ≃-trans (*-substᴸ {b = b⁺ — b⁻} (≃-sym a≃n—0)) ab≃0
       nb⁺+0≡nb⁻ = +ᴺ-cancelᴿ {n = n *ᴺ b⁺ +ᴺ 0} nb⁺+0+0≡nb⁻+0
       nb⁺≡nb⁻ = trans (sym +ᴺ-identityᴿ) nb⁺+0≡nb⁻
       b⁺≡b⁻ = *ᴺ-cancelᴸ n≢0 nb⁺≡nb⁻
       b⁺+0≡b⁻ = trans +ᴺ-identityᴿ b⁺≡b⁻
    in ∨-introᴿ b⁺+0≡b⁻
-*-both-zero {a} {b⁺ — b⁻} ab≃0 | neg record { n = n ; pos = n≢0 ; eq = a≃0—n } =
+*-either-zero {a} {b⁺ — b⁻} ab≃0
+    | neg record { n = n ; pos = n≢0 ; eq = a≃0—n } =
   let ab≃[0—n]b = *-substᴸ {b = b⁺ — b⁻} a≃0—n
       nb⁺≡nb⁻+0 = ≃-trans (≃-sym ab≃0) ab≃[0—n]b
       nb⁺≡nb⁻ = trans nb⁺≡nb⁻+0 +ᴺ-identityᴿ
