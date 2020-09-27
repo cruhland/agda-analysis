@@ -531,3 +531,94 @@ _ = *-comm
       ≡˘⟨ distrib-twoᴸ {a = a₁} {d = a₂} ⟩
         a₁ *ᴺ (a₃ *ᴺ b₁ +ᴺ a₄ *ᴺ b₂) +ᴺ a₂ *ᴺ (a₃ *ᴺ b₂ +ᴺ a₄ *ᴺ b₁)
       ∎
+
+*-identityᴸ : ∀ {x} → 1 * x ≃ x
+*-identityᴸ {x⁺ — x⁻} =
+  begin
+    ((x⁺ +ᴺ 0) +ᴺ 0) +ᴺ x⁻
+  ≡⟨ +ᴺ-assoc {x⁺ +ᴺ 0} ⟩
+    (x⁺ +ᴺ 0) +ᴺ (0 +ᴺ x⁻)
+  ≡⟨ cong ((x⁺ +ᴺ 0) +ᴺ_) (+ᴺ-comm {0}) ⟩
+    (x⁺ +ᴺ 0) +ᴺ (x⁻ +ᴺ 0)
+  ≡⟨ +ᴺ-assoc {x⁺} ⟩
+    x⁺ +ᴺ (0 +ᴺ (x⁻ +ᴺ 0))
+  ≡⟨ cong (x⁺ +ᴺ_) (+ᴺ-comm {0}) ⟩
+    x⁺ +ᴺ ((x⁻ +ᴺ 0) +ᴺ 0)
+  ∎
+
+*-identityᴿ : ∀ {x} → x * 1 ≃ x
+*-identityᴿ = ≃-trans *-comm *-identityᴸ
+
+*-distrib-+ᴸ : ∀ {x y z} → x * (y + z) ≃ x * y + x * z
+*-distrib-+ᴸ {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} =
+    a≡b+c≡d (refactor {x⁺} {x⁻}) (sym (refactor {x⁺} {x⁻}))
+  where
+    refactor :
+      ∀ {b₁ b₂ a₁ a₂ a₃ a₄} →
+        b₁ *ᴺ (a₁ +ᴺ a₃) +ᴺ b₂ *ᴺ (a₂ +ᴺ a₄) ≡
+          (b₁ *ᴺ a₁ +ᴺ b₂ *ᴺ a₂) +ᴺ (b₁ *ᴺ a₃ +ᴺ b₂ *ᴺ a₄)
+    refactor {b₁} {b₂} {a₁} {a₂} {a₃} {a₄} =
+      begin
+        b₁ *ᴺ (a₁ +ᴺ a₃) +ᴺ b₂ *ᴺ (a₂ +ᴺ a₄)
+      ≡⟨ distrib-twoᴸ {a = b₁} {d = b₂} ⟩
+        (b₁ *ᴺ a₁ +ᴺ b₁ *ᴺ a₃) +ᴺ (b₂ *ᴺ a₂ +ᴺ b₂ *ᴺ a₄)
+      ≡⟨ transpose {b₁ *ᴺ a₁} ⟩
+        (b₁ *ᴺ a₁ +ᴺ b₂ *ᴺ a₂) +ᴺ (b₁ *ᴺ a₃ +ᴺ b₂ *ᴺ a₄)
+      ∎
+
+module ≃-Reasoning where
+
+  private
+    variable
+      a b c : ℤ
+
+  infix 3 _≃-∎
+  infixr 2 _≃⟨⟩_ step-≃ step-≃˘
+  infix 1 ≃-begin_
+
+  ≃-begin_ : a ≃ b → a ≃ b
+  ≃-begin a≃b = a≃b
+
+  _≃⟨⟩_ : ∀ a → a ≃ b → a ≃ b
+  _ ≃⟨⟩ a≃b = a≃b
+
+  step-≃ : ∀ a → b ≃ c → a ≃ b → a ≃ c
+  step-≃ _ b≃c a≃b = ≃-trans a≃b b≃c
+
+  step-≃˘ : ∀ a → b ≃ c → b ≃ a → a ≃ c
+  step-≃˘ _ b≃c b≃a = ≃-trans (≃-sym b≃a) b≃c
+
+  _≃-∎ : ∀ a → a ≃ a
+  _ ≃-∎ = ≃-refl
+
+  syntax step-≃ a b≃c a≃b = a ≃⟨ a≃b ⟩ b≃c
+  syntax step-≃˘ a b≃c b≃a = a ≃˘⟨ b≃a ⟩ b≃c
+
+open ≃-Reasoning
+
+*-distrib-+ᴿ : ∀ {x y z} → (y + z) * x ≃ y * x + z * x
+*-distrib-+ᴿ {x} {y} {z} =
+  ≃-begin
+    (y + z) * x
+  ≃⟨ *-comm ⟩
+    x * (y + z)
+  ≃⟨ *-distrib-+ᴸ ⟩
+    x * y + x * z
+  ≃⟨ +-substᴸ *-comm ⟩
+    y * x + x * z
+  ≃⟨ +-substᴿ *-comm ⟩
+    y * x + z * x
+  ≃-∎
+
+-- We now define the operation of _subtraction_ x - y of two integers
+-- by the formula x - y ≔ x + (-y).
+infixl 6 _-_
+_-_ : ℤ → ℤ → ℤ
+x - y = x + (- y)
+
+-- One can easily check now that if a and b are natural numbers, then
+-- a - b = a + -b = (a—0) + (0—b) = a—b, and so a—b is just the same
+-- thing as a - b. Because of this we can now discard the — notation,
+-- and use the familiar operation of subtraction instead.
+natsub : ∀ {a b} → fromℕ a - fromℕ b ≃ a — b
+natsub {a} {b} = cong (_+ᴺ b) +ᴺ-identityᴿ
