@@ -7,7 +7,8 @@ open import Relation.Binary using (IsEquivalence)
 open import Relation.Binary.PropositionalEquality using
   (_≡_; cong; refl; sym; trans; module ≡-Reasoning)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.models.Logic using (⊤; ¬_; _↔_; ↔-intro)
+open import net.cruhland.models.Logic using
+  (⊤; _∨_; ∨-introᴸ; ∨-introᴿ; ¬_; _↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
@@ -17,7 +18,7 @@ open PeanoArithmetic peanoArithmetic using
   ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-cancelᴸ to +ᴺ-cancelᴸ
   ; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm; +-zeroᴿ to +ᴺ-identityᴿ
   ; +-positive to +ᴺ-positive; +-unchanged to +ᴺ-unchanged
-  ; _*_ to _*ᴺ_; *-assoc to *ᴺ-assoc; *-comm to *ᴺ-comm
+  ; _*_ to _*ᴺ_; *-assoc to *ᴺ-assoc; *-cancelᴸ to *ᴺ-cancelᴸ; *-comm to *ᴺ-comm
   ; *-distrib-+ᴸ to *ᴺ-distrib-+ᴺᴸ; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
   ; *-zeroᴿ to *ᴺ-zeroᴿ
   ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
@@ -386,16 +387,18 @@ record Trichotomy (x : ℤ) : Set where
     at-least : AtLeastOne x
     at-most : ¬ MoreThanOne x
 
+open Trichotomy
+
 trichotomy : ∀ {x} → Trichotomy x
-trichotomy {x⁺ — x⁻} = record { at-least = at-least ; at-most = at-most }
+trichotomy {x⁺ — x⁻} = record { at-least = one≤ ; at-most = one≮ }
   where
-    at-least : AtLeastOne (x⁺ — x⁻)
-    at-least with trichotomyᴺ {x⁺} {x⁻}
-    at-least | tri-< x⁺<x⁻ =
+    one≤ : AtLeastOne (x⁺ — x⁻)
+    one≤ with trichotomyᴺ {x⁺} {x⁻}
+    one≤ | tri-< x⁺<x⁻ =
       let record { d = n ; d≢z = pos-n ; n+d≡m = x⁺+n≡x⁻ } = <→<⁺ x⁺<x⁻
        in neg (record { n = n ; pos = pos-n ; eq = x⁺+n≡x⁻ })
-    at-least | tri-≡ x⁺≡x⁻ = nil (trans +ᴺ-identityᴿ x⁺≡x⁻)
-    at-least | tri-> x⁺>x⁻ =
+    one≤ | tri-≡ x⁺≡x⁻ = nil (trans +ᴺ-identityᴿ x⁺≡x⁻)
+    one≤ | tri-> x⁺>x⁻ =
       let record { d = n ; d≢z = pos-n ; n+d≡m = x⁻+n≡x⁺ } = <→<⁺ x⁺>x⁻
           x⁺—x⁻≃n =
             begin
@@ -409,13 +412,13 @@ trichotomy {x⁺ — x⁻} = record { at-least = at-least ; at-most = at-most }
             ∎
        in pos (record { n = n ; pos = pos-n ; eq = x⁺—x⁻≃n })
 
-    at-most : ¬ MoreThanOne (x⁺ — x⁻)
-    at-most (nil∧pos x⁺+0≡x⁻ record { n = n ; pos = n≢0 ; eq = x⁺+0≡n+x⁻ }) =
+    one≮ : ¬ MoreThanOne (x⁺ — x⁻)
+    one≮ (nil∧pos x⁺+0≡x⁻ record { n = n ; pos = n≢0 ; eq = x⁺+0≡n+x⁻ }) =
       let x⁻+n≡x⁻ = trans (+ᴺ-comm {x⁻}) (trans (sym x⁺+0≡n+x⁻) x⁺+0≡x⁻)
        in n≢0 (+ᴺ-unchanged x⁻+n≡x⁻)
-    at-most (nil∧neg x⁺+0≡x⁻ record { n = n ; pos = n≢0 ; eq = x⁺+n≡x⁻ }) =
+    one≮ (nil∧neg x⁺+0≡x⁻ record { n = n ; pos = n≢0 ; eq = x⁺+n≡x⁻ }) =
       n≢0 (+ᴺ-cancelᴸ (trans x⁺+n≡x⁻ (sym x⁺+0≡x⁻)))
-    at-most (pos∧neg record { n = n₁ ; pos = n₁≢0 ; eq = x⁺+0≡n₁+x⁻ }
+    one≮ (pos∧neg record { n = n₁ ; pos = n₁≢0 ; eq = x⁺+0≡n₁+x⁻ }
                      record { n = n₂ ; pos = n₂≢0 ; eq = x⁺+n₂≡x⁻ }) =
       let x⁺+[n₂+n₁]≡x⁺+0 =
             begin
@@ -622,3 +625,25 @@ x - y = x + (- y)
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → fromℕ a - fromℕ b ≃ a — b
 natsub {a} {b} = cong (_+ᴺ b) +ᴺ-identityᴿ
+
+-- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
+-- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
+-- Exercise 4.1.5
+*-both-zero : ∀ {a b} → a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0
+*-both-zero {a} {b} ab≃0 with at-least (trichotomy {a})
+*-both-zero {a} {b} ab≃0 | nil a≃0 =
+  ∨-introᴸ a≃0
+*-both-zero {a} {b⁺ — b⁻} ab≃0 | pos record { n = n ; pos = n≢0 ; eq = a≃n—0 } =
+  let nb⁺+0+0≡nb⁻+0 = ≃-trans (*-substᴸ {b = b⁺ — b⁻} (≃-sym a≃n—0)) ab≃0
+      nb⁺+0≡nb⁻ = +ᴺ-cancelᴿ {n = n *ᴺ b⁺ +ᴺ 0} nb⁺+0+0≡nb⁻+0
+      nb⁺≡nb⁻ = trans (sym +ᴺ-identityᴿ) nb⁺+0≡nb⁻
+      b⁺≡b⁻ = *ᴺ-cancelᴸ n≢0 nb⁺≡nb⁻
+      b⁺+0≡b⁻ = trans +ᴺ-identityᴿ b⁺≡b⁻
+   in ∨-introᴿ b⁺+0≡b⁻
+*-both-zero {a} {b⁺ — b⁻} ab≃0 | neg record { n = n ; pos = n≢0 ; eq = a≃0—n } =
+  let ab≃[0—n]b = *-substᴸ {b = b⁺ — b⁻} a≃0—n
+      nb⁺≡nb⁻+0 = ≃-trans (≃-sym ab≃0) ab≃[0—n]b
+      nb⁺≡nb⁻ = trans nb⁺≡nb⁻+0 +ᴺ-identityᴿ
+      b⁺≡b⁻ = *ᴺ-cancelᴸ n≢0 nb⁺≡nb⁻
+      b⁺+0≡b⁻ = trans +ᴺ-identityᴿ b⁺≡b⁻
+   in ∨-introᴿ b⁺+0≡b⁻
