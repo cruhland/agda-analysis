@@ -8,7 +8,7 @@ open import Relation.Binary.PropositionalEquality using
   (_≡_; cong; refl; sym; trans; module ≡-Reasoning)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using
-  (⊤; _∨_; ∨-introᴸ; ∨-introᴿ; ¬_; _↔_; ↔-intro)
+  (⊤; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥-elim; ¬_; _↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
@@ -649,3 +649,47 @@ natsub {a} {b} = cong (_+ᴺ b) +ᴺ-identityᴿ
       b⁺≡b⁻ = *ᴺ-cancelᴸ n≢0 nb⁺≡nb⁻
       b⁺+0≡b⁻ = trans +ᴺ-identityᴿ b⁺≡b⁻
    in ∨-introᴿ b⁺+0≡b⁻
+
+-- Corollary 4.1.9 (Cancellation law for integers). If a, b, c are
+-- integers such that ac = bc and c is non-zero, then a = b.
+-- Exercise 4.1.6
+sub-substᴸ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ - b ≃ a₂ - b
+sub-substᴸ = +-substᴸ
+
+*-negᴸ : ∀ {a b} → - a * b ≃ - (a * b)
+*-negᴸ {a⁺ — a⁻} {b⁺ — b⁻} =
+  begin
+    (a⁻ *ᴺ b⁺ +ᴺ a⁺ *ᴺ b⁻) +ᴺ (a⁺ *ᴺ b⁺ +ᴺ a⁻ *ᴺ b⁻)
+  ≡⟨ cong (_+ᴺ (a⁺ *ᴺ b⁺ +ᴺ a⁻ *ᴺ b⁻)) (+ᴺ-comm {a⁻ *ᴺ b⁺}) ⟩
+    (a⁺ *ᴺ b⁻ +ᴺ a⁻ *ᴺ b⁺) +ᴺ (a⁺ *ᴺ b⁺ +ᴺ a⁻ *ᴺ b⁻)
+  ≡⟨ cong ((a⁺ *ᴺ b⁻ +ᴺ a⁻ *ᴺ b⁺) +ᴺ_) (+ᴺ-comm {a⁺ *ᴺ b⁺}) ⟩
+    (a⁺ *ᴺ b⁻ +ᴺ a⁻ *ᴺ b⁺) +ᴺ (a⁻ *ᴺ b⁻ +ᴺ a⁺ *ᴺ b⁺)
+  ∎
+
+*-distrib-subᴿ : ∀ {a b c} → (a - b) * c ≃ a * c - b * c
+*-distrib-subᴿ = ≃-trans *-distrib-+ᴿ (+-substᴿ *-negᴸ)
+
+a-a≃0 : ∀ {a} → a - a ≃ 0
+a-a≃0 {a⁺ — a⁻} = trans +ᴺ-identityᴿ (+ᴺ-comm {a⁺})
+
+*-cancelᴿ : ∀ {a b c} → c ≄ 0 → a * c ≃ b * c → a ≃ b
+*-cancelᴿ {a} {b} {c} c≄0 ac≃bc with
+  let ac-bc≃0 = ≃-trans (sub-substᴸ {b = b * c} ac≃bc) a-a≃0
+      [a-b]c≃0 = ≃-trans (*-distrib-subᴿ {a}) ac-bc≃0
+   in *-either-zero [a-b]c≃0
+*-cancelᴿ {a} {b} {c} c≄0 ac≃bc | ∨-introᴸ a-b≃0 =
+  ≃-begin
+    a
+  ≃˘⟨ +-identityᴿ ⟩
+    a + 0
+  ≃˘⟨ +-substᴿ +-inverseᴸ ⟩
+    a + (- b + b)
+  ≃˘⟨ +-assoc ⟩
+    a - b + b
+  ≃⟨ +-substᴸ a-b≃0 ⟩
+    0 + b
+  ≃⟨ +-identityᴸ ⟩
+    b
+  ≃-∎
+*-cancelᴿ {a} {b} {c} c≄0 ac≃bc | ∨-introᴿ c≃0 =
+  ⊥-elim (c≄0 c≃0)
