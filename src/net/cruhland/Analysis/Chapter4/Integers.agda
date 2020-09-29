@@ -1,14 +1,15 @@
 module net.cruhland.Analysis.Chapter4.Integers where
 
 open import Agda.Builtin.FromNat using (Number)
+open import Agda.Builtin.FromNeg using (Negative)
 import Agda.Builtin.Nat as Nat
-open import Function using (const)
+open import Function using (_∘_; const; flip)
 open import Relation.Binary using (IsEquivalence)
 open import Relation.Binary.PropositionalEquality using
   (_≡_; cong; refl; sym; trans; module ≡-Reasoning)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using
-  (⊤; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥-elim; ¬_; _↔_; ↔-intro)
+  (⊤; ⊤-intro; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥-elim; ¬_; _↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
@@ -693,3 +694,32 @@ a-a≃0 {a⁺ — a⁻} = trans +ᴺ-identityᴿ (+ᴺ-comm {a⁺})
   ≃-∎
 *-cancelᴿ {a} {b} {c} c≄0 ac≃bc | ∨-introᴿ c≃0 =
   ⊥-elim (c≄0 c≃0)
+
+-- Definition 4.1.10 (Ordering of the integers). Let n and m be
+-- integers. We say that n is _greater than or equal to_ m, and write
+-- n ≥ m or m ≤ n, iff we have n = m + a for some natural number a. We
+-- say that n is _strictly greater than_ m and write n > m or m < n,
+-- iff n ≥ m and n ≠ m.
+infix 4 _≤_
+record _≤_ (n m : ℤ) : Set where
+  constructor ≤-intro
+  field
+    a : ℕ
+    n≃m+a : m ≃ n + fromℕ a
+
+infix 4 _<_
+record _<_ (n m : ℤ) : Set where
+  constructor <-intro
+  field
+    n≤m : n ≤ m
+    n≄m : n ≄ m
+
+infix 4 _>_
+_>_ = flip _<_
+
+instance
+  ℤ-negative : Negative ℤ
+  ℤ-negative = record { Constraint = const ⊤ ; fromNeg = λ n → - fromNat n }
+
+_ : 5 > -3
+_ = <-intro (≤-intro 8 refl) λ ()
