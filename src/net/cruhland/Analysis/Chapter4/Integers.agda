@@ -657,6 +657,9 @@ natsub {a} {b} = cong (_+ᴺ b) +ᴺ-identityᴿ
 sub-substᴸ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ - b ≃ a₂ - b
 sub-substᴸ = +-substᴸ
 
+sub-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a - b₁ ≃ a - b₂
+sub-substᴿ = +-substᴿ ∘ neg-subst
+
 *-negᴸ : ∀ {a b} → - a * b ≃ - (a * b)
 *-negᴸ {a⁺ — a⁻} {b⁺ — b⁻} =
   begin
@@ -723,3 +726,71 @@ instance
 
 _ : 5 > -3
 _ = <-intro (≤-intro 8 refl) λ ()
+
+-- Lemma 4.1.11 (Properties of order).
+-- Exercise 4.1.7
+ℕ≡→ℤ≃ : ∀ {n m} → n ≡ m → fromℕ n ≃ fromℕ m
+ℕ≡→ℤ≃ refl = refl
+
+n≃0→n≡0 : ∀ {n} → fromℕ n ≃ 0 → n ≡ 0
+n≃0→n≡0 n+0≡0 = trans (sym +ᴺ-identityᴿ) n+0≡0
+
+≃ᴿ-+ᴸ-toᴿ : ∀ {a b c} → a ≃ b + c → a - b ≃ c
+≃ᴿ-+ᴸ-toᴿ {a} {b} {c} a≃b+c =
+  ≃-begin
+    a - b
+  ≃⟨ sub-substᴸ a≃b+c ⟩
+    b + c - b
+  ≃⟨ sub-substᴸ +-comm ⟩
+    c + b - b
+  ≃⟨ +-assoc ⟩
+    c + (b - b)
+  ≃⟨ +-substᴿ +-inverseᴿ ⟩
+    c + 0
+  ≃⟨ +-identityᴿ ⟩
+    c
+  ≃-∎
+
+≃ᴸ-subᴿ-toᴸ : ∀ {a b c} → a - b ≃ c → a ≃ b + c
+≃ᴸ-subᴿ-toᴸ {a} {b} {c} a-b≃c =
+  ≃-begin
+    a
+  ≃˘⟨ +-identityᴿ ⟩
+    a + 0
+  ≃˘⟨ +-substᴿ +-inverseᴿ ⟩
+    a + (b - b)
+  ≃⟨ +-substᴿ +-comm ⟩
+    a + (- b + b)
+  ≃˘⟨ +-assoc ⟩
+    a - b + b
+  ≃⟨ +-substᴸ a-b≃c ⟩
+    c + b
+  ≃⟨ +-comm ⟩
+    b + c
+  ≃-∎
+
+module _ where
+  private
+    variable
+      a b c : ℤ
+
+  pos-diff : a < b ↔ IsPositive (b - a)
+  pos-diff = ↔-intro fwd rev
+    where
+      fwd : ∀ {x y} → x < y → IsPositive (y - x)
+      fwd (<-intro (≤-intro a y≃x+a) x≄y) = record
+        { n = a
+        ; pos = λ { refl → x≄y (≃-sym (≃-trans y≃x+a +-identityᴿ)) }
+        ; eq = ≃ᴿ-+ᴸ-toᴿ y≃x+a
+        }
+
+      rev : ∀ {x y} → IsPositive (y - x) → x < y
+      rev {x} {y} record { n = n ; pos = n≢0 ; eq = y-x≃n } =
+          <-intro (≤-intro n (≃ᴸ-subᴿ-toᴸ y-x≃n)) x≄y
+        where
+          x≄y : x ≄ y
+          x≄y x≃y =
+            let n≃y-y = ≃-trans (≃-sym y-x≃n) (sub-substᴿ x≃y)
+                n≃0 = ≃-trans n≃y-y +-inverseᴿ
+                n≡0 = n≃0→n≡0 n≃0
+             in n≢0 n≡0
