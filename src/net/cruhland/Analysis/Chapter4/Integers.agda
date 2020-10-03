@@ -769,6 +769,30 @@ n≃0→n≡0 n+0≡0 = trans (sym +ᴺ-identityᴿ) n+0≡0
     b + c
   ≃-∎
 
++-cancelᴿ : ∀ {a b c} → a + c ≃ b + c → a ≃ b
++-cancelᴿ {a} {b} {c} a+c≃b+c =
+    ≃-begin
+      a
+    ≃˘⟨ vanish ⟩
+      a + c - c
+    ≃⟨ sub-substᴸ a+c≃b+c ⟩
+      b + c - c
+    ≃⟨ vanish ⟩
+      b
+    ≃-∎
+  where
+    vanish : ∀ {x y} → x + y - y ≃ x
+    vanish {x} {y} =
+      ≃-begin
+        x + y - y
+      ≃⟨ +-assoc ⟩
+        x + (y - y)
+      ≃⟨ +-substᴿ +-inverseᴿ ⟩
+        x + 0
+      ≃⟨ +-identityᴿ ⟩
+        x
+      ≃-∎
+
 module _ where
   private
     variable
@@ -794,3 +818,21 @@ module _ where
                 n≃0 = ≃-trans n≃y-y +-inverseᴿ
                 n≡0 = n≃0→n≡0 n≃0
              in n≢0 n≡0
+
+  +-preserves-<ᴿ : a < b → a + c < b + c
+  +-preserves-<ᴿ {a} {b} {c} (<-intro (≤-intro n b≃a+n) a≄b) =
+      <-intro (≤-intro n b+c≃a+c+n) a+c≄b+c
+    where
+      b+c≃a+c+n =
+        ≃-begin
+          b + c
+        ≃⟨ +-substᴸ b≃a+n ⟩
+          a + fromℕ n + c
+        ≃⟨ +-assoc ⟩
+          a + (fromℕ n + c)
+        ≃⟨ +-substᴿ +-comm ⟩
+          a + (c + fromℕ n)
+        ≃˘⟨ +-assoc ⟩
+          a + c + fromℕ n
+        ≃-∎
+      a+c≄b+c = a≄b ∘ +-cancelᴿ
