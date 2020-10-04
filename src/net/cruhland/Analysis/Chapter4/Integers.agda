@@ -793,11 +793,22 @@ n≃0→n≡0 n+0≡0 = trans (sym +ᴺ-identityᴿ) n+0≡0
         x
       ≃-∎
 
+*ᴺ-to-* : ∀ {n m} → fromℕ (n *ᴺ m) ≃ fromℕ n * fromℕ m
+*ᴺ-to-* {n} {m} =
+  begin
+    n *ᴺ m +ᴺ (n *ᴺ 0 +ᴺ 0)
+  ≡⟨ cong (λ x → n *ᴺ m +ᴺ (x +ᴺ 0)) (*ᴺ-zeroᴿ {n}) ⟩
+    n *ᴺ m +ᴺ (0 +ᴺ 0)
+  ≡˘⟨ +ᴺ-assoc {n *ᴺ m} ⟩
+    n *ᴺ m +ᴺ 0 +ᴺ 0
+  ∎
+
 module _ where
   private
     variable
       a b c : ℤ
 
+  -- (a)
   pos-diff : a < b ↔ IsPositive (b - a)
   pos-diff = ↔-intro fwd rev
     where
@@ -819,6 +830,7 @@ module _ where
                 n≡0 = n≃0→n≡0 n≃0
              in n≢0 n≡0
 
+  -- (b) Addition preserves order
   +-preserves-<ᴿ : a < b → a + c < b + c
   +-preserves-<ᴿ {a} {b} {c} (<-intro (≤-intro n b≃a+n) a≄b) =
       <-intro (≤-intro n b+c≃a+c+n) a+c≄b+c
@@ -836,3 +848,25 @@ module _ where
           a + c + fromℕ n
         ≃-∎
       a+c≄b+c = a≄b ∘ +-cancelᴿ
+
+  -- (c) Positive multiplication preserves order
+  *⁺-preserves-<ᴿ : ∀ {a b c} → IsPositive c → a < b → a * c < b * c
+  *⁺-preserves-<ᴿ {a} {b} {c}
+    record { n = cᴺ ; pos = cᴺ≢0 ; eq = c≃cᴺ } (<-intro (≤-intro n b≃a+n) a≄b) =
+      <-intro (≤-intro (n *ᴺ cᴺ) bc≃ac+nc) ac≄bc
+    where
+      bc≃ac+nc =
+        ≃-begin
+          b * c
+        ≃⟨ *-substᴸ b≃a+n ⟩
+          (a + fromℕ n) * c
+        ≃⟨ *-distrib-+ᴿ ⟩
+          a * c + fromℕ n * c
+        ≃⟨ +-substᴿ (*-substᴿ c≃cᴺ) ⟩
+          a * c + fromℕ n * fromℕ cᴺ
+        ≃˘⟨ +-substᴿ (*ᴺ-to-* {n}) ⟩
+          a * c + fromℕ (n *ᴺ cᴺ)
+        ≃-∎
+
+      c≄0 = cᴺ≢0 ∘ n≃0→n≡0 ∘ ≃-trans (≃-sym c≃cᴺ)
+      ac≄bc = a≄b ∘ *-cancelᴿ c≄0
