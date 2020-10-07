@@ -21,7 +21,7 @@ open PeanoArithmetic peanoArithmetic using
   ; +-positive to +ᴺ-positive; +-unchanged to +ᴺ-unchanged
   ; _*_ to _*ᴺ_; *-assoc to *ᴺ-assoc; *-cancelᴸ to *ᴺ-cancelᴸ; *-comm to *ᴺ-comm
   ; *-distrib-+ᴸ to *ᴺ-distrib-+ᴺᴸ; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
-  ; *-zeroᴿ to *ᴺ-zeroᴿ
+  ; *-positive to *ᴺ-positive; *-zeroᴿ to *ᴺ-zeroᴿ
   ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
   )
 
@@ -855,55 +855,50 @@ sub-cancelᴿ {a} {b} {c} =
     a - b
   ≃-∎
 
-module _ where
-  private
-    variable
-      a b c : ℤ
+*-preserves-pos : ∀ {a b} → IsPositive a → IsPositive b → IsPositive (a * b)
+*-preserves-pos {a} {b}
+  record { n = aᴺ ; pos = aᴺ≢0 ; eq = a≃aᴺ }
+  record { n = bᴺ ; pos = bᴺ≢0 ; eq = b≃bᴺ } =
+    record { n = aᴺ *ᴺ bᴺ ; pos = *ᴺ-positive aᴺ≢0 bᴺ≢0 ; eq = ab≃aᴺbᴺ }
+  where
+    ab≃aᴺbᴺ =
+      ≃-begin
+        a * b
+      ≃⟨ *-substᴸ a≃aᴺ ⟩
+        fromℕ aᴺ * b
+      ≃⟨ *-substᴿ b≃bᴺ ⟩
+        fromℕ aᴺ * fromℕ bᴺ
+      ≃˘⟨ *ᴺ-to-* {aᴺ} ⟩
+        fromℕ (aᴺ *ᴺ bᴺ)
+      ≃-∎
 
-  -- (a)
-  <→pos : ∀ {x y} → x < y → IsPositive (y - x)
-  <→pos (<-intro (≤-intro a y≃x+a) x≄y) = record
-    { n = a
-    ; pos = λ { refl → x≄y (≃-sym (≃-trans y≃x+a +-identityᴿ)) }
-    ; eq = ≃ᴿ-+ᴸ-toᴿ y≃x+a
-    }
+-- (a)
+<→pos : ∀ {x y} → x < y → IsPositive (y - x)
+<→pos (<-intro (≤-intro a y≃x+a) x≄y) = record
+  { n = a
+  ; pos = λ { refl → x≄y (≃-sym (≃-trans y≃x+a +-identityᴿ)) }
+  ; eq = ≃ᴿ-+ᴸ-toᴿ y≃x+a
+  }
 
-  pos→< : ∀ {x y} → IsPositive (y - x) → x < y
-  pos→< {x} {y} record { n = n ; pos = n≢0 ; eq = y-x≃n } =
-      <-intro (≤-intro n (≃ᴸ-subᴿ-toᴸ y-x≃n)) x≄y
-    where
-      x≄y : x ≄ y
-      x≄y x≃y =
-        let n≃y-y = ≃-trans (≃-sym y-x≃n) (sub-substᴿ x≃y)
-            n≃0 = ≃-trans n≃y-y +-inverseᴿ
-            n≡0 = n≃0→n≡0 n≃0
-         in n≢0 n≡0
+pos→< : ∀ {x y} → IsPositive (y - x) → x < y
+pos→< {x} {y} record { n = n ; pos = n≢0 ; eq = y-x≃n } =
+    <-intro (≤-intro n (≃ᴸ-subᴿ-toᴸ y-x≃n)) x≄y
+  where
+    x≄y : x ≄ y
+    x≄y x≃y =
+      let n≃y-y = ≃-trans (≃-sym y-x≃n) (sub-substᴿ x≃y)
+          n≃0 = ≃-trans n≃y-y +-inverseᴿ
+          n≡0 = n≃0→n≡0 n≃0
+       in n≢0 n≡0
 
-  pos-diff : a < b ↔ IsPositive (b - a)
-  pos-diff = ↔-intro <→pos pos→<
+pos-diff : ∀ {a b} → a < b ↔ IsPositive (b - a)
+pos-diff = ↔-intro <→pos pos→<
 
-  -- (b) Addition preserves order
-  +-preserves-<ᴿ : ∀ {a b c} → a < b → a + c < b + c
-  +-preserves-<ᴿ a<b = pos→< (IsPositive-subst (≃-sym sub-cancelᴿ) (<→pos a<b))
+-- (b) Addition preserves order
++-preserves-<ᴿ : ∀ {a b c} → a < b → a + c < b + c
++-preserves-<ᴿ a<b = pos→< (IsPositive-subst (≃-sym sub-cancelᴿ) (<→pos a<b))
 
-  -- (c) Positive multiplication preserves order
-  *⁺-preserves-<ᴿ : ∀ {a b c} → IsPositive c → a < b → a * c < b * c
-  *⁺-preserves-<ᴿ {a} {b} {c}
-    record { n = cᴺ ; pos = cᴺ≢0 ; eq = c≃cᴺ } (<-intro (≤-intro n b≃a+n) a≄b) =
-      <-intro (≤-intro (n *ᴺ cᴺ) bc≃ac+nc) ac≄bc
-    where
-      bc≃ac+nc =
-        ≃-begin
-          b * c
-        ≃⟨ *-substᴸ b≃a+n ⟩
-          (a + fromℕ n) * c
-        ≃⟨ *-distrib-+ᴿ ⟩
-          a * c + fromℕ n * c
-        ≃⟨ +-substᴿ (*-substᴿ c≃cᴺ) ⟩
-          a * c + fromℕ n * fromℕ cᴺ
-        ≃˘⟨ +-substᴿ (*ᴺ-to-* {n}) ⟩
-          a * c + fromℕ (n *ᴺ cᴺ)
-        ≃-∎
-
-      c≄0 = cᴺ≢0 ∘ n≃0→n≡0 ∘ ≃-trans (≃-sym c≃cᴺ)
-      ac≄bc = a≄b ∘ *-cancelᴿ c≄0
+-- (c) Positive multiplication preserves order
+*⁺-preserves-<ᴿ : ∀ {a b c} → IsPositive c → a < b → a * c < b * c
+*⁺-preserves-<ᴿ c>0 a<b =
+  pos→< (IsPositive-subst *-distrib-subᴿ (*-preserves-pos (<→pos a<b) c>0))
