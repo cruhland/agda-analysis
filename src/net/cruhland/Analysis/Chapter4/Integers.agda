@@ -769,6 +769,18 @@ n≃0→n≡0 n+0≡0 = trans (sym +ᴺ-identityᴿ) n+0≡0
     b + c
   ≃-∎
 
+vanish : ∀ {x y} → x + y - y ≃ x
+vanish {x} {y} =
+  ≃-begin
+    x + y - y
+  ≃⟨ +-assoc ⟩
+    x + (y - y)
+  ≃⟨ +-substᴿ +-inverseᴿ ⟩
+    x + 0
+  ≃⟨ +-identityᴿ ⟩
+    x
+  ≃-∎
+
 +-cancelᴿ : ∀ {a b c} → a + c ≃ b + c → a ≃ b
 +-cancelᴿ {a} {b} {c} a+c≃b+c =
     ≃-begin
@@ -780,18 +792,6 @@ n≃0→n≡0 n+0≡0 = trans (sym +ᴺ-identityᴿ) n+0≡0
     ≃⟨ vanish ⟩
       b
     ≃-∎
-  where
-    vanish : ∀ {x y} → x + y - y ≃ x
-    vanish {x} {y} =
-      ≃-begin
-        x + y - y
-      ≃⟨ +-assoc ⟩
-        x + (y - y)
-      ≃⟨ +-substᴿ +-inverseᴿ ⟩
-        x + 0
-      ≃⟨ +-identityᴿ ⟩
-        x
-      ≃-∎
 
 *ᴺ-to-* : ∀ {n m} → fromℕ (n *ᴺ m) ≃ fromℕ n * fromℕ m
 *ᴺ-to-* {n} {m} =
@@ -803,51 +803,88 @@ n≃0→n≡0 n+0≡0 = trans (sym +ᴺ-identityᴿ) n+0≡0
     n *ᴺ m +ᴺ 0 +ᴺ 0
   ∎
 
+IsPositive-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → IsPositive a₁ → IsPositive a₂
+IsPositive-subst a₁≃a₂ record { n = n ; pos = n≢0 ; eq = a₁≃n } =
+  record { n = n ; pos = n≢0 ; eq = ≃-trans (≃-sym a₁≃a₂) a₁≃n }
+
+neg-mult : ∀ {a} → - a ≃ -1 * a
+neg-mult {a⁺ — a⁻} =
+  begin
+    a⁻ +ᴺ (a⁺ +ᴺ 0)
+  ≡⟨ cong (a⁻ +ᴺ_) (+ᴺ-comm {a⁺}) ⟩
+    a⁻ +ᴺ (0 +ᴺ a⁺)
+  ≡˘⟨ +ᴺ-assoc {a⁻} ⟩
+    a⁻ +ᴺ 0 +ᴺ a⁺
+  ∎
+
+sub-distrib : ∀ {a b c} → a - (b + c) ≃ a - b - c
+sub-distrib {a} {b} {c} =
+  ≃-begin
+    a - (b + c)
+  ≃⟨⟩
+    a + -(b + c)
+  ≃⟨ +-substᴿ neg-mult ⟩
+    a + -1 * (b + c)
+  ≃⟨ +-substᴿ *-distrib-+ᴸ ⟩
+    a + (-1 * b + -1 * c)
+  ≃˘⟨ +-substᴿ (+-substᴸ neg-mult) ⟩
+    a + (- b + -1 * c)
+  ≃˘⟨ +-substᴿ (+-substᴿ neg-mult) ⟩
+    a + (- b + - c)
+  ≃˘⟨ +-assoc ⟩
+    a - b - c
+  ≃-∎
+
+sub-cancelᴿ : ∀ {a b c} → a + c - (b + c) ≃ a - b
+sub-cancelᴿ {a} {b} {c} =
+  ≃-begin
+    a + c - (b + c)
+  ≃⟨ sub-distrib ⟩
+    a + c - b - c
+  ≃⟨⟩
+    ((a + c) + - b) + - c
+  ≃⟨ +-substᴸ +-assoc ⟩
+    (a + (c + - b)) + - c
+  ≃⟨ +-substᴸ (+-substᴿ +-comm) ⟩
+    (a + (- b + c)) + - c
+  ≃˘⟨ +-substᴸ +-assoc ⟩
+    ((a + - b) + c) + - c
+  ≃⟨⟩
+    a - b + c - c
+  ≃⟨ vanish ⟩
+    a - b
+  ≃-∎
+
 module _ where
   private
     variable
       a b c : ℤ
 
   -- (a)
-  pos-diff : a < b ↔ IsPositive (b - a)
-  pos-diff = ↔-intro fwd rev
-    where
-      fwd : ∀ {x y} → x < y → IsPositive (y - x)
-      fwd (<-intro (≤-intro a y≃x+a) x≄y) = record
-        { n = a
-        ; pos = λ { refl → x≄y (≃-sym (≃-trans y≃x+a +-identityᴿ)) }
-        ; eq = ≃ᴿ-+ᴸ-toᴿ y≃x+a
-        }
+  <→pos : ∀ {x y} → x < y → IsPositive (y - x)
+  <→pos (<-intro (≤-intro a y≃x+a) x≄y) = record
+    { n = a
+    ; pos = λ { refl → x≄y (≃-sym (≃-trans y≃x+a +-identityᴿ)) }
+    ; eq = ≃ᴿ-+ᴸ-toᴿ y≃x+a
+    }
 
-      rev : ∀ {x y} → IsPositive (y - x) → x < y
-      rev {x} {y} record { n = n ; pos = n≢0 ; eq = y-x≃n } =
-          <-intro (≤-intro n (≃ᴸ-subᴿ-toᴸ y-x≃n)) x≄y
-        where
-          x≄y : x ≄ y
-          x≄y x≃y =
-            let n≃y-y = ≃-trans (≃-sym y-x≃n) (sub-substᴿ x≃y)
-                n≃0 = ≃-trans n≃y-y +-inverseᴿ
-                n≡0 = n≃0→n≡0 n≃0
-             in n≢0 n≡0
+  pos→< : ∀ {x y} → IsPositive (y - x) → x < y
+  pos→< {x} {y} record { n = n ; pos = n≢0 ; eq = y-x≃n } =
+      <-intro (≤-intro n (≃ᴸ-subᴿ-toᴸ y-x≃n)) x≄y
+    where
+      x≄y : x ≄ y
+      x≄y x≃y =
+        let n≃y-y = ≃-trans (≃-sym y-x≃n) (sub-substᴿ x≃y)
+            n≃0 = ≃-trans n≃y-y +-inverseᴿ
+            n≡0 = n≃0→n≡0 n≃0
+         in n≢0 n≡0
+
+  pos-diff : a < b ↔ IsPositive (b - a)
+  pos-diff = ↔-intro <→pos pos→<
 
   -- (b) Addition preserves order
-  +-preserves-<ᴿ : a < b → a + c < b + c
-  +-preserves-<ᴿ {a} {b} {c} (<-intro (≤-intro n b≃a+n) a≄b) =
-      <-intro (≤-intro n b+c≃a+c+n) a+c≄b+c
-    where
-      b+c≃a+c+n =
-        ≃-begin
-          b + c
-        ≃⟨ +-substᴸ b≃a+n ⟩
-          a + fromℕ n + c
-        ≃⟨ +-assoc ⟩
-          a + (fromℕ n + c)
-        ≃⟨ +-substᴿ +-comm ⟩
-          a + (c + fromℕ n)
-        ≃˘⟨ +-assoc ⟩
-          a + c + fromℕ n
-        ≃-∎
-      a+c≄b+c = a≄b ∘ +-cancelᴿ
+  +-preserves-<ᴿ : ∀ {a b c} → a < b → a + c < b + c
+  +-preserves-<ᴿ a<b = pos→< (IsPositive-subst (≃-sym sub-cancelᴿ) (<→pos a<b))
 
   -- (c) Positive multiplication preserves order
   *⁺-preserves-<ᴿ : ∀ {a b c} → IsPositive c → a < b → a * c < b * c
