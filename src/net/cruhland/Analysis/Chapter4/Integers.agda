@@ -793,6 +793,9 @@ vanish {x} {y} =
       b
     ≃-∎
 
++ᴺ-to-+ : ∀ {n m} → fromℕ (n +ᴺ m) ≃ fromℕ n + fromℕ m
++ᴺ-to-+ {n} {m} = refl
+
 *ᴺ-to-* : ∀ {n m} → fromℕ (n *ᴺ m) ≃ fromℕ n * fromℕ m
 *ᴺ-to-* {n} {m} =
   begin
@@ -854,6 +857,23 @@ sub-cancelᴿ {a} {b} {c} =
   ≃⟨ vanish ⟩
     a - b
   ≃-∎
+
++-preserves-pos : ∀ {a b} → IsPositive a → IsPositive b → IsPositive (a + b)
++-preserves-pos {a} {b}
+  record { n = aᴺ ; pos = aᴺ≢0 ; eq = a≃aᴺ }
+  record { n = bᴺ ; pos = bᴺ≢0 ; eq = b≃bᴺ } =
+    record { n = aᴺ +ᴺ bᴺ ; pos = +ᴺ-positive aᴺ≢0 ; eq = a+b≃aᴺ+bᴺ }
+  where
+    a+b≃aᴺ+bᴺ =
+      ≃-begin
+        a + b
+      ≃⟨ +-substᴸ a≃aᴺ ⟩
+        fromℕ aᴺ + b
+      ≃⟨ +-substᴿ b≃bᴺ ⟩
+        fromℕ aᴺ + fromℕ bᴺ
+      ≃˘⟨ +ᴺ-to-+ {aᴺ} ⟩
+        fromℕ (aᴺ +ᴺ bᴺ)
+      ≃-∎
 
 *-preserves-pos : ∀ {a b} → IsPositive a → IsPositive b → IsPositive (a * b)
 *-preserves-pos {a} {b}
@@ -917,4 +937,29 @@ neg-reverses-< {a} {b} a<b = pos→< (IsPositive-subst b-a≃-a-[-b] (<→pos a<
         - a + b
       ≃˘⟨ +-substᴿ neg-involutive ⟩
         - a - (- b)
+      ≃-∎
+
+-- (e) Order is transitive
+<-trans : ∀ {a b c} → a < b → b < c → a < c
+<-trans {a} {b} {c} a<b b<c =
+    let 0<b-a+c-b = +-preserves-pos (<→pos a<b) (<→pos b<c)
+     in pos→< (IsPositive-subst b-a+c-b≃c-a 0<b-a+c-b)
+  where
+    b-a+c-b≃c-a =
+      ≃-begin
+        b - a + (c - b)
+      ≃⟨ +-assoc ⟩
+        b + (- a + (c - b))
+      ≃⟨ +-substᴿ +-comm ⟩
+        b + (c - b - a)
+      ≃⟨ +-substᴿ (+-substᴸ +-comm) ⟩
+        b + (- b + c - a)
+      ≃⟨ +-substᴿ +-assoc ⟩
+        b + (- b + (c - a))
+      ≃˘⟨ +-assoc ⟩
+        b - b + (c - a)
+      ≃⟨ +-substᴸ +-inverseᴿ ⟩
+        0 + (c - a)
+      ≃⟨ +-identityᴸ ⟩
+        c - a
       ≃-∎
