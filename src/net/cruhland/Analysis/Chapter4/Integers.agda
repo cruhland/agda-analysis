@@ -872,6 +872,9 @@ sub-cancelᴿ {a} {b} {c} =
         fromℕ (aᴺ *ᴺ bᴺ)
       ≃-∎
 
+neg-involutive : ∀ {a} → - (- a) ≃ a
+neg-involutive {a⁺ — a⁻} = refl
+
 -- (a)
 <→pos : ∀ {x y} → x < y → IsPositive (y - x)
 <→pos (<-intro (≤-intro a y≃x+a) x≄y) = record
@@ -902,3 +905,16 @@ pos-diff = ↔-intro <→pos pos→<
 *⁺-preserves-<ᴿ : ∀ {a b c} → IsPositive c → a < b → a * c < b * c
 *⁺-preserves-<ᴿ c>0 a<b =
   pos→< (IsPositive-subst *-distrib-subᴿ (*-preserves-pos (<→pos a<b) c>0))
+
+-- (d) Negation reverses order
+neg-reverses-< : ∀ {a b} → a < b → - b < - a
+neg-reverses-< {a} {b} a<b = pos→< (IsPositive-subst b-a≃-a-[-b] (<→pos a<b))
+  where
+    b-a≃-a-[-b] =
+      ≃-begin
+        b - a
+      ≃⟨ +-comm ⟩
+        - a + b
+      ≃˘⟨ +-substᴿ neg-involutive ⟩
+        - a - (- b)
+      ≃-∎
