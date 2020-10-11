@@ -16,9 +16,10 @@ open import net.cruhland.models.Setoid using (Setoid₀)
 open ≡-Reasoning
 open PeanoArithmetic peanoArithmetic using
   ( ℕ; <→<⁺; tri-<; tri-≡; tri->) renaming
-  ( _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-both-zero to +ᴺ-both-zero
+  ( step to stepᴺ; step≢zero to stepᴺ≢zero; step≡+ to stepᴺ≡+
+  ; _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-both-zero to +ᴺ-both-zero
   ; +-cancelᴸ to +ᴺ-cancelᴸ; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm
-  ; +-zeroᴿ to +ᴺ-identityᴿ; +-positive to +ᴺ-positive
+  ; +-zeroᴿ to +ᴺ-identityᴿ; +-positive to +ᴺ-positive; +-stepᴸ to +ᴺ-stepᴸ
   ; +-unchanged to +ᴺ-unchanged
   ; _*_ to _*ᴺ_; *-assoc to *ᴺ-assoc; *-cancelᴸ to *ᴺ-cancelᴸ; *-comm to *ᴺ-comm
   ; *-distrib-+ᴸ to *ᴺ-distrib-+ᴺᴸ; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
@@ -347,6 +348,12 @@ _ = ≃-intro refl
 -- addition.
 step : ℤ → ℤ
 step x = x + 1
+
+ℤ⁺s≡sℤ⁺ : ∀ {a} → ℤ⁺ (step a) ≡ stepᴺ (ℤ⁺ a)
+ℤ⁺s≡sℤ⁺ {a⁺ — _} = sym stepᴺ≡+
+
+ℤ⁻s≡ℤ⁻ : ∀ {a} → ℤ⁻ (step a) ≡ ℤ⁻ a
+ℤ⁻s≡ℤ⁻ {_ — a⁻} = +ᴺ-identityᴿ
 
 -- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
 -- define the negation -(a—b) to be the integer (b—a).
@@ -861,6 +868,7 @@ IsPositive-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → IsPositive a₁ → IsP
 IsPositive-subst a₁≃a₂ record { n = n ; pos = n≢0 ; eq = a₁≃n } =
   record { n = n ; pos = n≢0 ; eq = ≃-trans (≃-sym a₁≃a₂) a₁≃n }
 
+-- Exercise 4.1.3
 neg-mult : ∀ {a} → - a ≃ -1 * a
 neg-mult {a⁺ — a⁻} = ≃-intro eq
   where
@@ -1104,3 +1112,37 @@ order-trichotomy {a} {b} = record { at-least-one = 1≤ ; at-most-one = ≤1 }
     ≤1 (1∧2 (<-intro a≤b a≄b) a≃b) = a≄b a≃b
     ≤1 (1∧3 (<-intro a≤b a≄b) (<-intro b≤a b≄a)) = a≄b (≤-antisym a≤b b≤a)
     ≤1 (2∧3 a≃b (<-intro b≤a b≄a)) = b≄a (≃-sym a≃b)
+
+-- Exercise 4.1.8
+no-ind : ¬ ((P : ℤ → Set) → P 0 → (∀ {b} → P b → P (step b)) → ∀ a → P a)
+no-ind ind = ¬allP (ind P Pz Ps)
+  where
+    P : ℤ → Set
+    P x = 0 ≤ x
+
+    Pz : P 0
+    Pz = ≤-intro 0 (≃-intro refl)
+
+    Ps : ∀ {b} → P b → P (step b)
+    Ps {b} (≤-intro n (≃-intro b⁺+0≡n+b⁻)) =
+        ≤-intro (stepᴺ n) (≃-intro sb⁺+0≡sn+sb⁻)
+      where
+        sb⁺+0≡sn+sb⁻ =
+          begin
+            ℤ⁺ (step b) +ᴺ 0
+          ≡⟨ cong (_+ᴺ 0) (ℤ⁺s≡sℤ⁺ {b}) ⟩
+            stepᴺ (ℤ⁺ b) +ᴺ 0
+          ≡⟨⟩
+            stepᴺ (ℤ⁺ b +ᴺ 0)
+          ≡⟨ cong stepᴺ b⁺+0≡n+b⁻ ⟩
+            stepᴺ (n +ᴺ ℤ⁻ b)
+          ≡˘⟨ +ᴺ-stepᴸ {n} ⟩
+            stepᴺ n +ᴺ ℤ⁻ b
+          ≡˘⟨ cong (stepᴺ n +ᴺ_) (ℤ⁻s≡ℤ⁻ {b}) ⟩
+            stepᴺ n +ᴺ ℤ⁻ (step b)
+          ∎
+
+    ¬allP : ¬ (∀ a → P a)
+    ¬allP 0≰a =
+      let ≤-intro n (≃-intro 0≡n+1) = 0≰a -1
+       in stepᴺ≢zero (trans stepᴺ≡+ (sym 0≡n+1))
