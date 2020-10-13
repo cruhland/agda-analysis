@@ -26,6 +26,9 @@ open PeanoArithmetic peanoArithmetic using
   ; *-positive to *ᴺ-positive; *-zeroᴿ to *ᴺ-zeroᴿ
   ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
   )
+open import net.cruhland.axioms.Integers peanoArithmetic
+  using (_—_; _≃_; _≄_; _+_; fromNat; ≃-intro; ℤ; ℤ⁺; ℤ⁻)
+  renaming (number to ℤ-number)
 
 {- 4.1 The integers -}
 
@@ -33,27 +36,11 @@ open PeanoArithmetic peanoArithmetic using
 -- form a—b, where a and b are natural numbers. Two integers are
 -- considered to be equal, a—b = c—d, if and only if a + d = c + b. We
 -- let ℤ denote the set of all integers.
-infix 9 _—_
-data ℤ : Set where
-  _—_ : ℕ → ℕ → ℤ
+_ : Set
+_ = ℤ
 
-ℤ⁺ : ℤ → ℕ
-ℤ⁺ (a⁺ — _) = a⁺
-
-ℤ⁻ : ℤ → ℕ
-ℤ⁻ (_ — a⁻) = a⁻
-
-infix 4 _≃_
-record _≃_ (a b : ℤ) : Set where
-  constructor ≃-intro
-  field
-    ≃-elim : ℤ⁺ a +ᴺ ℤ⁻ b ≡ ℤ⁺ b +ᴺ ℤ⁻ a
-
-open _≃_ using (≃-elim)
-
-infix 4 _≄_
-_≄_ : ℤ → ℤ → Set
-x ≄ y = ¬ (x ≃ y)
+_ : ℤ → ℤ → Set
+_ = _≃_
 
 _ : ℤ
 _ = 3 — 5
@@ -67,6 +54,8 @@ _ = λ ()
 -- Exercise 4.1.1
 ≃-refl : ∀ {a} → a ≃ a
 ≃-refl {a⁺ — a⁻} = ≃-intro refl
+
+open _≃_ using (≃-elim)
 
 ≃-sym : ∀ {a b} → a ≃ b → b ≃ a
 ≃-sym {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro ∘ sym ∘ ≃-elim
@@ -136,9 +125,8 @@ perm-adcb {a} {b} {c} {d} =
 
 -- Definition 4.1.2. The sum of two integers, (a—b) + (c—d), is
 -- defined by the formula (a—b) + (c—d) ≔ (a + c)—(b + d).
-infixl 6 _+_
-_+_ : ℤ → ℤ → ℤ
-a⁺ — a⁻ + b⁺ — b⁻ = (a⁺ +ᴺ b⁺) — (a⁻ +ᴺ b⁻)
+_ : ℤ → ℤ → ℤ
+_ = _+_
 
 -- The product of two integers, (a—b) × (c—d), is defined by
 -- (a—b) × (c—d) ≔ (ac + bd)—(ad + bc).
@@ -311,13 +299,8 @@ _ = ↔-intro (+ᴺ-cancelᴿ ∘ ≃-elim) (≃-intro ∘ cong (_+ᴺ 0))
 -- Number typeclass to interpret numeric literals as elements of
 -- ℤ. And we can define a function to convert natural numbers to their
 -- integer equivalent.
-fromNat : Nat.Nat → {{_ : ⊤}} → ℤ
-fromNat Nat.zero = 0 — 0
-fromNat (Nat.suc n) = 1 — 0 + fromNat n
-
-instance
-  ℤ-number : Number ℤ
-  ℤ-number = record { Constraint = const ⊤ ; fromNat = fromNat }
+_ : Number ℤ
+_ = ℤ-number
 
 -- For instance the natural number 3 is now considered to be the same
 -- as the integer 3—0, thus 3 = 3—0.
