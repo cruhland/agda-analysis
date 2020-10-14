@@ -27,8 +27,8 @@ open PeanoArithmetic peanoArithmetic using
   ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
   )
 open import net.cruhland.axioms.Integers peanoArithmetic
-  using (_—_; _≃_; _≄_; _+_; fromNat; ≃-intro; ℤ; ℤ⁺; ℤ⁻)
-  renaming (number to ℤ-number)
+  using (_—_; _≃_; _≄_; _+_; _*_; -_; fromNat; ≃-intro; ≃-refl; ℤ; ℤ⁺; ℤ⁻)
+  renaming (number to ℤ-number; negative to ℤ-negative)
 
 {- 4.1 The integers -}
 
@@ -52,8 +52,8 @@ _ : 3 — 5 ≄ 2 — 3
 _ = λ ()
 
 -- Exercise 4.1.1
-≃-refl : ∀ {a} → a ≃ a
-≃-refl {a⁺ — a⁻} = ≃-intro refl
+_ : ∀ {a} → a ≃ a
+_ = ≃-refl
 
 open _≃_ using (≃-elim)
 
@@ -130,9 +130,8 @@ _ = _+_
 
 -- The product of two integers, (a—b) × (c—d), is defined by
 -- (a—b) × (c—d) ≔ (ac + bd)—(ad + bc).
-infixl 7 _*_
-_*_ : ℤ → ℤ → ℤ
-a⁺ — a⁻ * b⁺ — b⁻ = (a⁺ *ᴺ b⁺ +ᴺ a⁻ *ᴺ b⁻) — (a⁺ *ᴺ b⁻ +ᴺ a⁻ *ᴺ b⁺)
+_ : ℤ → ℤ → ℤ
+_ = _*_
 
 -- Thus for instance, (3—5) + (1—4) is equal to (4—9).
 _ : 3 — 5 + 1 — 4 ≃ 4 — 9
@@ -340,9 +339,8 @@ step x = x + 1
 
 -- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
 -- define the negation -(a—b) to be the integer (b—a).
-infix 8 -_
--_ : ℤ → ℤ
-- a — b = b — a
+_ : ℤ → ℤ
+_ = -_
 
 -- In particular if n = n—0 is a positive natural number, we can
 -- define its negation -n = 0—n.
@@ -759,9 +757,8 @@ record _<_ (n m : ℤ) : Set where
 infix 4 _>_
 _>_ = flip _<_
 
-instance
-  ℤ-negative : Negative ℤ
-  ℤ-negative = record { Constraint = const ⊤ ; fromNeg = λ n → - fromNat n }
+_ : Negative ℤ
+_ = ℤ-negative
 
 _ : 5 > -3
 _ = <-intro (≤-intro 8 (≃-intro refl)) λ ()
