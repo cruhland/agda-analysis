@@ -26,7 +26,7 @@ open PeanoArithmetic peanoArithmetic using
   ; *-positive to *ᴺ-positive; *-zeroᴿ to *ᴺ-zeroᴿ
   ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
   )
-open import net.cruhland.axioms.Integers peanoArithmetic
+open import net.cruhland.models.Integers peanoArithmetic
   using (_—_; _≃_; _≄_; _+_; _*_; -_; fromNat; ≃-intro; ≃-refl; ℤ; ℤ⁺; ℤ⁻)
   renaming (number to ℤ-number; negative to ℤ-negative)
 

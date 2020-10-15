@@ -5,7 +5,7 @@ open import Relation.Binary.PropositionalEquality using (refl)
 open import net.cruhland.models.Logic using (⊤; ⊥; ¬_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
-open import net.cruhland.axioms.Integers peanoArithmetic
+open import net.cruhland.models.Integers peanoArithmetic
   using (_—_; ℤ; number; negative)
   renaming
     ( _≃_ to _≃ᶻ_; _≄_ to _≄ᶻ_; _*_ to _*ᶻ_
