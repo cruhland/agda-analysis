@@ -27,7 +27,8 @@ open PeanoArithmetic peanoArithmetic using
   ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
   )
 open import net.cruhland.models.Integers peanoArithmetic
-  using (_—_; _≃_; _≄_; _+_; _*_; -_; fromNat; ≃-intro; ≃-refl; ℤ; ℤ⁺; ℤ⁻)
+  using
+    (_—_; _≃_; _≄_; _+_; _*_; -_; fromNat; fromℕ; ≃-intro; ≃-refl; ℤ; ℤ⁺; ℤ⁻)
   renaming (number to ℤ-number; negative to ℤ-negative)
 
 {- 4.1 The integers -}
@@ -46,7 +47,7 @@ _ : ℤ
 _ = 3 — 5
 
 _ : 3 — 5 ≃ 2 — 4
-_ = ≃-intro refl
+_ = ≃-intro
 
 _ : 3 — 5 ≄ 2 — 3
 _ = λ ()
@@ -58,7 +59,7 @@ _ = ≃-refl
 open _≃_ using (≃-elim)
 
 ≃-sym : ∀ {a b} → a ≃ b → b ≃ a
-≃-sym {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro ∘ sym ∘ ≃-elim
+≃-sym {a⁺ — a⁻} {b⁺ — b⁻} (≃-intro {{eq}}) = ≃-intro {{sym eq}}
 
 a≡b+c≡d : ∀ {a b c d} → a ≡ b → c ≡ d → a +ᴺ c ≡ b +ᴺ d
 a≡b+c≡d {b = b} {c = c} a≡b c≡d = trans (cong (_+ᴺ c) a≡b) (cong (b +ᴺ_) c≡d)
@@ -100,7 +101,7 @@ perm-adcb {a} {b} {c} {d} =
 
 ≃-trans : ∀ {a b c} → a ≃ b → b ≃ c → a ≃ c
 ≃-trans {a⁺ — a⁻} {b⁺ — b⁻} {c⁺ — c⁻} a≃b b≃c =
-    ≃-intro (+ᴺ-cancelᴿ [a⁺+c⁻]+[b⁺+b⁻]≡[c⁺+a⁻]+[b⁺+b⁻])
+    ≃-intro {{+ᴺ-cancelᴿ [a⁺+c⁻]+[b⁺+b⁻]≡[c⁺+a⁻]+[b⁺+b⁻]}}
   where
     a⁺+b⁻≡b⁺+a⁻ = ≃-elim a≃b
     b⁺+c⁻≡c⁺+b⁻ = ≃-elim b≃c
@@ -135,7 +136,7 @@ _ = _*_
 
 -- Thus for instance, (3—5) + (1—4) is equal to (4—9).
 _ : 3 — 5 + 1 — 4 ≃ 4 — 9
-_ = ≃-intro refl
+_ = ≃-intro
 
 -- There is however one thing we have to check before we can accept
 -- these definitions - we have to check that if we replace one of the
@@ -144,7 +145,7 @@ _ = ≃-intro refl
 -- ought to have the same value as (2—4) + (1—4), otherwise this would
 -- not give a consistent definition of addition.
 _ : 3 — 5 + 1 — 4 ≃ 2 — 4 + 1 — 4
-_ = ≃-intro refl
+_ = ≃-intro
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
 transpose : ∀ {w x y z} → (w +ᴺ x) +ᴺ (y +ᴺ z) ≡ (w +ᴺ y) +ᴺ (x +ᴺ z)
@@ -160,7 +161,7 @@ transpose {w} {x} {y} {z} =
   ∎
 
 +-substᴸ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
-+-substᴸ {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} {b⁺ — b⁻} a₁≃a₂ = ≃-intro eq
++-substᴸ {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} {b⁺ — b⁻} a₁≃a₂ = ≃-intro {{eq}}
   where
     a₁⁺+a₂⁻≡a₂⁺+a₁⁻ = ≃-elim a₁≃a₂
     eq =
@@ -175,7 +176,7 @@ transpose {w} {x} {y} {z} =
       ∎
 
 +-comm : ∀ {a b} → a + b ≃ b + a
-+-comm {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro eq
++-comm {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -216,7 +217,7 @@ distrib-twoᴿ {a} {b} {c} {d} {e} {f} =
   ∎
 
 *-substᴸ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
-*-substᴸ {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} {b⁺ — b⁻} a₁≃a₂ = ≃-intro eq
+*-substᴸ {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} {b⁺ — b⁻} a₁≃a₂ = ≃-intro {{eq}}
   where
     rearr :
       ∀ {u v w x y z} →
@@ -246,7 +247,7 @@ distrib-twoᴿ {a} {b} {c} {d} {e} {f} =
       ∎
 
 *-comm : ∀ {a b} → a * b ≃ b * a
-*-comm {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro eq
+*-comm {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -270,10 +271,10 @@ distrib-twoᴿ {a} {b} {c} {d} {e} {f} =
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
 -- (n—0) × (m—0) = nm—0.
 _ : ∀ {n m} → n — 0 + m — 0 ≃ (n +ᴺ m) — 0
-_ = ≃-intro refl
+_ = ≃-intro
 
 *-compat-*ᴺ : ∀ {n m} → n — 0 * m — 0 ≃ (n *ᴺ m) — 0
-*-compat-*ᴺ {n} {m} = ≃-intro eq
+*-compat-*ᴺ {n} {m} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -286,7 +287,7 @@ _ = ≃-intro refl
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≡ m
-_ = ↔-intro (+ᴺ-cancelᴿ ∘ ≃-elim) (≃-intro ∘ cong (_+ᴺ 0))
+_ = ↔-intro (+ᴺ-cancelᴿ ∘ ≃-elim) (λ n≡m → ≃-intro {{cong (_+ᴺ 0) n≡m}})
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≡ n—0; this does not affect our definitions of addition or
@@ -304,23 +305,23 @@ _ = ℤ-number
 -- For instance the natural number 3 is now considered to be the same
 -- as the integer 3—0, thus 3 = 3—0.
 _ : 3 ≃ 3 — 0
-_ = ≃-intro refl
+_ = ≃-intro
 
 -- In particular 0 is equal to 0—0 and 1 is equal to 1—0.
 _ : 0 ≃ 0 — 0
-_ = ≃-intro refl
+_ = ≃-intro
 
 _ : 1 ≃ 1 — 0
-_ = ≃-intro refl
+_ = ≃-intro
 
 -- Of course, if we set n equal to n—0, then it will also be equal to
 -- any other integer which is equal to n—0, for instance 3 is equal
 -- not only to 3—0, but also to 4—1, 5—2, etc.
 _ : 3 ≃ 4 — 1
-_ = ≃-intro refl
+_ = ≃-intro
 
 _ : 3 ≃ 5 — 2
-_ = ≃-intro refl
+_ = ≃-intro
 
 -- We can now define incrementation on the integers by defining
 -- step x ≔ x + 1 for any integer x; this is of course consistent with
@@ -346,20 +347,20 @@ _ = -_
 -- define its negation -n = 0—n.
 -- [note] Here we must use a conversion function since n is not a
 -- literal.
-fromℕ : ℕ → ℤ
-fromℕ n = n — 0
+_ : ℕ → ℤ
+_ = fromℕ
 
 _ : ∀ {n} → - (fromℕ n) ≃ 0 — n
-_ = ≃-intro refl
+_ = ≃-intro
 
 -- For instance -(3—5) = (5—3).
 _ : -(3 — 5) ≃ 5 — 3
-_ = ≃-intro refl
+_ = ≃-intro
 
 -- One can check this definition is well-defined.
 -- Exercise 4.1.2
 neg-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → - a₁ ≃ - a₂
-neg-subst {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} a₁≃a₂ = ≃-intro eq
+neg-subst {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} a₁≃a₂ = ≃-intro {{eq}}
   where
     a₁⁺+a₂⁻≡a₂⁺+a₁⁻ = ≃-elim a₁≃a₂
     eq =
@@ -413,8 +414,8 @@ trichotomy (x⁺ — x⁻) = record { at-least = one≤ ; at-most = one≮ }
     one≤ with trichotomyᴺ {x⁺} {x⁻}
     one≤ | tri-< x⁺<x⁻ =
       let record { d = n ; d≢z = pos-n ; n+d≡m = x⁺+n≡x⁻ } = <→<⁺ x⁺<x⁻
-       in neg (record { n = n ; pos = pos-n ; eq = ≃-intro x⁺+n≡x⁻ })
-    one≤ | tri-≡ x⁺≡x⁻ = nil (≃-intro (trans +ᴺ-identityᴿ x⁺≡x⁻))
+       in neg (record { n = n ; pos = pos-n ; eq = ≃-intro {{x⁺+n≡x⁻}} })
+    one≤ | tri-≡ x⁺≡x⁻ = nil (≃-intro {{trans +ᴺ-identityᴿ x⁺≡x⁻}})
     one≤ | tri-> x⁺>x⁻ =
       let record { d = n ; d≢z = pos-n ; n+d≡m = x⁻+n≡x⁺ } = <→<⁺ x⁺>x⁻
           x⁺—x⁻≃n =
@@ -427,18 +428,18 @@ trichotomy (x⁺ — x⁻) = record { at-least = one≤ ; at-most = one≮ }
             ≡⟨ +ᴺ-comm {x⁻} ⟩
               n +ᴺ x⁻
             ∎
-       in pos (record { n = n ; pos = pos-n ; eq = ≃-intro x⁺—x⁻≃n })
+       in pos (record { n = n ; pos = pos-n ; eq = ≃-intro {{x⁺—x⁻≃n}} })
 
     one≮ : ¬ MoreThanOne (x⁺ — x⁻)
-    one≮ (nil∧pos (≃-intro x⁺+0≡x⁻)
-                  record { n = n ; pos = n≢0 ; eq = ≃-intro x⁺+0≡n+x⁻ }) =
+    one≮ (nil∧pos (≃-intro {{x⁺+0≡x⁻}})
+                  record { n = n ; pos = n≢0 ; eq = ≃-intro {{x⁺+0≡n+x⁻}} }) =
       let x⁻+n≡x⁻ = trans (+ᴺ-comm {x⁻}) (trans (sym x⁺+0≡n+x⁻) x⁺+0≡x⁻)
        in n≢0 (+ᴺ-unchanged x⁻+n≡x⁻)
-    one≮ (nil∧neg (≃-intro x⁺+0≡x⁻)
-                  record { n = n ; pos = n≢0 ; eq = ≃-intro x⁺+n≡x⁻ }) =
+    one≮ (nil∧neg (≃-intro {{x⁺+0≡x⁻}})
+                  record { n = n ; pos = n≢0 ; eq = ≃-intro {{x⁺+n≡x⁻}} }) =
       n≢0 (+ᴺ-cancelᴸ (trans x⁺+n≡x⁻ (sym x⁺+0≡x⁻)))
-    one≮ (pos∧neg record { n = n₁ ; pos = n₁≢0 ; eq = ≃-intro x⁺+0≡n₁+x⁻ }
-                     record { n = n₂ ; pos = n₂≢0 ; eq = ≃-intro x⁺+n₂≡x⁻ }) =
+    one≮ (pos∧neg record { n = n₁ ; pos = n₁≢0 ; eq = ≃-intro {{x⁺+0≡n₁+x⁻}} }
+                     record { n = n₂ ; pos = n₂≢0 ; eq = ≃-intro {{x⁺+n₂≡x⁻}} }) =
       let x⁺+[n₂+n₁]≡x⁺+0 =
             begin
               x⁺ +ᴺ (n₂ +ᴺ n₁)
@@ -459,7 +460,7 @@ _ : ∀ {x y} → x + y ≃ y + x
 _ = +-comm
 
 +-assoc : ∀ {x y z} → (x + y) + z ≃ x + (y + z)
-+-assoc {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} = ≃-intro eq
++-assoc {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -471,13 +472,13 @@ _ = +-comm
       ∎
 
 +-identityᴸ : ∀ {x} → 0 + x ≃ x
-+-identityᴸ {x⁺ — x⁻} = ≃-intro refl
++-identityᴸ {x⁺ — x⁻} = ≃-intro
 
 +-identityᴿ : ∀ {x} → x + 0 ≃ x
 +-identityᴿ = ≃-trans +-comm +-identityᴸ
 
 +-inverseᴸ : ∀ {x} → - x + x ≃ 0
-+-inverseᴸ {x⁺ — x⁻} = ≃-intro eq
++-inverseᴸ {x⁺ — x⁻} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -495,7 +496,7 @@ _ : ∀ {x y} → x * y ≃ y * x
 _ = *-comm
 
 *-assoc : ∀ {x y z} → (x * y) * z ≃ x * (y * z)
-*-assoc {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} = ≃-intro eq
+*-assoc {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} = ≃-intro {{eq}}
   where
     assoc-four :
       ∀ {a₁ a₂ a₃ b₁ b₂ b₃ c₁ c₂ c₃ d₁ d₂ d₃} →
@@ -562,7 +563,7 @@ _ = *-comm
            (sym (refactor {z⁻} {z⁺} {x⁺} {x⁻}))
 
 *-identityᴸ : ∀ {x} → 1 * x ≃ x
-*-identityᴸ {x⁺ — x⁻} = ≃-intro eq
+*-identityᴸ {x⁺ — x⁻} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -582,7 +583,7 @@ _ = *-comm
 
 *-distrib-+ᴸ : ∀ {x y z} → x * (y + z) ≃ x * y + x * z
 *-distrib-+ᴸ {x⁺ — x⁻} {y⁺ — y⁻} {z⁺ — z⁻} =
-    ≃-intro (a≡b+c≡d (refactor {x⁺} {x⁻}) (sym (refactor {x⁺} {x⁻})))
+    ≃-intro {{a≡b+c≡d (refactor {x⁺} {x⁻}) (sym (refactor {x⁺} {x⁻}))}}
   where
     refactor :
       ∀ {b₁ b₂ a₁ a₂ a₃ a₄} →
@@ -652,7 +653,7 @@ x - y = x + (- y)
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → fromℕ a - fromℕ b ≃ a — b
-natsub {a} {b} = ≃-intro (cong (_+ᴺ b) +ᴺ-identityᴿ)
+natsub {a} {b} = ≃-intro {{cong (_+ᴺ b) +ᴺ-identityᴿ}}
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
@@ -669,7 +670,7 @@ natsub {a} {b} = ≃-intro (cong (_+ᴺ b) +ᴺ-identityᴿ)
       nb⁺≡nb⁻ = trans (sym +ᴺ-identityᴿ) nb⁺+0≡nb⁻
       b⁺≡b⁻ = *ᴺ-cancelᴸ n≢0 nb⁺≡nb⁻
       b⁺+0≡b⁻ = trans +ᴺ-identityᴿ b⁺≡b⁻
-   in ∨-introᴿ (≃-intro b⁺+0≡b⁻)
+   in ∨-introᴿ (≃-intro {{b⁺+0≡b⁻}})
 *-either-zero {a} {b⁺ — b⁻} ab≃0
     | neg record { n = n ; pos = n≢0 ; eq = a≃0—n } =
   let ab≃[0—n]b = *-substᴸ {b = b⁺ — b⁻} a≃0—n
@@ -678,7 +679,7 @@ natsub {a} {b} = ≃-intro (cong (_+ᴺ b) +ᴺ-identityᴿ)
       nb⁺≡nb⁻ = trans nb⁺≡nb⁻+0 +ᴺ-identityᴿ
       b⁺≡b⁻ = *ᴺ-cancelᴸ n≢0 nb⁺≡nb⁻
       b⁺+0≡b⁻ = trans +ᴺ-identityᴿ b⁺≡b⁻
-   in ∨-introᴿ (≃-intro b⁺+0≡b⁻)
+   in ∨-introᴿ (≃-intro {{b⁺+0≡b⁻}})
 
 -- Corollary 4.1.9 (Cancellation law for integers). If a, b, c are
 -- integers such that ac = bc and c is non-zero, then a = b.
@@ -690,7 +691,7 @@ sub-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a - b₁ ≃ a - b₂
 sub-substᴿ = +-substᴿ ∘ neg-subst
 
 *-negᴸ : ∀ {a b} → - a * b ≃ - (a * b)
-*-negᴸ {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro eq
+*-negᴸ {a⁺ — a⁻} {b⁺ — b⁻} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -711,7 +712,7 @@ sub-substᴿ = +-substᴿ ∘ neg-subst
 *-distrib-subᴿ = ≃-trans *-distrib-+ᴿ (+-substᴿ *-negᴸ)
 
 a-a≃0 : ∀ {a} → a - a ≃ 0
-a-a≃0 {a⁺ — a⁻} = ≃-intro (trans +ᴺ-identityᴿ (+ᴺ-comm {a⁺}))
+a-a≃0 {a⁺ — a⁻} = ≃-intro {{trans +ᴺ-identityᴿ (+ᴺ-comm {a⁺})}}
 
 *-cancelᴿ : ∀ {a b c} → c ≄ 0 → a * c ≃ b * c → a ≃ b
 *-cancelᴿ {a} {b} {c} c≄0 ac≃bc with
@@ -761,15 +762,15 @@ _ : Negative ℤ
 _ = ℤ-negative
 
 _ : 5 > -3
-_ = <-intro (≤-intro 8 (≃-intro refl)) λ ()
+_ = <-intro (≤-intro 8 ≃-intro) λ ()
 
 -- Lemma 4.1.11 (Properties of order).
 -- Exercise 4.1.7
 ℕ≡→ℤ≃ : ∀ {n m} → n ≡ m → fromℕ n ≃ fromℕ m
-ℕ≡→ℤ≃ refl = ≃-intro refl
+ℕ≡→ℤ≃ refl = ≃-intro
 
 n≃0→n≡0 : ∀ {n} → fromℕ n ≃ 0 → n ≡ 0
-n≃0→n≡0 (≃-intro n+0≡0) = trans (sym +ᴺ-identityᴿ) n+0≡0
+n≃0→n≡0 (≃-intro {{n+0≡0}}) = trans (sym +ᴺ-identityᴿ) n+0≡0
 
 ≃ᴿ-+ᴸ-toᴿ : ∀ {a b c} → a ≃ b + c → a - b ≃ c
 ≃ᴿ-+ᴸ-toᴿ {a} {b} {c} a≃b+c =
@@ -830,10 +831,10 @@ vanish {x} {y} =
     ≃-∎
 
 +ᴺ-to-+ : ∀ {n m} → fromℕ (n +ᴺ m) ≃ fromℕ n + fromℕ m
-+ᴺ-to-+ {n} {m} = ≃-intro refl
++ᴺ-to-+ {n} {m} = ≃-intro
 
 *ᴺ-to-* : ∀ {n m} → fromℕ (n *ᴺ m) ≃ fromℕ n * fromℕ m
-*ᴺ-to-* {n} {m} = ≃-intro eq
+*ᴺ-to-* {n} {m} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -850,7 +851,7 @@ IsPositive-subst a₁≃a₂ record { n = n ; pos = n≢0 ; eq = a₁≃n } =
 
 -- Exercise 4.1.3
 neg-mult : ∀ {a} → - a ≃ -1 * a
-neg-mult {a⁺ — a⁻} = ≃-intro eq
+neg-mult {a⁺ — a⁻} = ≃-intro {{eq}}
   where
     eq =
       begin
@@ -934,7 +935,7 @@ sub-cancelᴿ {a} {b} {c} =
       ≃-∎
 
 neg-involutive : ∀ {a} → - (- a) ≃ a
-neg-involutive {a⁺ — a⁻} = ≃-intro refl
+neg-involutive {a⁺ — a⁻} = ≃-intro
 
 neg-sub-swap : ∀ {a b} → - (a - b) ≃ b - a
 neg-sub-swap {a} {b} =
@@ -1101,11 +1102,11 @@ no-ind ind = ¬allP (ind P Pz Ps)
     P x = 0 ≤ x
 
     Pz : P 0
-    Pz = ≤-intro 0 (≃-intro refl)
+    Pz = ≤-intro 0 ≃-intro
 
     Ps : ∀ {b} → P b → P (step b)
-    Ps {b} (≤-intro n (≃-intro b⁺+0≡n+b⁻)) =
-        ≤-intro (stepᴺ n) (≃-intro sb⁺+0≡sn+sb⁻)
+    Ps {b} (≤-intro n (≃-intro {{b⁺+0≡n+b⁻}})) =
+        ≤-intro (stepᴺ n) (≃-intro {{sb⁺+0≡sn+sb⁻}})
       where
         sb⁺+0≡sn+sb⁻ =
           begin
@@ -1124,5 +1125,5 @@ no-ind ind = ¬allP (ind P Pz Ps)
 
     ¬allP : ¬ (∀ a → P a)
     ¬allP 0≰a =
-      let ≤-intro n (≃-intro 0≡n+1) = 0≰a -1
+      let ≤-intro n (≃-intro {{0≡n+1}}) = 0≰a -1
        in stepᴺ≢zero (trans stepᴺ≡+ (sym 0≡n+1))
