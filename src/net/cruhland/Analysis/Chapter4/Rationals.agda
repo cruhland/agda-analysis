@@ -5,7 +5,7 @@ open import Agda.Builtin.FromNat using (Number)
 open import Relation.Binary.PropositionalEquality
   using () renaming (refl to ≡-refl)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-intro; ≄-intro)
+  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-intro; ≄-intro; sym)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using (⊤; ⊥; ¬_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
@@ -24,24 +24,30 @@ infixl 8 _//_
 record ℚ : Set where
   constructor _//_
   field
-    a b : ℤ
-    {{b≄ⁱ0}} : b ≄ⁱ 0
+    n d : ℤ
+    {{d≄ⁱ0}} : d ≄ⁱ 0
 
 infix 4 _≃₀_
-data _≃₀_ (p q : ℚ) : Set where
-  instance
-    ≃₀-intro :
-      let p↑ // p↓ = p
-          q↑ // q↓ = q
-       in {{i : p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓}} → p ≃₀ q
+record _≃₀_ (p q : ℚ) : Set where
+  instance constructor ≃₀-intro
+  field
+    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓
+
+-- Exercise 4.2.1
+≃₀-refl : ∀ {q} → q ≃₀ q
+≃₀-refl {q↑ // q↓} = ≃₀-intro
+
+≃₀-sym : ∀ {p q} → p ≃₀ q → q ≃₀ p
+≃₀-sym (≃₀-intro {{≃-ℤ}}) = ≃₀-intro {{sym ≃-ℤ}}
+
+≃₀-trans : ∀ {p q r} → p ≃₀ q → q ≃₀ r → p ≃₀ r
+≃₀-trans p≃q q≃r = {!!}
 
 infix 4 _≄₀ⁱ_
-data _≄₀ⁱ_ (p q : ℚ) : Set where
-  instance
-    ≄₀ⁱ-intro :
-      let p↑ // p↓ = p
-          q↑ // q↓ = q
-       in {{i : p↑ *ᶻ q↓ ≄ⁱ q↑ *ᶻ p↓}} → p ≄₀ⁱ q
+record _≄₀ⁱ_ (p q : ℚ) : Set where
+  instance constructor ≄₀ⁱ-intro
+  field
+    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≄ⁱ q↑ *ᶻ p↓
 
 ≄₀ⁱ-elim : ∀ {p q} {{i : p ≄₀ⁱ q}} → ¬ (p ≃₀ q)
 ≄₀ⁱ-elim {{≄₀ⁱ-intro {{≄ⁱ-ℤ}}}} (≃₀-intro {{≃-ℤ}}) = ≄ⁱ-elim {{i = ≄ⁱ-ℤ}} ≃-ℤ
@@ -50,9 +56,9 @@ instance
   eq : Eq ℚ
   eq = record
     { _≃_ = _≃₀_
-    ; refl = {!!}
-    ; sym = {!!}
-    ; trans = {!!}
+    ; refl = ≃₀-refl
+    ; sym = ≃₀-sym
+    ; trans = ≃₀-trans
     ; _≄ⁱ_ = _≄₀ⁱ_
     ; ≄ⁱ-elim = λ {{i}} → ≄₀ⁱ-elim {{i}}
     }
