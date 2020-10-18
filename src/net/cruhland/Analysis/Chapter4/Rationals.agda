@@ -1,7 +1,10 @@
 module net.cruhland.Analysis.Chapter4.Rationals where
 
 open import Agda.Builtin.FromNat using (Number)
-open import net.cruhland.axioms.Eq using (_≃_; _≄_; _≄ⁱ_; Eq)
+-- Needed for resolving instance arguments
+open import Relation.Binary.PropositionalEquality
+  using () renaming (refl to ≡-refl)
+open import net.cruhland.axioms.Eq using (_≃_; _≄_; _≄ⁱ_; Eq; ≃-intro)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using (⊤; ⊥; ¬_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
@@ -25,7 +28,11 @@ record ℚ : Set where
 
 infix 4 _≃₀_
 data _≃₀_ (p q : ℚ) : Set where
-  ≃₀-intro : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓ → p ≃₀ q
+  instance
+    ≃₀-intro :
+      let p↑ // p↓ = p
+          q↑ // q↓ = q
+       in {{p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓}} → p ≃₀ q
 
 instance
   eq : Eq ℚ
@@ -39,10 +46,10 @@ instance
     }
 
 _ : 3 // 4 ≃ 6 // 8
-_ = ≃₀-intro ≃ᶻ-refl
+_ = ≃-intro
 
 _ : 6 // 8 ≃ -3 // -4
-_ = ≃₀-intro ≃ᶻ-refl
+_ = ≃-intro
 
 _ : 3 // 4 ≄ 4 // 3
-_ = λ { (≃₀-intro ()) }
+_ = λ { (≃₀-intro {{()}}) }
