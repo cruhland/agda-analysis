@@ -2,42 +2,36 @@ module net.cruhland.Analysis.Chapter4.Rationals where
 
 open import Agda.Builtin.FromNat using (Number)
 open import Function using (_∘_)
-open import Relation.Binary.PropositionalEquality using (_≡_; _≢_; refl)
+open import net.cruhland.axioms.Eq using (¬sym) renaming (_≄_ to _≄ᴺ_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.models.Logic using (⊤; ⊥; ¬_; ¬sym)
+open import net.cruhland.models.Logic using (⊤; ⊥; ¬_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 open PeanoArithmetic peanoArithmetic
-  using (ℕ; step; zero; step≢zero; step-inj) renaming (number to ℕ-number)
+  using (ℕ; step; zero; step≄zero; step-inj) renaming (number to ℕ-number)
 open import net.cruhland.models.Integers peanoArithmetic
-  using (_—_; -_; ℤ; ℤ⁺; ℤ⁻; fromℕ; number; negative)
-  renaming
-    ( _≃_ to _≃ᶻ_; _≄_ to _≄ᶻ_; _*_ to _*ᶻ_
-    ; ≃-intro to ≃ᶻ-intro; ≃-refl to ≃ᶻ-refl
-    )
+  using (_—_; -_; ℤ; ℤ⁺; ℤ⁻; fromℕ; ≃ᶻ-intro; number; negative; ≃ᶻ-refl)
+  renaming (_≃_ to _≃ᶻ_; _*_ to _*ᶻ_)
 
 {- 4.2 The rationals -}
 
-data _≢ⁱ_ : ℕ → ℕ → Set where
+data _≄ⁱ_ : ℕ → ℕ → Set where
   instance
-    z≢s : ∀ {m} → zero ≢ⁱ step m
-    s≢z : ∀ {n} → step n ≢ⁱ zero
-    s≢s : ∀ {n m} → {{n ≢ⁱ m}} → step n ≢ⁱ step m
+    z≄s : ∀ {m} → zero ≄ⁱ step m
+    s≄z : ∀ {n} → step n ≄ⁱ zero
+    s≄s : ∀ {n m} → {{n ≄ⁱ m}} → step n ≄ⁱ step m
 
-≢ⁱ→≢ : ∀ {n m} {{_ : n ≢ⁱ m}} → n ≢ m
-≢ⁱ→≢ {{z≢s}} = ¬sym step≢zero
-≢ⁱ→≢ {{s≢z}} = step≢zero
-≢ⁱ→≢ {{s≢s}} = ≢ⁱ→≢ ∘ step-inj
+≄ⁱ→≄ : ∀ {n m} {{_ : n ≄ⁱ m}} → n ≄ᴺ m
+≄ⁱ→≄ {{z≄s}} = ¬sym step≄zero
+≄ⁱ→≄ {{s≄z}} = step≄zero
+≄ⁱ→≄ {{s≄s}} = ≄ⁱ→≄ ∘ step-inj
 
-_≢ᴺ_ : ℕ → ℕ → Set
-_≢ᴺ_ = _≢_
-
-_ : 3 ≢ᴺ 5
-_ = ≢ⁱ→≢
+_ : 3 ≄ᴺ 5
+_ = ≄ⁱ→≄
 
 record NonZero (a : ℤ) : Set where
   field
-    {{a⁺≢a⁻}} : ℤ⁺ a ≢ⁱ ℤ⁻ a
+    {{a⁺≄a⁻}} : ℤ⁺ a ≄ⁱ ℤ⁻ a
 
 _ : NonZero 3
 _ = record {}
@@ -46,10 +40,10 @@ _ : NonZero 5
 _ = record {}
 
 instance
-  NonZeroℕ⁺ : ∀ {n} {{_ : n ≢ⁱ 0}} → NonZero (fromℕ n)
+  NonZeroℕ⁺ : ∀ {n} {{_ : n ≄ⁱ 0}} → NonZero (fromℕ n)
   NonZeroℕ⁺ = record {}
 
-  NonZeroℕ⁻ : ∀ {n} {{_ : 0 ≢ⁱ n}} → NonZero (- fromℕ n)
+  NonZeroℕ⁻ : ∀ {n} {{_ : 0 ≄ⁱ n}} → NonZero (- fromℕ n)
   NonZeroℕ⁻ = record {}
 
 -- Definition 4.2.1. A _rational number_ is an expression of the form

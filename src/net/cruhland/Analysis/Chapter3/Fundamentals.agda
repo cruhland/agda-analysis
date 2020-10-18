@@ -3,7 +3,7 @@ open import Function using (_∘_; const; id)
 open import Level using (_⊔_; Level; 0ℓ) renaming (suc to sℓ)
 open import Relation.Binary using (DecSetoid)
 open import Relation.Binary.PropositionalEquality using
-  (_≡_; decSetoid; refl; setoid; sym; trans)
+  (decSetoid; refl; setoid; sym; trans)
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
@@ -21,7 +21,8 @@ open import net.cruhland.models.Setoid using
   )
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
-  open PeanoArithmetic peanoArithmetic using (ℕ; _≡?_; _<_; _<?_; step)
+  open PeanoArithmetic peanoArithmetic
+    using (ℕ; _<_; _<?_; step) renaming (_≃_ to _≃ᴺ_; _≃?_ to _≃ᴺ?_)
 
   open SetTheory ST using
     ( _∈_; _∉_; _≃_; _≄_; ≃-intro; PSet; PSet₀; PSet-Setoid
@@ -60,7 +61,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   instance
     ℕ-DecSetoid : DecSetoid₀
-    ℕ-DecSetoid = decSetoid _≡?_
+    ℕ-DecSetoid = decSetoid _≃ᴺ?_
 
   open Subsetᴸ {DS = ℕ-DecSetoid} using (_⊆?_; _≃?_)
 
@@ -722,7 +723,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   step-R : SRel₀ ℕ-Setoid ℕ-Setoid
   step-R = record
     { _⟨$⟩_ = λ x → record
-      { _⟨$⟩_ = λ y → y ≡ step x
+      { _⟨$⟩_ = λ y → y ≃ᴺ step x
       ; cong = λ { refl → equivalence-id }
       }
     ; cong = λ { refl refl → equivalence-id }
@@ -732,8 +733,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   step-RR = record { R = step-R ; R-most = λ _ y≡x z≡x → trans y≡x (sym z≡x) }
 
   instance
-    ℕ≡? : ∀ {x y} → Dec (x ≡ y)
-    ℕ≡? {x} {y} = x ≡? y
+    ℕ≡? : ∀ {x y} → Dec (x ≃ᴺ y)
+    ℕ≡? {x} {y} = x ≃ᴺ? y
 
     step-RF : ReplFun step-RR
     step-RF = record { f = step ; Rxfx = const refl }
