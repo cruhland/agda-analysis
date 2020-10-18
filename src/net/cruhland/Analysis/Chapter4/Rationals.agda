@@ -51,22 +51,16 @@ instance
 -- considered to be a rational number. Two rational numbers are
 -- considered to be equal, a//b = c//d, if and only if ad = cb. The
 -- set of all rational numbers is denoted ℚ.
-infix 8 _//_
+infixl 8 _//_
 record ℚ : Set where
   constructor _//_
   field
     a b : ℤ
     {{b≄0}} : NonZero b
 
-ℚ-elimᴺ : ℚ → ℤ
-ℚ-elimᴺ (a // _) = a
-
-ℚ-elimᴰ : ℚ → ℤ
-ℚ-elimᴰ (_ // b) = b
-
 infix 4 _≃_
 data _≃_ (p q : ℚ) : Set where
-  ≃-intro : ℚ-elimᴺ p *ᶻ ℚ-elimᴰ q ≃ᶻ ℚ-elimᴺ q *ᶻ ℚ-elimᴰ p → p ≃ q
+  ≃-intro : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≃ᶻ q↑ *ᶻ p↓ → p ≃ q
 
 infix 4 _≄_
 _≄_ : ℚ → ℚ → Set
