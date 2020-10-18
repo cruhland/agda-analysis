@@ -1,14 +1,13 @@
 module net.cruhland.Analysis.Chapter4.Rationals where
 
 open import Agda.Builtin.FromNat using (Number)
-open import net.cruhland.axioms.Eq using (_≄ⁱ_)
+open import net.cruhland.axioms.Eq using (_≃_; _≄_; _≄ⁱ_; Eq)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using (⊤; ⊥; ¬_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 open import net.cruhland.models.Integers peanoArithmetic
-  using (ℤ; eq; number; negative; ≃ᶻ-refl)
-  renaming (_≃_ to _≃ᶻ_; _*_ to _*ᶻ_)
+  using (ℤ; number; negative; ≃ᶻ-refl) renaming (_*_ to _*ᶻ_; eq to eq-ℤ)
 
 {- 4.2 The rationals -}
 
@@ -24,19 +23,26 @@ record ℚ : Set where
     a b : ℤ
     {{b≄ⁱ0}} : b ≄ⁱ 0
 
-infix 4 _≃_
-data _≃_ (p q : ℚ) : Set where
-  ≃-intro : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≃ᶻ q↑ *ᶻ p↓ → p ≃ q
+infix 4 _≃₀_
+data _≃₀_ (p q : ℚ) : Set where
+  ≃₀-intro : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓ → p ≃₀ q
 
-infix 4 _≄_
-_≄_ : ℚ → ℚ → Set
-p ≄ q = ¬ (p ≃ q)
+instance
+  eq : Eq ℚ
+  eq = record
+    { _≃_ = _≃₀_
+    ; refl = {!!}
+    ; sym = {!!}
+    ; trans = {!!}
+    ; _≄ⁱ_ = {!!}
+    ; ≄ⁱ-elim = {!!}
+    }
 
 _ : 3 // 4 ≃ 6 // 8
-_ = ≃-intro ≃ᶻ-refl
+_ = ≃₀-intro ≃ᶻ-refl
 
 _ : 6 // 8 ≃ -3 // -4
-_ = ≃-intro ≃ᶻ-refl
+_ = ≃₀-intro ≃ᶻ-refl
 
 _ : 3 // 4 ≄ 4 // 3
-_ = λ { (≃-intro ()) }
+_ = λ { (≃₀-intro ()) }
