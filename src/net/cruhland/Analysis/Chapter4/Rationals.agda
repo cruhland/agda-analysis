@@ -4,7 +4,8 @@ open import Agda.Builtin.FromNat using (Number)
 -- Needed for resolving instance arguments
 open import Relation.Binary.PropositionalEquality
   using () renaming (refl to ≡-refl)
-open import net.cruhland.axioms.Eq using (_≃_; _≄_; _≄ⁱ_; Eq; ≃-intro)
+open import net.cruhland.axioms.Eq using
+  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-intro; ≄-intro)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using (⊤; ⊥; ¬_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
@@ -32,7 +33,18 @@ data _≃₀_ (p q : ℚ) : Set where
     ≃₀-intro :
       let p↑ // p↓ = p
           q↑ // q↓ = q
-       in {{p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓}} → p ≃₀ q
+       in {{i : p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓}} → p ≃₀ q
+
+infix 4 _≄₀ⁱ_
+data _≄₀ⁱ_ (p q : ℚ) : Set where
+  instance
+    ≄₀ⁱ-intro :
+      let p↑ // p↓ = p
+          q↑ // q↓ = q
+       in {{i : p↑ *ᶻ q↓ ≄ⁱ q↑ *ᶻ p↓}} → p ≄₀ⁱ q
+
+≄₀ⁱ-elim : ∀ {p q} {{i : p ≄₀ⁱ q}} → ¬ (p ≃₀ q)
+≄₀ⁱ-elim {{≄₀ⁱ-intro {{≄ⁱ-ℤ}}}} (≃₀-intro {{≃-ℤ}}) = ≄ⁱ-elim {{i = ≄ⁱ-ℤ}} ≃-ℤ
 
 instance
   eq : Eq ℚ
@@ -41,8 +53,8 @@ instance
     ; refl = {!!}
     ; sym = {!!}
     ; trans = {!!}
-    ; _≄ⁱ_ = {!!}
-    ; ≄ⁱ-elim = {!!}
+    ; _≄ⁱ_ = _≄₀ⁱ_
+    ; ≄ⁱ-elim = λ {{i}} → ≄₀ⁱ-elim {{i}}
     }
 
 _ : 3 // 4 ≃ 6 // 8
@@ -52,4 +64,4 @@ _ : 6 // 8 ≃ -3 // -4
 _ = ≃-intro
 
 _ : 3 // 4 ≄ 4 // 3
-_ = λ { (≃₀-intro {{()}}) }
+_ = ≄-intro
