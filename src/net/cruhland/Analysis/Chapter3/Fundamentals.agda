@@ -22,7 +22,7 @@ open import net.cruhland.models.Setoid using
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic
-    using (ℕ; _<_; _<?_; step) renaming (_≃_ to _≃ᴺ_; _≃?_ to _≃ᴺ?_)
+    using (ℕ; _<_; _<?_; step) renaming (_≃_ to _≃ᴺ_; _≃?₀_ to _≃ᴺ?_)
 
   open SetTheory ST using
     ( _∈_; _∉_; _≃_; _≄_; ≃-intro; PSet; PSet₀; PSet-Setoid

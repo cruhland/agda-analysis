@@ -574,7 +574,7 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (IsPositive-subst b-a≃-a-[-b] (<→po
       ∎
 
 -- (f) Order trichotomy
-_ : ∀ {a b} → ExactlyOneOf (a < b) (a ≃ b) (a > b)
+_ : ∀ a b → ExactlyOneOf (a < b) (a ≃ b) (a > b)
 _ = ℤ.order-trichotomy
 
 -- Exercise 4.1.8
