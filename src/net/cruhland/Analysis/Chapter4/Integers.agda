@@ -32,8 +32,8 @@ open PeanoArithmetic peanoArithmetic using
   )
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
-  ( _—_; _+_; _*_; -_; _-_; a≃b+c≃d; AtLeastOne; ≃ᶻ-intro
-  ; IsNegative; IsPositive; MoreThanOne; neg; nil; pos; transpose
+  ( _—_; _+_; _*_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
+  ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos; transpose
   ; Trichotomy; trichotomy; ℤ; ℤ⁺; ℤ⁻
   )
 open Trichotomy using (at-least)
@@ -184,9 +184,6 @@ _ = -_
 _ : ℕ → ℤ
 _ = ℤ.fromℕ
 
-fromℕ-subst : ∀ {n₁ n₂} → n₁ ≃ᴺ n₂ → ℤ.fromℕ n₁ ≃ ℤ.fromℕ n₂
-fromℕ-subst n₁≃n₂ = ≃ᶻ-intro {{+ᴺ-substᴸ n₁≃n₂}}
-
 _ : ∀ {n} → - (ℤ.fromℕ n) ≃ 0 — n
 _ = ≃ᶻ-intro
 
@@ -196,20 +193,8 @@ _ = ≃ᶻ-intro
 
 -- One can check this definition is well-defined.
 -- Exercise 4.1.2
-neg-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → - a₁ ≃ - a₂
-neg-subst {a₁⁺ — a₁⁻} {a₂⁺ — a₂⁻} a₁≃a₂ = ≃ᶻ-intro {{eq′}}
-  where
-    a₁⁺+a₂⁻≃a₂⁺+a₁⁻ = ≃ᶻ-elim a₁≃a₂
-    eq′ =
-      begin
-        a₁⁻ +ᴺ a₂⁺
-      ≃⟨ +ᴺ-comm {a₁⁻} ⟩
-        a₂⁺ +ᴺ a₁⁻
-      ≃˘⟨ a₁⁺+a₂⁻≃a₂⁺+a₁⁻ ⟩
-        a₁⁺ +ᴺ a₂⁻
-      ≃⟨ +ᴺ-comm {a₁⁺} ⟩
-        a₂⁻ +ᴺ a₁⁺
-      ∎
+_ : ∀ {a₁ a₂} → a₁ ≃ a₂ → - a₁ ≃ - a₂
+_ = ℤ.neg-subst
 
 -- Lemma 4.1.5 (Trichotomy of integers). Let x be an integer. Then
 -- exactly one of the following three statements is true: (a) x is
@@ -372,41 +357,6 @@ _ = ℤ.*-either-zero
 -- Corollary 4.1.9 (Cancellation law for integers). If a, b, c are
 -- integers such that ac = bc and c is non-zero, then a = b.
 -- Exercise 4.1.6
-_ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ - b ≃ a₂ - b
-_ = ℤ.sub-substᴸ
-
-sub-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a - b₁ ≃ a - b₂
-sub-substᴿ = ℤ.+-substᴿ ∘ neg-subst
-
-*-negᴸ : ∀ {a b} → - a * b ≃ - (a * b)
-*-negᴸ {a} = ℤ.*-negᴸ {a}
-
-*-negᴿ : ∀ {a b} → a * - b ≃ - (a * b)
-*-negᴿ {a} {b} =
-  begin
-    a * - b
-  ≃⟨ *-comm {a} ⟩
-    - b * a
-  ≃⟨ *-negᴸ {b} ⟩
-    - (b * a)
-  ≃⟨ neg-subst (*-comm {b}) ⟩
-    - (a * b)
-  ∎
-
-*-distrib-subᴸ : ∀ {a b c} → c * (a - b) ≃ c * a - c * b
-*-distrib-subᴸ {a} {b} {c} =
-  begin
-    c * (a - b)
-  ≃⟨⟩
-    c * (a + - b)
-  ≃⟨ *-distrib-+ᴸ {c} ⟩
-    c * a + c * - b
-  ≃⟨ ℤ.+-substᴿ {c * a} (*-negᴿ {c}) ⟩
-    c * a + - (c * b)
-  ≃⟨⟩
-    c * a - c * b
-  ∎
-
 _ : ∀ {a b c} → c ≄ 0 → a * c ≃ b * c → a ≃ b
 _ = ℤ.*-cancelᴿ
 
@@ -415,37 +365,23 @@ _ = ℤ.*-cancelᴿ
 -- n ≥ m or m ≤ n, iff we have n = m + a for some natural number a. We
 -- say that n is _strictly greater than_ m and write n > m or m < n,
 -- iff n ≥ m and n ≠ m.
-infix 4 _≤_
-record _≤_ (n m : ℤ) : Set where
-  constructor ≤-intro
-  field
-    a : ℕ
-    n≃m+a : m ≃ n + ℤ.fromℕ a
+_ : ℤ → ℤ → Set
+_ = _≤_
 
-infix 4 _<_
-record _<_ (n m : ℤ) : Set where
-  constructor <-intro
-  field
-    n≤m : n ≤ m
-    n≄m : n ≄ m
+_ : ℤ → ℤ → Set
+_ = _<_
 
-infix 4 _>_
-_>_ = flip _<_
+_ : ℤ → ℤ → Set
+_ = _>_
 
 _ : Negative ℤ
 _ = ℤ.negative
 
 _ : 5 > -3
-_ = <-intro (≤-intro 8 ≃ᶻ-intro) λ ()
+_ = ℤ.<-intro (ℤ.≤-intro 8 ≃ᶻ-intro) λ ()
 
 -- Lemma 4.1.11 (Properties of order).
 -- Exercise 4.1.7
-ℕ≃→ℤ≃ : ∀ {n m} → n ≃ᴺ m → ℤ.fromℕ n ≃ ℤ.fromℕ m
-ℕ≃→ℤ≃ n≃m = ≃ᶻ-intro {{trans +ᴺ-identityᴿ (trans n≃m (sym +ᴺ-identityᴿ))}}
-
-n≃0→n≃0 : ∀ {n} → ℤ.fromℕ n ≃ 0 → n ≃ᴺ 0
-n≃0→n≃0 (≃ᶻ-intro {{n+0≃0}}) = trans (sym +ᴺ-identityᴿ) n+0≃0
-
 ≃ᴿ-+ᴸ-toᴿ : ∀ {a b c} → a ≃ b + c → a - b ≃ c
 ≃ᴿ-+ᴸ-toᴿ {a} {b} {c} a≃b+c =
   begin
@@ -460,24 +396,6 @@ n≃0→n≃0 (≃ᶻ-intro {{n+0≃0}}) = trans (sym +ᴺ-identityᴿ) n+0≃0
     c + 0
   ≃⟨ ℤ.+-identityᴿ ⟩
     c
-  ∎
-
-≃ᴸ-subᴿ-toᴸ : ∀ {a b c} → a - b ≃ c → a ≃ b + c
-≃ᴸ-subᴿ-toᴸ {a} {b} {c} a-b≃c =
-  begin
-    a
-  ≃˘⟨ ℤ.+-identityᴿ ⟩
-    a + 0
-  ≃˘⟨ ℤ.+-substᴿ (+-inverseᴿ {b}) ⟩
-    a + (b - b)
-  ≃⟨ ℤ.+-substᴿ {a} (+-comm {b}) ⟩
-    a + (- b + b)
-  ≃˘⟨ +-assoc {a} ⟩
-    a - b + b
-  ≃⟨ ℤ.+-substᴸ a-b≃c ⟩
-    c + b
-  ≃⟨ +-comm {c} ⟩
-    b + c
   ∎
 
 vanish : ∀ {x y} → x + y - y ≃ x
@@ -504,37 +422,13 @@ vanish {x} {y} =
       b
     ∎
 
-+ᴺ-to-+ : ∀ {n m} → ℤ.fromℕ (n +ᴺ m) ≃ ℤ.fromℕ n + ℤ.fromℕ m
-+ᴺ-to-+ {n} {m} = ≃ᶻ-intro
-
-*ᴺ-to-* : ∀ {n m} → ℤ.fromℕ (n *ᴺ m) ≃ ℤ.fromℕ n * ℤ.fromℕ m
-*ᴺ-to-* {n} {m} = ≃ᶻ-intro {{eq′}}
-  where
-    eq′ =
-      begin
-        n *ᴺ m +ᴺ (n *ᴺ 0 +ᴺ 0)
-      ≃⟨ +ᴺ-substᴿ (+ᴺ-substᴸ {m = 0} (*ᴺ-zeroᴿ {n})) ⟩
-        n *ᴺ m +ᴺ (0 +ᴺ 0)
-      ≃˘⟨ +ᴺ-assoc {n *ᴺ m} ⟩
-        n *ᴺ m +ᴺ 0 +ᴺ 0
-      ∎
-
 IsPositive-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → IsPositive a₁ → IsPositive a₂
 IsPositive-subst a₁≃a₂ record { n = n ; pos = n≄0 ; x≃n = a₁≃n } =
   record { n = n ; pos = n≄0 ; x≃n = trans (sym a₁≃a₂) a₁≃n }
 
 -- Exercise 4.1.3
-neg-mult : ∀ {a} → - a ≃ -1 * a
-neg-mult {a⁺ — a⁻} = ≃ᶻ-intro {{eq′}}
-  where
-    eq′ =
-      begin
-        a⁻ +ᴺ (a⁺ +ᴺ 0)
-      ≃⟨ +ᴺ-substᴿ {a⁻} (+ᴺ-comm {a⁺}) ⟩
-        a⁻ +ᴺ (0 +ᴺ a⁺)
-      ≃˘⟨ +ᴺ-assoc {a⁻} ⟩
-        a⁻ +ᴺ 0 +ᴺ a⁺
-      ∎
+_ : ∀ {a} → - a ≃ -1 * a
+_ = ℤ.neg-mult
 
 sub-distrib : ∀ {a b c} → a - (b + c) ≃ a - b - c
 sub-distrib {a} {b} {c} =
@@ -542,13 +436,13 @@ sub-distrib {a} {b} {c} =
     a - (b + c)
   ≃⟨⟩
     a + -(b + c)
-  ≃⟨ ℤ.+-substᴿ {a} neg-mult ⟩
+  ≃⟨ ℤ.+-substᴿ {a} ℤ.neg-mult ⟩
     a + -1 * (b + c)
   ≃⟨ ℤ.+-substᴿ {a} (*-distrib-+ᴸ { -1} {b}) ⟩
     a + (-1 * b + -1 * c)
-  ≃˘⟨ ℤ.+-substᴿ {a} (ℤ.+-substᴸ (neg-mult {b})) ⟩
+  ≃˘⟨ ℤ.+-substᴿ {a} (ℤ.+-substᴸ (ℤ.neg-mult {b})) ⟩
     a + (- b + -1 * c)
-  ≃˘⟨ ℤ.+-substᴿ {a} (ℤ.+-substᴿ (neg-mult {c})) ⟩
+  ≃˘⟨ ℤ.+-substᴿ {a} (ℤ.+-substᴿ (ℤ.neg-mult {c})) ⟩
     a + (- b + - c)
   ≃˘⟨ +-assoc {a} ⟩
     a - b - c
@@ -587,7 +481,7 @@ sub-cancelᴿ {a} {b} {c} =
         ℤ.fromℕ aᴺ + b
       ≃⟨ ℤ.+-substᴿ b≃bᴺ ⟩
         ℤ.fromℕ aᴺ + ℤ.fromℕ bᴺ
-      ≃˘⟨ +ᴺ-to-+ {aᴺ} ⟩
+      ≃˘⟨ ℤ.+ᴺ-to-+ {aᴺ} ⟩
         ℤ.fromℕ (aᴺ +ᴺ bᴺ)
       ∎
 
@@ -604,74 +498,13 @@ sub-cancelᴿ {a} {b} {c} =
         ℤ.fromℕ aᴺ * b
       ≃⟨ *-substᴿ {ℤ.fromℕ aᴺ} b≃bᴺ ⟩
         ℤ.fromℕ aᴺ * ℤ.fromℕ bᴺ
-      ≃˘⟨ *ᴺ-to-* {aᴺ} ⟩
+      ≃˘⟨ ℤ.*ᴺ-to-* {aᴺ} ⟩
         ℤ.fromℕ (aᴺ *ᴺ bᴺ)
       ∎
 
-neg-involutive : ∀ {a} → - (- a) ≃ a
-neg-involutive {a⁺ — a⁻} = ≃ᶻ-intro
-
-neg-sub-swap : ∀ {a b} → - (a - b) ≃ b - a
-neg-sub-swap {a} {b} =
-  begin
-    - (a - b)
-  ≃⟨ neg-mult ⟩
-    -1 * (a - b)
-  ≃⟨ *-distrib-subᴸ {a} {b} { -1} ⟩
-    -1 * a - -1 * b
-  ≃˘⟨ ℤ.+-substᴸ (neg-mult {a}) ⟩
-    - a - -1 * b
-  ≃˘⟨ ℤ.+-substᴿ (neg-subst (neg-mult {b})) ⟩
-    - a - (- b)
-  ≃⟨ ℤ.+-substᴿ (neg-involutive {b}) ⟩
-    - a + b
-  ≃˘⟨ +-comm {b} ⟩
-    b - a
-  ∎
-
-sub-sign-swap : ∀ {a b} → IsNegative (a - b) → IsPositive (b - a)
-sub-sign-swap {a} {b} record { n = n ; pos = n≄0 ; x≃-n = a-b≃-n } =
-    record { n = n ; pos = n≄0 ; x≃n = b-a≃n }
-  where
-    b-a≃n =
-      begin
-        b - a
-      ≃˘⟨ neg-sub-swap {a} ⟩
-        - (a - b)
-      ≃⟨ neg-subst a-b≃-n ⟩
-        - (- ℤ.fromℕ n)
-      ≃⟨ neg-involutive {ℤ.fromℕ n} ⟩
-        ℤ.fromℕ n
-      ∎
-
-≤-antisym : ∀ {a b} → a ≤ b → b ≤ a → a ≃ b
-≤-antisym {a} {b} (≤-intro n₁ b≃a+n₁) (≤-intro n₂ a≃b+n₂) =
-  let n₁+ᴺn₂≃0 =
-        begin
-          ℤ.fromℕ (n₁ +ᴺ n₂)
-        ≃⟨ +ᴺ-to-+ {n₁} ⟩
-          ℤ.fromℕ n₁ + ℤ.fromℕ n₂
-        ≃˘⟨ ℤ.+-identityᴸ ⟩
-          0 + (ℤ.fromℕ n₁ + ℤ.fromℕ n₂)
-        ≃˘⟨ ℤ.+-substᴸ (+-inverseᴸ {a}) ⟩
-          (- a) + a + (ℤ.fromℕ n₁ + ℤ.fromℕ n₂)
-        ≃⟨ +-assoc { - a} ⟩
-          (- a) + (a + (ℤ.fromℕ n₁ + ℤ.fromℕ n₂))
-        ≃˘⟨ ℤ.+-substᴿ { - a} (+-assoc {a}) ⟩
-          (- a) + (a + ℤ.fromℕ n₁ + ℤ.fromℕ n₂)
-        ≃˘⟨ ℤ.+-substᴿ { - a} (ℤ.+-substᴸ b≃a+n₁) ⟩
-          (- a) + (b + ℤ.fromℕ n₂)
-        ≃˘⟨ ℤ.+-substᴿ a≃b+n₂ ⟩
-          (- a) + a
-        ≃⟨ +-inverseᴸ {a} ⟩
-          0
-        ∎
-      n₂≃0 = ∧-elimᴿ (+ᴺ-both-zero (n≃0→n≃0 n₁+ᴺn₂≃0))
-   in trans (trans a≃b+n₂ (ℤ.+-substᴿ (fromℕ-subst n₂≃0))) ℤ.+-identityᴿ
-
 -- (a)
 <→pos : ∀ {x y} → x < y → IsPositive (y - x)
-<→pos {x} {y} (<-intro (≤-intro a y≃x+a) x≄y) =
+<→pos {x} {y} (ℤ.<-intro (ℤ.≤-intro a y≃x+a) x≄y) =
     record { n = a ; pos = a≄0 ; x≃n = ≃ᴿ-+ᴸ-toᴿ y≃x+a }
   where
     a≄0 : a ≄ 0
@@ -682,54 +515,36 @@ sub-sign-swap {a} {b} record { n = n ; pos = n≄0 ; x≃-n = a-b≃-n } =
             x
           ≃˘⟨ ℤ.+-identityᴿ ⟩
             x + 0
-          ≃˘⟨ ℤ.+-substᴿ (ℕ≃→ℤ≃ a≃0) ⟩
+          ≃˘⟨ ℤ.+-substᴿ (ℤ.ℕ≃→ℤ≃ a≃0) ⟩
             x + ℤ.fromℕ a
           ≃˘⟨ y≃x+a ⟩
             y
           ∎
 
-pos→< : ∀ {x y} → IsPositive (y - x) → x < y
-pos→< {x} {y} record { n = n ; pos = n≄0 ; x≃n = y-x≃n } =
-    <-intro (≤-intro n (≃ᴸ-subᴿ-toᴸ y-x≃n)) x≄y
-  where
-    x≄y : x ≄ y
-    x≄y x≃y = n≄0 (n≃0→n≃0 n≃0)
-      where
-        n≃0 =
-          begin
-            ℤ.fromℕ n
-          ≃˘⟨ y-x≃n ⟩
-            y - x
-          ≃⟨ sub-substᴿ x≃y ⟩
-            y - y
-          ≃⟨ +-inverseᴿ {y} ⟩
-            0
-          ∎
-
 pos-diff : ∀ {a b} → a < b ↔ IsPositive (b - a)
-pos-diff = ↔-intro <→pos pos→<
+pos-diff = ↔-intro <→pos ℤ.pos→<
 
 -- (b) Addition preserves order
 +-preserves-<ᴿ : ∀ {a b c} → a < b → a + c < b + c
 +-preserves-<ᴿ {a} {b} {c} a<b =
-  pos→< (IsPositive-subst (sym (sub-cancelᴿ {b})) (<→pos a<b))
+  ℤ.pos→< (IsPositive-subst (sym (sub-cancelᴿ {b})) (<→pos a<b))
 
 -- (c) Positive multiplication preserves order
 *⁺-preserves-<ᴿ : ∀ {a b c} → IsPositive c → a < b → a * c < b * c
 *⁺-preserves-<ᴿ {a} {b} {c} c>0 a<b =
   let [b-a]c>0 = *-preserves-pos (<→pos a<b) c>0
-   in pos→< (IsPositive-subst (ℤ.*-distrib-subᴿ {b}) [b-a]c>0)
+   in ℤ.pos→< (IsPositive-subst (ℤ.*-distrib-subᴿ {b}) [b-a]c>0)
 
 -- (d) Negation reverses order
 neg-reverses-< : ∀ {a b} → a < b → - b < - a
-neg-reverses-< {a} {b} a<b = pos→< (IsPositive-subst b-a≃-a-[-b] (<→pos a<b))
+neg-reverses-< {a} {b} a<b = ℤ.pos→< (IsPositive-subst b-a≃-a-[-b] (<→pos a<b))
   where
     b-a≃-a-[-b] =
       begin
         b - a
       ≃⟨ +-comm {b} ⟩
         - a + b
-      ≃˘⟨ ℤ.+-substᴿ (neg-involutive {b}) ⟩
+      ≃˘⟨ ℤ.+-substᴿ (ℤ.neg-involutive {b}) ⟩
         - a - (- b)
       ∎
 
@@ -737,7 +552,7 @@ neg-reverses-< {a} {b} a<b = pos→< (IsPositive-subst b-a≃-a-[-b] (<→pos a<
 <-trans : ∀ {a b c} → a < b → b < c → a < c
 <-trans {a} {b} {c} a<b b<c =
     let 0<b-a+c-b = +-preserves-pos (<→pos a<b) (<→pos b<c)
-     in pos→< (IsPositive-subst b-a+c-b≃c-a 0<b-a+c-b)
+     in ℤ.pos→< (IsPositive-subst b-a+c-b≃c-a 0<b-a+c-b)
   where
     b-a+c-b≃c-a =
       begin
@@ -759,34 +574,8 @@ neg-reverses-< {a} {b} a<b = pos→< (IsPositive-subst b-a≃-a-[-b] (<→pos a<
       ∎
 
 -- (f) Order trichotomy
-data OneOfThree (A B C : Set) : Set where
-  1st : A → OneOfThree A B C
-  2nd : B → OneOfThree A B C
-  3rd : C → OneOfThree A B C
-
-data TwoOfThree (A B C : Set) : Set where
-  1∧2 : A → B → TwoOfThree A B C
-  1∧3 : A → C → TwoOfThree A B C
-  2∧3 : B → C → TwoOfThree A B C
-
-record ExactlyOneOf (A B C : Set) : Set where
-  field
-    at-least-one : OneOfThree A B C
-    at-most-one : ¬ TwoOfThree A B C
-
-order-trichotomy : ∀ {a b} → ExactlyOneOf (a < b) (a ≃ b) (a > b)
-order-trichotomy {a} {b} = record { at-least-one = 1≤ ; at-most-one = ≤1 }
-  where
-    1≤ : OneOfThree (a < b) (a ≃ b) (a > b)
-    1≤ with at-least (trichotomy (b - a))
-    1≤ | nil b-a≃0 = 2nd (sym (trans (≃ᴸ-subᴿ-toᴸ b-a≃0) ℤ.+-identityᴿ))
-    1≤ | pos b-a>0 = 1st (pos→< b-a>0)
-    1≤ | neg b-a<0 = 3rd (pos→< (sub-sign-swap {b} b-a<0))
-
-    ≤1 : ¬ TwoOfThree (a < b) (a ≃ b) (a > b)
-    ≤1 (1∧2 (<-intro a≤b a≄b) a≃b) = a≄b a≃b
-    ≤1 (1∧3 (<-intro a≤b a≄b) (<-intro b≤a b≄a)) = a≄b (≤-antisym a≤b b≤a)
-    ≤1 (2∧3 a≃b (<-intro b≤a b≄a)) = b≄a (sym a≃b)
+_ : ∀ {a b} → ExactlyOneOf (a < b) (a ≃ b) (a > b)
+_ = ℤ.order-trichotomy
 
 -- Exercise 4.1.8
 no-ind : ¬ ((P : ℤ → Set) → P 0 → (∀ {b} → P b → P (step b)) → ∀ a → P a)
@@ -796,11 +585,11 @@ no-ind ind = ¬allP (ind P Pz Ps)
     P x = 0 ≤ x
 
     Pz : P 0
-    Pz = ≤-intro 0 ≃ᶻ-intro
+    Pz = ℤ.≤-intro 0 ≃ᶻ-intro
 
     Ps : ∀ {b} → P b → P (step b)
-    Ps {b} (≤-intro n (≃ᶻ-intro {{b⁺+0≃n+b⁻}})) =
-        ≤-intro (stepᴺ n) (≃ᶻ-intro {{sb⁺+0≃sn+sb⁻}})
+    Ps {b} (ℤ.≤-intro n (≃ᶻ-intro {{b⁺+0≃n+b⁻}})) =
+        ℤ.≤-intro (stepᴺ n) (≃ᶻ-intro {{sb⁺+0≃sn+sb⁻}})
       where
         sb⁺+0≃sn+sb⁻ =
           begin
@@ -819,5 +608,5 @@ no-ind ind = ¬allP (ind P Pz Ps)
 
     ¬allP : ¬ (∀ a → P a)
     ¬allP 0≰a =
-      let ≤-intro n (≃ᶻ-intro {{0≃n+1}}) = 0≰a -1
+      let ℤ.≤-intro n (≃ᶻ-intro {{0≃n+1}}) = 0≰a -1
        in stepᴺ≄zero (trans stepᴺ≃+ (sym 0≃n+1))
