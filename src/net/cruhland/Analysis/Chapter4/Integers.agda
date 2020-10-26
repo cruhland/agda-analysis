@@ -17,19 +17,8 @@ open import net.cruhland.models.Logic using
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
-open PeanoArithmetic peanoArithmetic using
-  ( ℕ; <→<⁺; tri-<; tri-≃; tri->) renaming
-  ( _≃_ to _≃ᴺ_; step to stepᴺ; step-subst to stepᴺ-subst
-  ; step≄zero to stepᴺ≄zero; step≃+ to stepᴺ≃+
-  ; _+_ to _+ᴺ_; +-assoc to +ᴺ-assoc; +-both-zero to +ᴺ-both-zero
-  ; +-cancelᴸ to +ᴺ-cancelᴸ; +-cancelᴿ to +ᴺ-cancelᴿ; +-comm to +ᴺ-comm
-  ; +-zeroᴿ to +ᴺ-identityᴿ; +-positive to +ᴺ-positive; +-stepᴸ to +ᴺ-stepᴸ
-  ; +-substᴸ to +ᴺ-substᴸ; +-substᴿ to +ᴺ-substᴿ; +-unchanged to +ᴺ-unchanged
-  ; _*_ to _*ᴺ_; *-assoc to *ᴺ-assoc; *-cancelᴸ to *ᴺ-cancelᴸ; *-comm to *ᴺ-comm
-  ; *-distrib-+ᴸ to *ᴺ-distrib-+ᴺᴸ; *-distrib-+ᴿ to *ᴺ-distrib-+ᴺᴿ
-  ; *-positive to *ᴺ-positive; *-substᴸ to *ᴺ-substᴸ; *-zeroᴿ to *ᴺ-zeroᴿ
-  ; number to ℕ-number; Positive to Positiveᴺ; trichotomy to trichotomyᴺ
-  )
+module ℕ = PeanoArithmetic peanoArithmetic
+open ℕ using (ℕ) renaming (_+_ to _+ᴺ_; _*_ to _*ᴺ_)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
   ( _—_; _+_; _*_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
@@ -113,15 +102,15 @@ _ = ≃ᶻ-intro
     eq′ =
       begin
         n *ᴺ m +ᴺ 0 +ᴺ 0
-      ≃⟨ +ᴺ-assoc {n *ᴺ m} ⟩
+      ≃⟨ ℕ.+-assoc {n *ᴺ m} ⟩
         n *ᴺ m +ᴺ (0 +ᴺ 0)
-      ≃˘⟨ +ᴺ-substᴿ (+ᴺ-substᴸ {m = 0} (*ᴺ-zeroᴿ {n})) ⟩
+      ≃˘⟨ ℕ.+-substᴿ (ℕ.+-substᴸ {m = 0} (ℕ.*-zeroᴿ {n})) ⟩
         n *ᴺ m +ᴺ (n *ᴺ 0 +ᴺ 0)
       ∎
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
-_ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ᴺ m
-_ = ↔-intro (+ᴺ-cancelᴿ ∘ ≃ᶻ-elim) (λ n≃m → ≃ᶻ-intro {{+ᴺ-substᴸ n≃m}})
+_ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
+_ = ↔-intro (ℕ.+-cancelᴿ ∘ ≃ᶻ-elim) (λ n≃m → ≃ᶻ-intro {{ℕ.+-substᴸ n≃m}})
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
@@ -166,11 +155,11 @@ _ = ≃ᶻ-intro
 step : ℤ → ℤ
 step x = x + 1
 
-ℤ⁺s≃sℤ⁺ : ∀ {a} → ℤ⁺ (step a) ≃ᴺ stepᴺ (ℤ⁺ a)
-ℤ⁺s≃sℤ⁺ {a⁺ — _} = sym stepᴺ≃+
+ℤ⁺s≃sℤ⁺ : ∀ {a} → ℤ⁺ (step a) ≃ ℕ.step (ℤ⁺ a)
+ℤ⁺s≃sℤ⁺ {a⁺ — _} = sym ℕ.step≃+
 
-ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ⁻ (step a) ≃ᴺ ℤ⁻ a
-ℤ⁻s≃ℤ⁻ {_ — a⁻} = +ᴺ-identityᴿ
+ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ⁻ (step a) ≃ ℤ⁻ a
+ℤ⁻s≃ℤ⁻ {_ — a⁻} = ℕ.+-zeroᴿ
 
 -- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
 -- define the negation -(a—b) to be the integer (b—a).
@@ -250,13 +239,13 @@ _ = ℤ.+-identityᴿ
     eq′ =
       begin
         ((x⁺ +ᴺ 0) +ᴺ 0) +ᴺ x⁻
-      ≃⟨ +ᴺ-assoc {x⁺ +ᴺ 0} ⟩
+      ≃⟨ ℕ.+-assoc {x⁺ +ᴺ 0} ⟩
         (x⁺ +ᴺ 0) +ᴺ (0 +ᴺ x⁻)
-      ≃⟨ +ᴺ-substᴿ {x⁺ +ᴺ 0} (+ᴺ-comm {0}) ⟩
+      ≃⟨ ℕ.+-substᴿ {x⁺ +ᴺ 0} (ℕ.+-comm {0}) ⟩
         (x⁺ +ᴺ 0) +ᴺ (x⁻ +ᴺ 0)
-      ≃⟨ +ᴺ-assoc {x⁺} ⟩
+      ≃⟨ ℕ.+-assoc {x⁺} ⟩
         x⁺ +ᴺ (0 +ᴺ (x⁻ +ᴺ 0))
-      ≃⟨ +ᴺ-substᴿ {x⁺} (+ᴺ-comm {0}) ⟩
+      ≃⟨ ℕ.+-substᴿ {x⁺} (ℕ.+-comm {0}) ⟩
         x⁺ +ᴺ ((x⁻ +ᴺ 0) +ᴺ 0)
       ∎
 
@@ -286,7 +275,7 @@ _ = _-_
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → ℤ.fromℕ a - ℤ.fromℕ b ≃ a — b
-natsub {a} = ≃ᶻ-intro {{+ᴺ-substᴸ (+ᴺ-identityᴿ {a})}}
+natsub {a} = ≃ᶻ-intro {{ℕ.+-substᴸ (ℕ.+-zeroᴿ {a})}}
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
@@ -412,7 +401,7 @@ sub-cancelᴿ {a} {b} {c} =
 +-preserves-pos {a} {b}
   record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
   record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
-    record { n = aᴺ +ᴺ bᴺ ; pos = +ᴺ-positive aᴺ≄0 ; x≃n = a+b≃aᴺ+bᴺ }
+    record { n = aᴺ +ᴺ bᴺ ; pos = ℕ.+-positive aᴺ≄0 ; x≃n = a+b≃aᴺ+bᴺ }
   where
     a+b≃aᴺ+bᴺ =
       begin
@@ -429,7 +418,7 @@ sub-cancelᴿ {a} {b} {c} =
 *-preserves-pos {a} {b}
   record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
   record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
-    record { n = aᴺ *ᴺ bᴺ ; pos = *ᴺ-positive aᴺ≄0 bᴺ≄0 ; x≃n = ab≃aᴺbᴺ }
+    record { n = aᴺ *ᴺ bᴺ ; pos = ℕ.*-positive aᴺ≄0 bᴺ≄0 ; x≃n = ab≃aᴺbᴺ }
   where
     ab≃aᴺbᴺ =
       begin
@@ -529,24 +518,24 @@ no-ind ind = ¬allP (ind P Pz Ps)
 
     Ps : ∀ {b} → P b → P (step b)
     Ps {b} (ℤ.≤-intro n (≃ᶻ-intro {{b⁺+0≃n+b⁻}})) =
-        ℤ.≤-intro (stepᴺ n) (≃ᶻ-intro {{sb⁺+0≃sn+sb⁻}})
+        ℤ.≤-intro (ℕ.step n) (≃ᶻ-intro {{sb⁺+0≃sn+sb⁻}})
       where
         sb⁺+0≃sn+sb⁻ =
           begin
             ℤ⁺ (step b) +ᴺ 0
-          ≃⟨ +ᴺ-substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
-            stepᴺ (ℤ⁺ b) +ᴺ 0
+          ≃⟨ ℕ.+-substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
+            ℕ.step (ℤ⁺ b) +ᴺ 0
           ≃⟨⟩
-            stepᴺ (ℤ⁺ b +ᴺ 0)
-          ≃⟨ stepᴺ-subst b⁺+0≃n+b⁻ ⟩
-            stepᴺ (n +ᴺ ℤ⁻ b)
-          ≃˘⟨ +ᴺ-stepᴸ {n} ⟩
-            stepᴺ n +ᴺ ℤ⁻ b
-          ≃˘⟨ +ᴺ-substᴿ (ℤ⁻s≃ℤ⁻ {b}) ⟩
-            stepᴺ n +ᴺ ℤ⁻ (step b)
+            ℕ.step (ℤ⁺ b +ᴺ 0)
+          ≃⟨ ℕ.step-subst b⁺+0≃n+b⁻ ⟩
+            ℕ.step (n +ᴺ ℤ⁻ b)
+          ≃˘⟨ ℕ.+-stepᴸ {n} ⟩
+            ℕ.step n +ᴺ ℤ⁻ b
+          ≃˘⟨ ℕ.+-substᴿ (ℤ⁻s≃ℤ⁻ {b}) ⟩
+            ℕ.step n +ᴺ ℤ⁻ (step b)
           ∎
 
     ¬allP : ¬ (∀ a → P a)
     ¬allP 0≰a =
       let ℤ.≤-intro n (≃ᶻ-intro {{0≃n+1}}) = 0≰a -1
-       in stepᴺ≄zero (trans stepᴺ≃+ (sym 0≃n+1))
+       in ℕ.step≄zero (trans ℕ.step≃+ (sym 0≃n+1))
