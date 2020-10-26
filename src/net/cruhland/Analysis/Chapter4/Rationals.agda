@@ -6,7 +6,7 @@ open import Relation.Binary.PropositionalEquality
   using () renaming (refl to ≡-refl)
 open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq using
-  ( _≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-intro; ≄-intro
+  ( _≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-gen; ≄-gen
   ; sym; trans; module ≃-Reasoning
   )
 open ≃-Reasoning
@@ -167,10 +167,10 @@ instance
     }
 
 _ : 3 // 4 ≃ 6 // 8
-_ = ≃-intro
+_ = ≃-gen
 
 _ : 6 // 8 ≃ -3 // -4
-_ = ≃-intro
+_ = ≃-gen
 
 _ : 3 // 4 ≄ 4 // 3
-_ = ≄-intro
+_ = ≄-gen
