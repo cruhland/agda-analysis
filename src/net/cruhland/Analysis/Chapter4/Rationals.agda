@@ -1,22 +1,19 @@
 module net.cruhland.Analysis.Chapter4.Rationals where
 
-open import Agda.Builtin.FromNat using (Number)
+-- Needed for positive integer literals
+import Agda.Builtin.FromNat as FromNat
 -- Needed for resolving instance arguments
-open import Relation.Binary.PropositionalEquality
-  using () renaming (refl to ≡-refl)
+import Relation.Binary.PropositionalEquality as ≡
 open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq using
-  ( _≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-gen; ≄-gen
-  ; sym; trans; module ≃-Reasoning
-  )
+  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-gen; ≄-gen; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_*_)
-open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.models.Logic using (⊤; ⊥; ∨-forceᴸ; ¬_; yes; no)
+open import net.cruhland.models.Logic using (∨-forceᴸ; ¬_; yes; no)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 import net.cruhland.models.Integers peanoArithmetic as ℤ
-open ℤ using (ℤ; number; negative; ≃ᶻ-refl) renaming (eq to eq-ℤ)
+open ℤ using (ℤ)
 
 [ab][cd]≃a[[bc]d] : ∀ {a b c d} → (a * b) * (c * d) ≃ a * ((b * c) * d)
 [ab][cd]≃a[[bc]d] {a} {b} {c} {d} =
