@@ -19,7 +19,7 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
 module ℕ = PeanoArithmetic peanoArithmetic
-open ℕ using (ℕ) renaming (_*_ to _*ᴺ_)
+open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
   ( _—_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
@@ -97,16 +97,16 @@ _ = ℤ.*-substᴸ
 _ : ∀ {n m} → n — 0 + m — 0 ≃ (n + m) — 0
 _ = ≃ᶻ-intro
 
-*-compat-*ᴺ : ∀ {n m} → n — 0 * m — 0 ≃ (n *ᴺ m) — 0
-*-compat-*ᴺ {n} {m} = ≃ᶻ-intro {{eq′}}
+*-compat-* : ∀ {n m} → n — 0 * m — 0 ≃ (n * m) — 0
+*-compat-* {n} {m} = ≃ᶻ-intro {{eq′}}
   where
     eq′ =
       begin
-        n *ᴺ m + 0 + 0
-      ≃⟨ ℕ.+-assoc {n *ᴺ m} ⟩
-        n *ᴺ m + (0 + 0)
+        n * m + 0 + 0
+      ≃⟨ ℕ.+-assoc {n * m} ⟩
+        n * m + (0 + 0)
       ≃˘⟨ ℕ.+-substᴿ (ℕ.+-substᴸ {m = 0} (ℕ.*-zeroᴿ {n})) ⟩
-        n *ᴺ m + (n *ᴺ 0 + 0)
+        n * m + (n * 0 + 0)
       ∎
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
@@ -419,7 +419,7 @@ sub-cancelᴿ {a} {b} {c} =
 *-preserves-pos {a} {b}
   record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
   record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
-    record { n = aᴺ *ᴺ bᴺ ; pos = ℕ.*-positive aᴺ≄0 bᴺ≄0 ; x≃n = ab≃aᴺbᴺ }
+    record { n = aᴺ * bᴺ ; pos = ℕ.*-positive aᴺ≄0 bᴺ≄0 ; x≃n = ab≃aᴺbᴺ }
   where
     ab≃aᴺbᴺ =
       begin
@@ -428,8 +428,8 @@ sub-cancelᴿ {a} {b} {c} =
         ℤ.fromℕ aᴺ * b
       ≃⟨ *-substᴿ {ℤ.fromℕ aᴺ} b≃bᴺ ⟩
         ℤ.fromℕ aᴺ * ℤ.fromℕ bᴺ
-      ≃˘⟨ ℤ.*ᴺ-to-* {aᴺ} ⟩
-        ℤ.fromℕ (aᴺ *ᴺ bᴺ)
+      ≃˘⟨ ℤ.*-to-* {aᴺ} ⟩
+        ℤ.fromℕ (aᴺ * bᴺ)
       ∎
 
 -- (a)
