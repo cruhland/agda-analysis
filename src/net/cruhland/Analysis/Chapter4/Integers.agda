@@ -11,7 +11,7 @@ open import Relation.Binary.PropositionalEquality
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_)
+open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using
   (⊤; ⊤-intro; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
@@ -22,7 +22,7 @@ module ℕ = PeanoArithmetic peanoArithmetic
 open ℕ using (ℕ) renaming (_*_ to _*ᴺ_)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
-  ( _—_; _*_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
+  ( _—_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
   ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos; transpose
   ; Trichotomy; trichotomy; ℤ; ℤ⁺; ℤ⁻
   )
@@ -85,7 +85,7 @@ _ = ℤ.+-substᴸ
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 _ = ℤ.+-substᴿ
 
-_ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
+_ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
 _ = ℤ.*-substᴸ
 
 *-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
@@ -234,7 +234,7 @@ _ = ℤ.+-identityᴿ
 *-assoc : ∀ {x y z} → (x * y) * z ≃ x * (y * z)
 *-assoc {x} = ℤ.*-assoc {x}
 
-*-identityᴸ : ∀ {x} → 1 * x ≃ x
+*-identityᴸ : {x : ℤ} → 1 * x ≃ x
 *-identityᴸ {x⁺ — x⁻} = ≃ᶻ-intro {{eq′}}
   where
     eq′ =
@@ -281,13 +281,13 @@ natsub {a} = ≃ᶻ-intro {{ℕ.+-substᴸ (ℕ.+-zeroᴿ {a})}}
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
 -- Exercise 4.1.5
-_ : ∀ {a b} → a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0
+_ : {a b : ℤ} → a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0
 _ = ℤ.*-either-zero
 
 -- Corollary 4.1.9 (Cancellation law for integers). If a, b, c are
 -- integers such that ac = bc and c is non-zero, then a = b.
 -- Exercise 4.1.6
-_ : ∀ {a b c} → c ≄ 0 → a * c ≃ b * c → a ≃ b
+_ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
 _ = ℤ.*-cancelᴿ
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be

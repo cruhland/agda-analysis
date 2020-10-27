@@ -10,56 +10,57 @@ open import net.cruhland.axioms.Eq using
   ; sym; trans; module ≃-Reasoning
   )
 open ≃-Reasoning
+open import net.cruhland.axioms.Operators using (_*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using (⊤; ⊥; ∨-forceᴸ; ¬_; yes; no)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 import net.cruhland.models.Integers peanoArithmetic as ℤ
-open ℤ using (ℤ; number; negative; ≃ᶻ-refl) renaming (_*_ to _*ᶻ_; eq to eq-ℤ)
+open ℤ using (ℤ; number; negative; ≃ᶻ-refl) renaming (eq to eq-ℤ)
 
-[ab][cd]≃a[[bc]d] : ∀ {a b c d} → (a *ᶻ b) *ᶻ (c *ᶻ d) ≃ a *ᶻ ((b *ᶻ c) *ᶻ d)
+[ab][cd]≃a[[bc]d] : ∀ {a b c d} → (a * b) * (c * d) ≃ a * ((b * c) * d)
 [ab][cd]≃a[[bc]d] {a} {b} {c} {d} =
   begin
-    (a *ᶻ b) *ᶻ (c *ᶻ d)
+    (a * b) * (c * d)
   ≃⟨ ℤ.*-assoc {a} ⟩
-    a *ᶻ (b *ᶻ (c *ᶻ d))
+    a * (b * (c * d))
   ≃˘⟨ ℤ.*-substᴿ {a} (ℤ.*-assoc {b}) ⟩
-    a *ᶻ ((b *ᶻ c) *ᶻ d)
+    a * ((b * c) * d)
   ∎
 
-swap-middle : ∀ {a b c d} → a *ᶻ ((b *ᶻ c) *ᶻ d) ≃ a *ᶻ ((c *ᶻ b) *ᶻ d)
+swap-middle : ∀ {a b c d} → a * ((b * c) * d) ≃ a * ((c * b) * d)
 swap-middle {a} {b} {c} {d} = ℤ.*-substᴿ {a} (ℤ.*-substᴸ (ℤ.*-comm {b}))
 
-regroup : ∀ a b c d → (a *ᶻ b) *ᶻ (c *ᶻ d) ≃ a *ᶻ ((b *ᶻ d) *ᶻ c)
+regroup : ∀ a b c d → (a * b) * (c * d) ≃ a * ((b * d) * c)
 regroup a b c d =
   begin
-    (a *ᶻ b) *ᶻ (c *ᶻ d)
-  ≃⟨ ℤ.*-substᴿ {a *ᶻ b} (ℤ.*-comm {c}) ⟩
-    (a *ᶻ b) *ᶻ (d *ᶻ c)
+    (a * b) * (c * d)
+  ≃⟨ ℤ.*-substᴿ {a * b} (ℤ.*-comm {c}) ⟩
+    (a * b) * (d * c)
   ≃⟨ [ab][cd]≃a[[bc]d] {a} ⟩
-    a *ᶻ ((b *ᶻ d) *ᶻ c)
+    a * ((b * d) * c)
   ∎
 
-perm-adcb : ∀ {a b c d} → (a *ᶻ d) *ᶻ (c *ᶻ b) ≃ (a *ᶻ b) *ᶻ (c *ᶻ d)
+perm-adcb : ∀ {a b c d} → (a * d) * (c * b) ≃ (a * b) * (c * d)
 perm-adcb {a} {b} {c} {d} =
   begin
-    (a *ᶻ d) *ᶻ (c *ᶻ b)
+    (a * d) * (c * b)
   ≃⟨ regroup a d c b ⟩
-    a *ᶻ ((d *ᶻ b) *ᶻ c)
+    a * ((d * b) * c)
   ≃⟨ swap-middle {a} {d} ⟩
-    a *ᶻ ((b *ᶻ d) *ᶻ c)
+    a * ((b * d) * c)
   ≃˘⟨ regroup a b c d ⟩
-    (a *ᶻ b) *ᶻ (c *ᶻ d)
+    (a * b) * (c * d)
   ∎
 
-a≃b*c≃d : ∀ {a b c d} → a ≃ b → c ≃ d → a *ᶻ c ≃ b *ᶻ d
+a≃b*c≃d : ∀ {a b c d} → a ≃ b → c ≃ d → a * c ≃ b * d
 a≃b*c≃d {a} {b} {c} {d} a≃b c≃d =
   begin
-    a *ᶻ c
+    a * c
   ≃⟨ ℤ.*-substᴸ a≃b ⟩
-    b *ᶻ c
+    b * c
   ≃⟨ ℤ.*-substᴿ {b} c≃d ⟩
-    b *ᶻ d
+    b * d
   ∎
 
 {- 4.2 The rationals -}
@@ -80,7 +81,7 @@ infix 4 _≃₀_
 record _≃₀_ (p q : ℚ) : Set where
   instance constructor ≃₀-intro
   field
-    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≃ q↑ *ᶻ p↓
+    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ * q↓ ≃ q↑ * p↓
 
 -- Exercise 4.2.1
 ≃₀-refl : ∀ {q} → q ≃₀ q
@@ -96,21 +97,21 @@ record _≃₀_ (p q : ℚ) : Set where
 ... | yes q↑≃0 =
   let p↑q↓≃0 =
         begin
-          p↑ *ᶻ q↓
+          p↑ * q↓
         ≃⟨ p↑q↓≃q↑p↓ ⟩
-          q↑ *ᶻ p↓
+          q↑ * p↓
         ≃⟨ ℤ.*-substᴸ q↑≃0 ⟩
-          0 *ᶻ p↓
+          0 * p↓
         ≃⟨ ℤ.*-zeroᴸ {p↓} ⟩
           0
         ∎
       r↑q↓≃0 =
         begin
-          r↑ *ᶻ q↓
+          r↑ * q↓
         ≃˘⟨ q↑r↓≃r↑q↓ ⟩
-          q↑ *ᶻ r↓
+          q↑ * r↓
         ≃⟨ ℤ.*-substᴸ q↑≃0 ⟩
-          0 *ᶻ r↓
+          0 * r↓
         ≃⟨ ℤ.*-zeroᴸ {r↓} ⟩
           0
         ∎
@@ -118,29 +119,29 @@ record _≃₀_ (p q : ℚ) : Set where
       r↑≃0 = ∨-forceᴸ (≄ⁱ-elim {{i = q↓≄ⁱ0}}) (ℤ.*-either-zero {r↑} r↑q↓≃0)
       p↑r↓≃r↑p↓ =
         begin
-          p↑ *ᶻ r↓
+          p↑ * r↓
         ≃⟨ ℤ.*-substᴸ p↑≃0 ⟩
-          0 *ᶻ r↓
+          0 * r↓
         ≃⟨ ℤ.*-zeroᴸ {r↓} ⟩
           0
         ≃˘⟨ ℤ.*-zeroᴸ {p↓} ⟩
-          0 *ᶻ p↓
+          0 * p↓
         ≃˘⟨ ℤ.*-substᴸ r↑≃0 ⟩
-          r↑ *ᶻ p↓
+          r↑ * p↓
         ∎
    in ≃₀-intro {{p↑r↓≃r↑p↓}}
 ... | no q↑≄0 =
   let p↑r↓[q↑q↓]≃r↑p↓[q↑q↓] =
         begin
-          (p↑ *ᶻ r↓) *ᶻ (q↑ *ᶻ q↓)
+          (p↑ * r↓) * (q↑ * q↓)
         ≃⟨ perm-adcb {a = p↑} {c = q↑} ⟩
-          (p↑ *ᶻ q↓) *ᶻ (q↑ *ᶻ r↓)
+          (p↑ * q↓) * (q↑ * r↓)
         ≃⟨ a≃b*c≃d p↑q↓≃q↑p↓ q↑r↓≃r↑q↓ ⟩
-          (q↑ *ᶻ p↓) *ᶻ (r↑ *ᶻ q↓)
+          (q↑ * p↓) * (r↑ * q↓)
         ≃⟨ perm-adcb {a = q↑} {c = r↑} ⟩
-          (q↑ *ᶻ q↓) *ᶻ (r↑ *ᶻ p↓)
-        ≃⟨ ℤ.*-comm {q↑ *ᶻ q↓} ⟩
-          (r↑ *ᶻ p↓) *ᶻ (q↑ *ᶻ q↓)
+          (q↑ * q↓) * (r↑ * p↓)
+        ≃⟨ ℤ.*-comm {q↑ * q↓} ⟩
+          (r↑ * p↓) * (q↑ * q↓)
         ∎
       q↑q↓≄0 = ℤ.*-neither-zero q↑≄0 (≄ⁱ-elim {{i = q↓≄ⁱ0}})
       p↑r↓≃r↑p↓ = ℤ.*-cancelᴿ q↑q↓≄0 p↑r↓[q↑q↓]≃r↑p↓[q↑q↓]
@@ -150,7 +151,7 @@ infix 4 _≄₀ⁱ_
 record _≄₀ⁱ_ (p q : ℚ) : Set where
   instance constructor ≄₀ⁱ-intro
   field
-    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ *ᶻ q↓ ≄ⁱ q↑ *ᶻ p↓
+    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ * q↓ ≄ⁱ q↑ * p↓
 
 ≄₀ⁱ-elim : ∀ {p q} {{i : p ≄₀ⁱ q}} → ¬ (p ≃₀ q)
 ≄₀ⁱ-elim {{≄₀ⁱ-intro {{≄ⁱ-ℤ}}}} (≃₀-intro {{≃-ℤ}}) = ≄ⁱ-elim {{i = ≄ⁱ-ℤ}} ≃-ℤ
