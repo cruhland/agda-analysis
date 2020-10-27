@@ -11,6 +11,7 @@ open import Relation.Binary.PropositionalEquality
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
+open import net.cruhland.axioms.Operators using (_+_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using
   (⊤; ⊤-intro; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
@@ -21,7 +22,7 @@ module ℕ = PeanoArithmetic peanoArithmetic
 open ℕ using (ℕ) renaming (_+_ to _+ᴺ_; _*_ to _*ᴺ_)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
-  ( _—_; _+_; _*_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
+  ( _—_; _*_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
   ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos; transpose
   ; Trichotomy; trichotomy; ℤ; ℤ⁺; ℤ⁻
   )
@@ -78,10 +79,10 @@ _ : 3 — 5 + 1 — 4 ≃ 2 — 4 + 1 — 4
 _ = ≃ᶻ-intro
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
-_ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
+_ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
 _ = ℤ.+-substᴸ
 
-_ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
+_ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 _ = ℤ.+-substᴿ
 
 _ : ∀ {a₁ a₂ b} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
@@ -215,10 +216,10 @@ _ = trichotomy
 +-assoc : ∀ {x y z} → (x + y) + z ≃ x + (y + z)
 +-assoc {x} = ℤ.+-assoc {x}
 
-_ : ∀ {x} → 0 + x ≃ x
+_ : {x : ℤ} → 0 + x ≃ x
 _ = ℤ.+-identityᴸ
 
-_ : ∀ {x} → x + 0 ≃ x
+_ : {x : ℤ} → x + 0 ≃ x
 _ = ℤ.+-identityᴿ
 
 +-inverseᴸ : ∀ {x} → - x + x ≃ 0
