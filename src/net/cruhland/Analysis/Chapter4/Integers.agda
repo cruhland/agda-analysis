@@ -6,8 +6,7 @@ import Agda.Builtin.Nat as Nat
 open import Function using (_∘_; const; flip)
 open import Relation.Binary using (IsEquivalence)
 -- Need this so instance search can construct equalities
-open import Relation.Binary.PropositionalEquality
-  using () renaming (refl to ≡-refl)
+import Relation.Binary.PropositionalEquality as ≡
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
