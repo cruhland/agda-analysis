@@ -3,7 +3,7 @@ module net.cruhland.Analysis.Chapter2 where
 open import Agda.Builtin.FromNat using (Number)
 open import Function using (id; const)
 open import net.cruhland.axioms.Eq using
-  (_≄_; Eq; refl; sym; ¬sym; trans; module ≃-Reasoning)
+  (_≃_; _≄_; Eq; refl; sym; ¬sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using
@@ -15,7 +15,7 @@ open import net.cruhland.models.Logic using
 
 module _ (PA : PeanoArithmetic) where
   open PeanoArithmetic PA using
-    ( ℕ; _≃_; ind; step; step-case; step-inj; step-subst; step≄zero; zero
+    ( ℕ; ind; step; step-case; step-inj; step-subst; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+; +-substᴸ; +-substᴿ
     ; +-assoc; +-cancelᴸ; +-comm; +-zeroᴸ; +-zeroᴿ

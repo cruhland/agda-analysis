@@ -4,6 +4,7 @@ module net.cruhland.Analysis.Chapter4.Rationals where
 import Agda.Builtin.FromNat as FromNat
 -- Needed for resolving instance arguments
 import Relation.Binary.PropositionalEquality as ≡
+import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-gen; ≄-gen; sym; trans; module ≃-Reasoning)
@@ -15,16 +16,6 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 
-[ab][cd]≃a[[bc]d] : ∀ {a b c d} → (a * b) * (c * d) ≃ a * ((b * c) * d)
-[ab][cd]≃a[[bc]d] {a} {b} {c} {d} =
-  begin
-    (a * b) * (c * d)
-  ≃⟨ ℤ.*-assoc {a} ⟩
-    a * (b * (c * d))
-  ≃˘⟨ ℤ.*-substᴿ {a} (ℤ.*-assoc {b}) ⟩
-    a * ((b * c) * d)
-  ∎
-
 swap-middle : ∀ {a b c d} → a * ((b * c) * d) ≃ a * ((c * b) * d)
 swap-middle {a} {b} {c} {d} = ℤ.*-substᴿ {a} (ℤ.*-substᴸ (ℤ.*-comm {b}))
 
@@ -34,7 +25,7 @@ regroup a b c d =
     (a * b) * (c * d)
   ≃⟨ ℤ.*-substᴿ {a * b} (ℤ.*-comm {c}) ⟩
     (a * b) * (d * c)
-  ≃⟨ [ab][cd]≃a[[bc]d] {a} ⟩
+  ≃⟨ AA.[ab][cd]≃a[[bc]d] {a = a} ⟩
     a * ((b * d) * c)
   ∎
 
