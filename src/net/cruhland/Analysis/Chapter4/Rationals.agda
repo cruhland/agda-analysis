@@ -16,9 +16,6 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 
-swap-middle : ∀ {a b c d} → a * ((b * c) * d) ≃ a * ((c * b) * d)
-swap-middle {a} {b} {c} {d} = ℤ.*-substᴿ {a} (ℤ.*-substᴸ (ℤ.*-comm {b}))
-
 regroup : ∀ a b c d → (a * b) * (c * d) ≃ a * ((b * d) * c)
 regroup a b c d =
   begin
@@ -35,7 +32,7 @@ perm-adcb {a} {b} {c} {d} =
     (a * d) * (c * b)
   ≃⟨ regroup a d c b ⟩
     a * ((d * b) * c)
-  ≃⟨ swap-middle {a} {d} ⟩
+  ≃⟨ AA.swap-middle {a = a} {b = d} ⟩
     a * ((b * d) * c)
   ≃˘⟨ regroup a b c d ⟩
     (a * b) * (c * d)

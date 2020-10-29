@@ -7,6 +7,7 @@ open import Function using (_∘_; const; flip)
 open import Relation.Binary using (IsEquivalence)
 -- Need this so instance search can construct equalities
 import Relation.Binary.PropositionalEquality as ≡
+import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
@@ -85,10 +86,10 @@ _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 _ = ℤ.+-substᴿ
 
 _ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
-_ = ℤ.*-substᴸ
+_ = AA.substᴸ
 
-*-substᴿ : ∀ {a b₁ b₂} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = ℤ.*-substᴿ {a}
+*-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
+*-substᴿ {a} = AA.substᴿ {a = a}
 
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
@@ -227,11 +228,11 @@ _ = ℤ.+-identityᴿ
 +-inverseᴿ : ∀ {x} → x + - x ≃ 0
 +-inverseᴿ {x} = ℤ.+-inverseᴿ {x}
 
-*-comm : ∀ {x y} → x * y ≃ y * x
-*-comm {x} = ℤ.*-comm {x}
+*-comm : {x y : ℤ} → x * y ≃ y * x
+*-comm {x} = AA.comm {a = x}
 
-*-assoc : ∀ {x y z} → (x * y) * z ≃ x * (y * z)
-*-assoc {x} = ℤ.*-assoc {x}
+*-assoc : {x y z : ℤ} → (x * y) * z ≃ x * (y * z)
+*-assoc {x} = AA.assoc {a = x}
 
 *-identityᴸ : {x : ℤ} → 1 * x ≃ x
 *-identityᴸ {x⁺ — x⁻} = ≃ᶻ-intro {{eq′}}
@@ -249,11 +250,11 @@ _ = ℤ.+-identityᴿ
         x⁺ + ((x⁻ + 0) + 0)
       ∎
 
-*-identityᴿ : ∀ {x} → x * 1 ≃ x
+*-identityᴿ : {x : ℤ} → x * 1 ≃ x
 *-identityᴿ {x} =
   begin
     x * 1
-  ≃⟨ ℤ.*-comm {x} ⟩
+  ≃⟨ AA.comm {a = x} ⟩
     1 * x
   ≃⟨ *-identityᴸ ⟩
     x
@@ -423,7 +424,7 @@ sub-cancelᴿ {a} {b} {c} =
     ab≃aᴺbᴺ =
       begin
         a * b
-      ≃⟨ ℤ.*-substᴸ a≃aᴺ ⟩
+      ≃⟨ AA.substᴸ a≃aᴺ ⟩
         ℤ.fromℕ aᴺ * b
       ≃⟨ *-substᴿ {ℤ.fromℕ aᴺ} b≃bᴺ ⟩
         ℤ.fromℕ aᴺ * ℤ.fromℕ bᴺ
