@@ -4,6 +4,7 @@ open import Level using (_⊔_; Level; 0ℓ) renaming (suc to sℓ)
 open import Relation.Binary using (DecSetoid)
 import Relation.Binary.PropositionalEquality as ≡
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
+open import net.cruhland.axioms.DecEq using (_≃?_; DecEq)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
@@ -23,8 +24,7 @@ open import net.cruhland.models.Setoid using
   )
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
-  open PeanoArithmetic peanoArithmetic
-    using (ℕ; _<_; _<?_; step) renaming (_≃?₀_ to _≃ᴺ?_)
+  open module PA = PeanoArithmetic peanoArithmetic using (ℕ; _<_; _<?_; step)
 
   module ST = SetTheory ST
   open ST using
@@ -44,7 +44,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     ; _∖_; x∈A∖B-elim; x∈A∖B-elimᴸ; x∈A∖B-elimᴿ; x∈A∖B-intro₂
     ; DecMembership; _∈?_; ∁-∈?; ∖-∈?; ∅-∈?; ∩-∈?
     ; pair-∈?; ⟨P⟩-∈?; singleton-∈?; ∪-∈?
-    ; finite; Finite; module Subsetᴸ
+    ; finite; Finite
     ; ∪⊆-elim; ∪⊆-elimᴸ; ∪⊆-elimᴿ; ⊆∪-introᴸ; ⊆∪-introᴿ; ∪⊆-intro₂
     ; pab≃sa∪sb; ⊆∩-elim; ⊆∩-intro₂; ∩⊆-introᴸ; ∩⊆-introᴿ; ∩-preserves-⊆ᴸ
     ; ∩-over-∪ᴸ; ∪-over-∩ᴸ; A∖B⊆A
@@ -61,9 +61,16 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   instance
     ℕ-DecSetoid : DecSetoid₀
-    ℕ-DecSetoid = ≡.decSetoid _≃ᴺ?_
+    ℕ-DecSetoid = ≡.decSetoid {A = ℕ} (λ x y → x ≃? y)
 
-  open Subsetᴸ {DS = ℕ-DecSetoid} using (_⊆?_; _≃?_)
+  open module ℕSub = ST.Subsetᴸ {DS = ℕ-DecSetoid} using (_⊆?_)
+
+  ℕSet : Set₁
+  ℕSet = PSet₀ ℕ-Setoid
+
+  instance
+    ℕSet-decEq : DecEq ℕSet
+    ℕSet-decEq = ℕSub.decEq
 
   {- 3.1 Fundamentals -}
 
@@ -71,9 +78,6 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- unordered collection of objects
   _ : Setoid σ₁ σ₂ → Set (sℓ (σ₁ ⊔ σ₂))
   _ = PSet
-
-  ℕSet : Set₁
-  ℕSet = PSet₀ ℕ-Setoid
 
   fromListℕ : List ℕ → ℕSet
   fromListℕ = finite
@@ -733,8 +737,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   step-RR = record { R = step-R ; R-most = λ _ y≡x z≡x → trans y≡x (sym z≡x) }
 
   instance
-    ℕ≡? : ∀ {x y} → Dec (x ≃ y)
-    ℕ≡? {x} {y} = x ≃ᴺ? y
+    ℕ≡? : {x y : ℕ} → Dec (x ≃ y)
+    ℕ≡? {x} {y} = x ≃? y
 
     step-RF : ReplFun step-RR
     step-RF = record { f = step ; Rxfx = const refl }
