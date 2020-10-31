@@ -24,7 +24,7 @@ open import net.cruhland.models.Setoid using
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open PeanoArithmetic peanoArithmetic
-    using (ℕ; _<_; _<?_; step) renaming (_≃_ to _≃ᴺ_; _≃?₀_ to _≃ᴺ?_)
+    using (ℕ; _<_; _<?_; step) renaming (_≃?₀_ to _≃ᴺ?_)
 
   module ST = SetTheory ST
   open ST using
@@ -723,7 +723,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   step-R : SRel₀ ℕ-Setoid ℕ-Setoid
   step-R = record
     { _⟨$⟩_ = λ x → record
-      { _⟨$⟩_ = λ y → y ≃ᴺ step x
+      { _⟨$⟩_ = λ y → y ≃ step x
       ; cong = λ { ≡.refl → equivalence-id }
       }
     ; cong = λ { ≡.refl ≡.refl → equivalence-id }
@@ -733,7 +733,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   step-RR = record { R = step-R ; R-most = λ _ y≡x z≡x → trans y≡x (sym z≡x) }
 
   instance
-    ℕ≡? : ∀ {x y} → Dec (x ≃ᴺ y)
+    ℕ≡? : ∀ {x y} → Dec (x ≃ y)
     ℕ≡? {x} {y} = x ≃ᴺ? y
 
     step-RF : ReplFun step-RR
