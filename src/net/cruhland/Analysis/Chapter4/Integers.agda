@@ -528,7 +528,7 @@ no-ind ind = ¬allP (ind P Pz Ps)
             ℕ.step (ℤ⁺ b) + 0
           ≃⟨⟩
             ℕ.step (ℤ⁺ b + 0)
-          ≃⟨ ℕ.step-subst b⁺+0≃n+b⁻ ⟩
+          ≃⟨ AA.subst b⁺+0≃n+b⁻ ⟩
             ℕ.step (n + ℤ⁻ b)
           ≃˘⟨ ℕ.+-stepᴸ {n} ⟩
             ℕ.step n + ℤ⁻ b

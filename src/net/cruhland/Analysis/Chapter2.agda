@@ -2,6 +2,7 @@ module net.cruhland.Analysis.Chapter2 where
 
 open import Agda.Builtin.FromNat using (Number)
 open import Function using (id; const)
+import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; ¬sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
@@ -15,7 +16,7 @@ open import net.cruhland.models.Logic using
 
 module _ (PA : PeanoArithmetic) where
   open PeanoArithmetic PA using
-    ( ℕ; ind; step; step-case; step-inj; step-subst; step≄zero; zero
+    ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+; +-substᴸ; +-substᴿ
     ; +-assoc; +-cancelᴸ; +-comm; +-zeroᴸ; +-zeroᴿ
@@ -442,7 +443,7 @@ module _ (PA : PeanoArithmetic) where
       Ps {k} (div-intro q r r<m k≃mq+r) with ≤→<∨≃ (<→s≤ r<m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
-          sk≃mq+sr = trans (step-subst k≃mq+r) (sym +-stepᴿ)
+          sk≃mq+sr = trans (AA.subst k≃mq+r) (sym +-stepᴿ)
       ... | ∨-introᴿ sr≃m = div-intro (step q) 0 0<m sk≃m[sq]+0
         where
           0<m = <-intro ≤-zero (¬sym m≄0)
@@ -450,7 +451,7 @@ module _ (PA : PeanoArithmetic) where
           sk≃m[sq]+0 =
             begin
               step k
-            ≃⟨ step-subst k≃mq+r ⟩
+            ≃⟨ AA.subst k≃mq+r ⟩
               step (m * q + r)
             ≃˘⟨ +-stepᴿ ⟩
               m * q + step r
