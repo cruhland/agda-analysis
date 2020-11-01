@@ -160,7 +160,7 @@ step x = x + 1
 ℤ⁺s≃sℤ⁺ {a⁺ — _} = sym ℕ.step≃+
 
 ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ⁻ (step a) ≃ ℤ⁻ a
-ℤ⁻s≃ℤ⁻ {_ — a⁻} = ℕ.+-zeroᴿ
+ℤ⁻s≃ℤ⁻ {_ — a⁻} = AA.identᴿ
 
 -- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
 -- define the negation -(a—b) to be the integer (b—a).
@@ -276,7 +276,7 @@ _ = _-_
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → ℤ.fromℕ a - ℤ.fromℕ b ≃ a — b
-natsub {a} = ≃ᶻ-intro {{AA.substᴸ (ℕ.+-zeroᴿ {a})}}
+natsub {a} = ≃ᶻ-intro {{AA.substᴸ (AA.identᴿ {a = a})}}
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).

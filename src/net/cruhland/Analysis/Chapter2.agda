@@ -19,8 +19,7 @@ module _ (PA : PeanoArithmetic) where
     ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
-    ; +-assoc; +-cancelᴸ; +-zeroᴸ; +-zeroᴿ
-    ; Positive; +-positive; +-both-zero
+    ; +-assoc; +-cancelᴸ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
@@ -160,7 +159,7 @@ module _ (PA : PeanoArithmetic) where
   _ = _+_
 
   0+m : ∀ {m} → 0 + m ≃ m
-  0+m = +-zeroᴸ
+  0+m = AA.identᴸ
 
   1+m : ∀ {m} → 1 + m ≃ step m
   1+m {m} =
@@ -168,7 +167,7 @@ module _ (PA : PeanoArithmetic) where
       1 + m
     ≃⟨ +-stepᴸ⃗ᴿ ⟩
       0 + step m
-    ≃⟨ +-zeroᴸ ⟩
+    ≃⟨ AA.identᴸ ⟩
       step m
     ∎
 
@@ -180,13 +179,13 @@ module _ (PA : PeanoArithmetic) where
       1 + 4
     ≃⟨ +-stepᴸ⃗ᴿ ⟩
       0 + 5
-    ≃⟨ +-zeroᴸ ⟩
+    ≃⟨ AA.identᴸ ⟩
       5
     ∎
 
   -- Lemma 2.2.2. For any natural number n, n + 0 = n.
   _ : ∀ {n} → n + 0 ≃ n
-  _ = +-zeroᴿ
+  _ = AA.identᴿ
 
   -- Lemma 2.2.3. For any natural numbers n and m, n + step m = step (n + m).
   _ : ∀ {n m} → n + step m ≃ step (n + m)
@@ -231,7 +230,7 @@ module _ (PA : PeanoArithmetic) where
       b≃0 =
         begin
           b
-        ≃˘⟨ +-zeroᴸ ⟩
+        ≃˘⟨ AA.identᴸ ⟩
           0 + b
         ≃˘⟨ AA.substᴸ a≃0 ⟩
           a + b
@@ -293,7 +292,7 @@ module _ (PA : PeanoArithmetic) where
           step (step 5) + step zero
         ≃⟨ +-stepᴿ⃗ᴸ ⟩
           step (step (step 5)) + zero
-        ≃⟨ +-zeroᴿ ⟩
+        ≃⟨ AA.identᴿ ⟩
           step (step (step 5))
         ≃⟨⟩
           8
@@ -437,7 +436,7 @@ module _ (PA : PeanoArithmetic) where
           q = 0
           r = 0
           r<m = <-intro ≤-zero (¬sym m≄0)
-          n≃mq+r = sym (trans +-zeroᴿ *-zeroᴿ)
+          n≃mq+r = sym (trans AA.identᴿ *-zeroᴿ)
 
       Ps : step-case P
       Ps {k} (div-intro q r r<m k≃mq+r) with ≤→<∨≃ (<→s≤ r<m)
@@ -459,7 +458,7 @@ module _ (PA : PeanoArithmetic) where
               m * q + m
             ≃˘⟨ *-stepᴿ ⟩
               m * step q
-            ≃˘⟨ +-zeroᴿ ⟩
+            ≃˘⟨ AA.identᴿ ⟩
               m * step q + 0
             ∎
 
