@@ -16,11 +16,11 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 
-regroup : ∀ a b c d → (a * b) * (c * d) ≃ a * ((b * d) * c)
+regroup : (a b c d : ℤ) → (a * b) * (c * d) ≃ a * ((b * d) * c)
 regroup a b c d =
   begin
     (a * b) * (c * d)
-  ≃⟨ ℤ.*-substᴿ {a * b} (ℤ.*-comm {c}) ⟩
+  ≃⟨ AA.substᴿ {a = a * b} (AA.comm {a = c}) ⟩
     (a * b) * (d * c)
   ≃⟨ AA.[ab][cd]≃a[[bc]d] {a = a} ⟩
     a * ((b * d) * c)
@@ -38,13 +38,13 @@ perm-adcb {a} {b} {c} {d} =
     (a * b) * (c * d)
   ∎
 
-a≃b*c≃d : ∀ {a b c d} → a ≃ b → c ≃ d → a * c ≃ b * d
+a≃b*c≃d : {a b c d : ℤ} → a ≃ b → c ≃ d → a * c ≃ b * d
 a≃b*c≃d {a} {b} {c} {d} a≃b c≃d =
   begin
     a * c
-  ≃⟨ ℤ.*-substᴸ a≃b ⟩
+  ≃⟨ AA.substᴸ a≃b ⟩
     b * c
-  ≃⟨ ℤ.*-substᴿ {b} c≃d ⟩
+  ≃⟨ AA.substᴿ {a = b} c≃d ⟩
     b * d
   ∎
 
@@ -85,7 +85,7 @@ record _≃₀_ (p q : ℚ) : Set where
           p↑ * q↓
         ≃⟨ p↑q↓≃q↑p↓ ⟩
           q↑ * p↓
-        ≃⟨ ℤ.*-substᴸ q↑≃0 ⟩
+        ≃⟨ AA.substᴸ q↑≃0 ⟩
           0 * p↓
         ≃⟨ ℤ.*-zeroᴸ {p↓} ⟩
           0
@@ -95,7 +95,7 @@ record _≃₀_ (p q : ℚ) : Set where
           r↑ * q↓
         ≃˘⟨ q↑r↓≃r↑q↓ ⟩
           q↑ * r↓
-        ≃⟨ ℤ.*-substᴸ q↑≃0 ⟩
+        ≃⟨ AA.substᴸ q↑≃0 ⟩
           0 * r↓
         ≃⟨ ℤ.*-zeroᴸ {r↓} ⟩
           0
@@ -105,13 +105,13 @@ record _≃₀_ (p q : ℚ) : Set where
       p↑r↓≃r↑p↓ =
         begin
           p↑ * r↓
-        ≃⟨ ℤ.*-substᴸ p↑≃0 ⟩
+        ≃⟨ AA.substᴸ p↑≃0 ⟩
           0 * r↓
         ≃⟨ ℤ.*-zeroᴸ {r↓} ⟩
           0
         ≃˘⟨ ℤ.*-zeroᴸ {p↓} ⟩
           0 * p↓
-        ≃˘⟨ ℤ.*-substᴸ r↑≃0 ⟩
+        ≃˘⟨ AA.substᴸ r↑≃0 ⟩
           r↑ * p↓
         ∎
    in ≃₀-intro {{p↑r↓≃r↑p↓}}
@@ -125,7 +125,7 @@ record _≃₀_ (p q : ℚ) : Set where
           (q↑ * p↓) * (r↑ * q↓)
         ≃⟨ perm-adcb {a = q↑} {c = r↑} ⟩
           (q↑ * q↓) * (r↑ * p↓)
-        ≃⟨ ℤ.*-comm {q↑ * q↓} ⟩
+        ≃⟨ AA.comm {a = q↑ * q↓} ⟩
           (r↑ * p↓) * (q↑ * q↓)
         ∎
       q↑q↓≄0 = ℤ.*-neither-zero q↑≄0 (≄ⁱ-elim {{i = q↓≄ⁱ0}})

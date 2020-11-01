@@ -86,10 +86,10 @@ _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 _ = ℤ.+-substᴿ
 
 _ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
-_ = AA.subst₂ᴸ
+_ = AA.substᴸ
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.subst₂ᴿ {a = a}
+*-substᴿ {a} = AA.substᴿ {a = a}
 
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
@@ -424,7 +424,7 @@ sub-cancelᴿ {a} {b} {c} =
     ab≃aᴺbᴺ =
       begin
         a * b
-      ≃⟨ AA.subst₂ᴸ a≃aᴺ ⟩
+      ≃⟨ AA.substᴸ a≃aᴺ ⟩
         ℤ.fromℕ aᴺ * b
       ≃⟨ *-substᴿ {ℤ.fromℕ aᴺ} b≃bᴺ ⟩
         ℤ.fromℕ aᴺ * ℤ.fromℕ bᴺ
