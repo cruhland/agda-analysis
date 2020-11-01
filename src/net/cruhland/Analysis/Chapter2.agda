@@ -19,7 +19,7 @@ module _ (PA : PeanoArithmetic) where
     ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
-    ; +-assoc; +-cancelᴸ; Positive; +-positive; +-both-zero
+    ; +-cancelᴸ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
@@ -201,7 +201,7 @@ module _ (PA : PeanoArithmetic) where
   -- Proposition 2.2.5 (Addition is associative).
   -- Exercise 2.2.1
   _ : ∀ {a b c} → (a + b) + c ≃ a + (b + c)
-  _ = +-assoc
+  _ = AA.assoc
 
   -- Proposition 2.2.6 (Cancellation law).
   _ : ∀ {a b c} → a + b ≃ a + c → b ≃ c
@@ -529,9 +529,9 @@ module _ (PA : PeanoArithmetic) where
       a * a + a * b + (b * a + b * b)
     ≃⟨ AA.substᴿ (AA.substᴸ *-comm) ⟩
       a * a + a * b + (a * b + b * b)
-    ≃˘⟨ +-assoc ⟩
+    ≃˘⟨ AA.assoc ⟩
       a * a + a * b + a * b + b * b
-    ≃⟨ AA.substᴸ +-assoc ⟩
+    ≃⟨ AA.substᴸ AA.assoc ⟩
       a * a + (a * b + a * b) + b * b
     ≃˘⟨ AA.substᴸ (AA.substᴿ 2x≃x+x) ⟩
       a * a + 2 * (a * b) + b * b

@@ -103,7 +103,7 @@ _ = ≃ᶻ-intro
     eq′ =
       begin
         n * m + 0 + 0
-      ≃⟨ ℕ.+-assoc {n * m} ⟩
+      ≃⟨ AA.assoc {a = n * m} ⟩
         n * m + (0 + 0)
       ≃˘⟨ AA.substᴿ (AA.substᴸ {b = 0} (ℕ.*-zeroᴿ {n})) ⟩
         n * m + (n * 0 + 0)
@@ -240,11 +240,11 @@ _ = ℤ.+-identityᴿ
     eq′ =
       begin
         ((x⁺ + 0) + 0) + x⁻
-      ≃⟨ ℕ.+-assoc {x⁺ + 0} ⟩
+      ≃⟨ AA.assoc {a = x⁺ + 0} ⟩
         (x⁺ + 0) + (0 + x⁻)
       ≃⟨ AA.substᴿ {a = x⁺ + 0} (AA.comm {a = 0}) ⟩
         (x⁺ + 0) + (x⁻ + 0)
-      ≃⟨ ℕ.+-assoc {x⁺} ⟩
+      ≃⟨ AA.assoc {a = x⁺} ⟩
         x⁺ + (0 + (x⁻ + 0))
       ≃⟨ AA.substᴿ {a = x⁺} (AA.comm {a = 0}) ⟩
         x⁺ + ((x⁻ + 0) + 0)
