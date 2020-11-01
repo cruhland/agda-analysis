@@ -19,7 +19,7 @@ module _ (PA : PeanoArithmetic) where
     ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
-    ; +-cancelᴸ; Positive; +-positive; +-both-zero
+    ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
@@ -205,7 +205,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.2.6 (Cancellation law).
   _ : ∀ {a b c} → a + b ≃ a + c → b ≃ c
-  _ = +-cancelᴸ
+  _ = AA.cancelᴸ
 
   -- Definition 2.2.7 (Positive natural numbers).
   _ : ℕ → Set

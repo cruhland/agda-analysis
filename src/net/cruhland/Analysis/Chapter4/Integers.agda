@@ -111,7 +111,7 @@ _ = ≃ᶻ-intro
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (ℕ.+-cancelᴿ ∘ ≃ᶻ-elim) (λ n≃m → ≃ᶻ-intro {{AA.substᴸ n≃m}})
+_ = ↔-intro (AA.cancelᴿ ∘ ≃ᶻ-elim) (λ n≃m → ≃ᶻ-intro {{AA.substᴸ n≃m}})
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
