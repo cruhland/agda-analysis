@@ -86,10 +86,10 @@ _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 _ = ℤ.+-substᴿ
 
 _ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
-_ = AA.substᴸ
+_ = AA.subst₂ᴸ
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.substᴿ {a = a}
+*-substᴿ {a} = AA.subst₂ᴿ {a = a}
 
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
@@ -105,13 +105,13 @@ _ = ≃ᶻ-intro
         n * m + 0 + 0
       ≃⟨ ℕ.+-assoc {n * m} ⟩
         n * m + (0 + 0)
-      ≃˘⟨ ℕ.+-substᴿ (ℕ.+-substᴸ {m = 0} (ℕ.*-zeroᴿ {n})) ⟩
+      ≃˘⟨ AA.substᴿ (AA.substᴸ {b = 0} (ℕ.*-zeroᴿ {n})) ⟩
         n * m + (n * 0 + 0)
       ∎
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (ℕ.+-cancelᴿ ∘ ≃ᶻ-elim) (λ n≃m → ≃ᶻ-intro {{ℕ.+-substᴸ n≃m}})
+_ = ↔-intro (ℕ.+-cancelᴿ ∘ ≃ᶻ-elim) (λ n≃m → ≃ᶻ-intro {{AA.substᴸ n≃m}})
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
@@ -242,11 +242,11 @@ _ = ℤ.+-identityᴿ
         ((x⁺ + 0) + 0) + x⁻
       ≃⟨ ℕ.+-assoc {x⁺ + 0} ⟩
         (x⁺ + 0) + (0 + x⁻)
-      ≃⟨ ℕ.+-substᴿ {x⁺ + 0} (ℕ.+-comm {0}) ⟩
+      ≃⟨ AA.substᴿ {a = x⁺ + 0} (AA.comm {a = 0}) ⟩
         (x⁺ + 0) + (x⁻ + 0)
       ≃⟨ ℕ.+-assoc {x⁺} ⟩
         x⁺ + (0 + (x⁻ + 0))
-      ≃⟨ ℕ.+-substᴿ {x⁺} (ℕ.+-comm {0}) ⟩
+      ≃⟨ AA.substᴿ {a = x⁺} (AA.comm {a = 0}) ⟩
         x⁺ + ((x⁻ + 0) + 0)
       ∎
 
@@ -276,7 +276,7 @@ _ = _-_
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → ℤ.fromℕ a - ℤ.fromℕ b ≃ a — b
-natsub {a} = ≃ᶻ-intro {{ℕ.+-substᴸ (ℕ.+-zeroᴿ {a})}}
+natsub {a} = ≃ᶻ-intro {{AA.substᴸ (ℕ.+-zeroᴿ {a})}}
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
@@ -424,7 +424,7 @@ sub-cancelᴿ {a} {b} {c} =
     ab≃aᴺbᴺ =
       begin
         a * b
-      ≃⟨ AA.substᴸ a≃aᴺ ⟩
+      ≃⟨ AA.subst₂ᴸ a≃aᴺ ⟩
         ℤ.fromℕ aᴺ * b
       ≃⟨ *-substᴿ {ℤ.fromℕ aᴺ} b≃bᴺ ⟩
         ℤ.fromℕ aᴺ * ℤ.fromℕ bᴺ
@@ -524,7 +524,7 @@ no-ind ind = ¬allP (ind P Pz Ps)
         sb⁺+0≃sn+sb⁻ =
           begin
             ℤ⁺ (step b) + 0
-          ≃⟨ ℕ.+-substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
+          ≃⟨ AA.substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
             ℕ.step (ℤ⁺ b) + 0
           ≃⟨⟩
             ℕ.step (ℤ⁺ b + 0)
@@ -532,7 +532,7 @@ no-ind ind = ¬allP (ind P Pz Ps)
             ℕ.step (n + ℤ⁻ b)
           ≃˘⟨ ℕ.+-stepᴸ {n} ⟩
             ℕ.step n + ℤ⁻ b
-          ≃˘⟨ ℕ.+-substᴿ (ℤ⁻s≃ℤ⁻ {b}) ⟩
+          ≃˘⟨ AA.substᴿ (ℤ⁻s≃ℤ⁻ {b}) ⟩
             ℕ.step n + ℤ⁻ (step b)
           ∎
 

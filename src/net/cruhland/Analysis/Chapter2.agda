@@ -15,11 +15,11 @@ open import net.cruhland.models.Logic using
   )
 
 module _ (PA : PeanoArithmetic) where
-  open PeanoArithmetic PA using
+  open module PA = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+; +-substᴸ; +-substᴿ
-    ; +-assoc; +-cancelᴸ; +-comm; +-zeroᴸ; +-zeroᴿ
+    ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
+    ; +-assoc; +-cancelᴸ; +-zeroᴸ; +-zeroᴿ
     ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
@@ -197,7 +197,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.2.4 (Addition is commutative).
   _ : ∀ {n m} → n + m ≃ m + n
-  _ = +-comm
+  _ = AA.comm
 
   -- Proposition 2.2.5 (Addition is associative).
   -- Exercise 2.2.1
@@ -233,7 +233,7 @@ module _ (PA : PeanoArithmetic) where
           b
         ≃˘⟨ +-zeroᴸ ⟩
           0 + b
-        ≃˘⟨ +-substᴸ a≃0 ⟩
+        ≃˘⟨ AA.substᴸ a≃0 ⟩
           a + b
         ≃⟨ a+b≃0 ⟩
           0
@@ -245,7 +245,7 @@ module _ (PA : PeanoArithmetic) where
           step (p + b)
         ≃˘⟨ +-stepᴸ ⟩
           step p + b
-        ≃˘⟨ +-substᴸ a≃sp ⟩
+        ≃˘⟨ AA.substᴸ a≃sp ⟩
           a + b
         ≃⟨ a+b≃0 ⟩
           0
@@ -381,10 +381,10 @@ module _ (PA : PeanoArithmetic) where
   0*m = *-zeroᴸ
 
   1*m : ∀ {m} → 1 * m ≃ 0 + m
-  1*m {m} = trans *-stepᴸ (+-substᴸ 0*m)
+  1*m {m} = trans *-stepᴸ (AA.substᴸ 0*m)
 
   2*m : ∀ {m} → 2 * m ≃ 0 + m + m
-  2*m {m} = trans *-stepᴸ (+-substᴸ 1*m)
+  2*m {m} = trans *-stepᴸ (AA.substᴸ 1*m)
 
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
@@ -455,7 +455,7 @@ module _ (PA : PeanoArithmetic) where
               step (m * q + r)
             ≃˘⟨ +-stepᴿ ⟩
               m * q + step r
-            ≃⟨ +-substᴿ sr≃m ⟩
+            ≃⟨ AA.substᴿ sr≃m ⟩
               m * q + m
             ≃˘⟨ *-stepᴿ ⟩
               m * step q
@@ -511,7 +511,7 @@ module _ (PA : PeanoArithmetic) where
       step 1 * x
     ≃⟨ *-stepᴸ ⟩
       1 * x + x
-    ≃⟨ +-substᴸ *-oneᴸ ⟩
+    ≃⟨ AA.substᴸ *-oneᴸ ⟩
       x + x
     ∎
 
@@ -524,22 +524,22 @@ module _ (PA : PeanoArithmetic) where
       (a + b) * (a + b)
     ≃⟨ *-distrib-+ᴿ ⟩
       a * (a + b) + b * (a + b)
-    ≃⟨ +-substᴸ *-distrib-+ᴸ ⟩
+    ≃⟨ AA.substᴸ *-distrib-+ᴸ ⟩
       a * a + a * b + b * (a + b)
-    ≃⟨ +-substᴿ *-distrib-+ᴸ ⟩
+    ≃⟨ AA.substᴿ *-distrib-+ᴸ ⟩
       a * a + a * b + (b * a + b * b)
-    ≃⟨ +-substᴿ (+-substᴸ *-comm) ⟩
+    ≃⟨ AA.substᴿ (AA.substᴸ *-comm) ⟩
       a * a + a * b + (a * b + b * b)
     ≃˘⟨ +-assoc ⟩
       a * a + a * b + a * b + b * b
-    ≃⟨ +-substᴸ +-assoc ⟩
+    ≃⟨ AA.substᴸ +-assoc ⟩
       a * a + (a * b + a * b) + b * b
-    ≃˘⟨ +-substᴸ (+-substᴿ 2x≃x+x) ⟩
+    ≃˘⟨ AA.substᴸ (AA.substᴿ 2x≃x+x) ⟩
       a * a + 2 * (a * b) + b * b
-    ≃˘⟨ +-substᴸ (+-substᴿ *-assoc) ⟩
+    ≃˘⟨ AA.substᴸ (AA.substᴿ *-assoc) ⟩
       a * a + 2 * a * b + b * b
-    ≃˘⟨ +-substᴸ (+-substᴸ x^2≃xx) ⟩
+    ≃˘⟨ AA.substᴸ (AA.substᴸ x^2≃xx) ⟩
       a ^ 2 + 2 * a * b + b * b
-    ≃˘⟨ +-substᴿ x^2≃xx ⟩
+    ≃˘⟨ AA.substᴿ x^2≃xx ⟩
       a ^ 2 + 2 * a * b + b ^ 2
     ∎
