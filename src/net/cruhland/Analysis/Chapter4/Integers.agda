@@ -23,7 +23,7 @@ open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
   ( _—_; -_; _-_; _≤_; _<_; _>_; AtLeastOne; ExactlyOneOf
-  ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos; transpose
+  ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos
   ; Trichotomy; trichotomy; ℤ; ℤ⁺; ℤ⁻
   )
 open Trichotomy using (at-least)
