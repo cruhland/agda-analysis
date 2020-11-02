@@ -25,7 +25,7 @@ module _ (PA : PeanoArithmetic) where
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
     ; _*_; *-assoc; *-comm; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-substᴸ; *-substᴿ
     ; *-zeroᴸ; *-zeroᴿ
-    ; *-cancelᴿ; *-distrib-+ᴸ; *-distrib-+ᴿ; *-either-zero; *-preserves-<
+    ; *-cancelᴿ; *-distrib-+ᴿ; *-either-zero; *-preserves-<
     ; _^_; ^-stepᴿ; ^-zeroᴿ
     )
 
@@ -401,7 +401,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.3.4 (Distributive law).
   _ : ∀ {a b c} → a * (b + c) ≃ a * b + a * c
-  _ = *-distrib-+ᴸ
+  _ = AA.distribᴸ
 
   -- Proposition 2.3.5 (Multiplication is associative).
   -- Exercise 2.3.3
@@ -523,9 +523,7 @@ module _ (PA : PeanoArithmetic) where
       (a + b) * (a + b)
     ≃⟨ *-distrib-+ᴿ ⟩
       a * (a + b) + b * (a + b)
-    ≃⟨ AA.substᴸ *-distrib-+ᴸ ⟩
-      a * a + a * b + b * (a + b)
-    ≃⟨ AA.substᴿ *-distrib-+ᴸ ⟩
+    ≃⟨ AA.distrib-twoᴸ ⟩
       a * a + a * b + (b * a + b * b)
     ≃⟨ AA.substᴿ (AA.substᴸ *-comm) ⟩
       a * a + a * b + (a * b + b * b)
