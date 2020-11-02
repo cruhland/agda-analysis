@@ -16,25 +16,15 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 
-regroup : (a b c d : ℤ) → (a * b) * (c * d) ≃ a * ((b * d) * c)
-regroup a b c d =
-  begin
-    (a * b) * (c * d)
-  ≃⟨ AA.substᴿ {a = a * b} (AA.comm {a = c}) ⟩
-    (a * b) * (d * c)
-  ≃⟨ AA.[ab][cd]≃a[[bc]d] {a = a} ⟩
-    a * ((b * d) * c)
-  ∎
-
-perm-adcb : ∀ {a b c d} → (a * d) * (c * b) ≃ (a * b) * (c * d)
+perm-adcb : {a b c d : ℤ} → (a * d) * (c * b) ≃ (a * b) * (c * d)
 perm-adcb {a} {b} {c} {d} =
   begin
     (a * d) * (c * b)
-  ≃⟨ regroup a d c b ⟩
+  ≃⟨ AA.regroup a d c b ⟩
     a * ((d * b) * c)
   ≃⟨ AA.swap-middle {a = a} {b = d} ⟩
     a * ((b * d) * c)
-  ≃˘⟨ regroup a b c d ⟩
+  ≃˘⟨ AA.regroup a b c d ⟩
     (a * b) * (c * d)
   ∎
 
