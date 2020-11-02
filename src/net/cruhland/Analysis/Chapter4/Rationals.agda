@@ -16,18 +16,6 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 
-perm-adcb : {a b c d : ℤ} → (a * d) * (c * b) ≃ (a * b) * (c * d)
-perm-adcb {a} {b} {c} {d} =
-  begin
-    (a * d) * (c * b)
-  ≃⟨ AA.regroup a d c b ⟩
-    a * ((d * b) * c)
-  ≃⟨ AA.swap-middle {a = a} {b = d} ⟩
-    a * ((b * d) * c)
-  ≃˘⟨ AA.regroup a b c d ⟩
-    (a * b) * (c * d)
-  ∎
-
 a≃b*c≃d : {a b c d : ℤ} → a ≃ b → c ≃ d → a * c ≃ b * d
 a≃b*c≃d {a} {b} {c} {d} a≃b c≃d =
   begin
@@ -109,11 +97,11 @@ record _≃₀_ (p q : ℚ) : Set where
   let p↑r↓[q↑q↓]≃r↑p↓[q↑q↓] =
         begin
           (p↑ * r↓) * (q↑ * q↓)
-        ≃⟨ perm-adcb {a = p↑} {c = q↑} ⟩
+        ≃⟨ AA.perm-adcb {a = p↑} {c = q↑} ⟩
           (p↑ * q↓) * (q↑ * r↓)
         ≃⟨ a≃b*c≃d p↑q↓≃q↑p↓ q↑r↓≃r↑q↓ ⟩
           (q↑ * p↓) * (r↑ * q↓)
-        ≃⟨ perm-adcb {a = q↑} {c = r↑} ⟩
+        ≃⟨ AA.perm-adcb {a = q↑} {c = r↑} ⟩
           (q↑ * q↓) * (r↑ * p↓)
         ≃⟨ AA.comm {a = q↑ * q↓} ⟩
           (r↑ * p↓) * (q↑ * q↓)
