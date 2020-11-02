@@ -22,7 +22,7 @@ module ℕ = PeanoArithmetic peanoArithmetic
 open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
-  ( _—_; -_; _-_; _≤_; _<_; _>_; a≃b+c≃d; AtLeastOne; ExactlyOneOf
+  ( _—_; -_; _-_; _≤_; _<_; _>_; AtLeastOne; ExactlyOneOf
   ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos; transpose
   ; Trichotomy; trichotomy; ℤ; ℤ⁺; ℤ⁻
   )

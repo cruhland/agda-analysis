@@ -16,16 +16,6 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 
-a≃b*c≃d : {a b c d : ℤ} → a ≃ b → c ≃ d → a * c ≃ b * d
-a≃b*c≃d {a} {b} {c} {d} a≃b c≃d =
-  begin
-    a * c
-  ≃⟨ AA.substᴸ a≃b ⟩
-    b * c
-  ≃⟨ AA.substᴿ {a = b} c≃d ⟩
-    b * d
-  ∎
-
 {- 4.2 The rationals -}
 
 -- Definition 4.2.1. A _rational number_ is an expression of the form
@@ -99,7 +89,7 @@ record _≃₀_ (p q : ℚ) : Set where
           (p↑ * r↓) * (q↑ * q↓)
         ≃⟨ AA.perm-adcb {a = p↑} {c = q↑} ⟩
           (p↑ * q↓) * (q↑ * r↓)
-        ≃⟨ a≃b*c≃d p↑q↓≃q↑p↓ q↑r↓≃r↑q↓ ⟩
+        ≃⟨ AA.[a≃b][c≃d] p↑q↓≃q↑p↓ q↑r↓≃r↑q↓ ⟩
           (q↑ * p↓) * (r↑ * q↓)
         ≃⟨ AA.perm-adcb {a = q↑} {c = r↑} ⟩
           (q↑ * q↓) * (r↑ * p↓)
