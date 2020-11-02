@@ -23,7 +23,7 @@ module _ (PA : PeanoArithmetic) where
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
-    ; _*_; *-assoc; *-comm; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-substᴸ; *-substᴿ
+    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-substᴸ; *-substᴿ
     ; *-zeroᴸ; *-zeroᴿ
     ; *-cancelᴿ; *-distrib-+ᴿ; *-either-zero; *-preserves-<
     ; _^_; ^-stepᴿ; ^-zeroᴿ
@@ -388,7 +388,7 @@ module _ (PA : PeanoArithmetic) where
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
   _ : ∀ {n m} → n * m ≃ m * n
-  _ = *-comm
+  _ = AA.comm
 
   -- Lemma 2.3.3 (Positive natural numbers have no zero divisors).
   -- Exercise 2.3.2
@@ -525,7 +525,7 @@ module _ (PA : PeanoArithmetic) where
       a * (a + b) + b * (a + b)
     ≃⟨ AA.distrib-twoᴸ ⟩
       a * a + a * b + (b * a + b * b)
-    ≃⟨ AA.substᴿ (AA.substᴸ *-comm) ⟩
+    ≃⟨ AA.substᴿ (AA.substᴸ AA.comm) ⟩
       a * a + a * b + (a * b + b * b)
     ≃˘⟨ AA.assoc ⟩
       a * a + a * b + a * b + b * b
