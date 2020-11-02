@@ -24,8 +24,7 @@ module _ (PA : PeanoArithmetic) where
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
     ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-substᴸ; *-substᴿ
-    ; *-zeroᴸ; *-zeroᴿ
-    ; *-cancelᴿ; *-distrib-+ᴿ; *-either-zero; *-preserves-<
+    ; *-zeroᴸ; *-zeroᴿ; *-cancelᴿ; *-either-zero; *-preserves-<
     ; _^_; ^-stepᴿ; ^-zeroᴿ
     )
 
@@ -521,7 +520,7 @@ module _ (PA : PeanoArithmetic) where
       (a + b) ^ 2
     ≃⟨ x^2≃xx ⟩
       (a + b) * (a + b)
-    ≃⟨ *-distrib-+ᴿ ⟩
+    ≃⟨ AA.distribᴿ ⟩
       a * (a + b) + b * (a + b)
     ≃⟨ AA.distrib-twoᴸ ⟩
       a * a + a * b + (b * a + b * b)
