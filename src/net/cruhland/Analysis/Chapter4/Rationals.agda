@@ -5,14 +5,13 @@ import Agda.Builtin.FromNat as FromNat
 -- Needed for resolving instance arguments
 import Relation.Binary.PropositionalEquality as ≡
 import net.cruhland.axioms.AbstractAlgebra as AA
-open import net.cruhland.axioms.DecEq using (_≃?_)
+open import net.cruhland.axioms.DecEq using (_≃?_; DecEq; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq using
-  ( _≃_; _≄_; _≄ⁱ_; ≃-derive; ≄-derive; ≄ⁱ-elim
-  ; Eq; sym; trans; module ≃-Reasoning
-  )
+  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_*_)
-open import net.cruhland.models.Logic using (∨-forceᴸ; ¬_; yes; no)
+open import net.cruhland.models.Logic using
+  (⊤; ∨-forceᴸ; ¬_; Dec; dec-map; yes; no)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 import net.cruhland.models.Integers peanoArithmetic as ℤ
@@ -121,6 +120,13 @@ instance
     ; _≄ⁱ_ = _≄₀ⁱ_
     ; ≄ⁱ-elim = λ {{i}} → ≄₀ⁱ-elim {{i}}
     }
+
+  decEq : DecEq ℚ
+  decEq = record { Constraint = λ _ _ → ⊤ ; _≃?_ = _≃?₀_ }
+    where
+      _≃?₀_ : (x y : ℚ) {{_ : ⊤}} → Dec (x ≃ y)
+      (p↑ // p↓) ≃?₀ (q↑ // q↓) =
+        dec-map (λ x → ≃₀-intro {{x}}) _≃₀_.elim (p↑ * q↓ ≃? q↑ * p↓)
 
 _ : 3 // 4 ≃ 6 // 8
 _ = ≃-derive

@@ -8,8 +8,9 @@ open import Relation.Binary using (IsEquivalence)
 -- Need this so instance search can construct equalities
 import Relation.Binary.PropositionalEquality as ≡
 import net.cruhland.axioms.AbstractAlgebra as AA
+open import net.cruhland.axioms.DecEq using (≃-derive ; ≄-derive)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; ≃-derive; ≄-derive; Eq; refl; sym; trans; module ≃-Reasoning)
+  (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
