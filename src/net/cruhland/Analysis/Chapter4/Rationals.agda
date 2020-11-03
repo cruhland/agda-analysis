@@ -4,10 +4,11 @@ module net.cruhland.Analysis.Chapter4.Rationals where
 import Agda.Builtin.FromNat as FromNat
 -- Needed for resolving instance arguments
 import Relation.Binary.PropositionalEquality as ≡
+open import Relation.Nullary.Decidable using (False)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.DecEq using (_≃?_; DecEq; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; sym; trans; module ≃-Reasoning)
+  (_≃_; _≄_; Eq; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_*_)
 open import net.cruhland.models.Logic using
@@ -28,25 +29,27 @@ open import net.cruhland.models.Rationals peanoArithmetic using (_//_; ℚ)
 _ : Set
 _ = ℚ
 
-_ : (a b : ℤ) {{_ : b ≄ⁱ 0}} → ℚ
+_ : (a b : ℤ) {{_ : False (b ≃? 0)}} → ℚ
 _ = _//_
 
 infix 4 _≃₀_
 record _≃₀_ (p q : ℚ) : Set where
   instance constructor ≃₀-intro
   field
-    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ * q↓ ≃ q↑ * p↓
+    {{elim}} : ℚ.n p * ℚ.d q ≃ ℚ.n q * ℚ.d p
 
 -- Exercise 4.2.1
 ≃₀-refl : ∀ {q} → q ≃₀ q
-≃₀-refl {q↑ // q↓} = ≃₀-intro
+≃₀-refl = ≃₀-intro
 
 ≃₀-sym : ∀ {p q} → p ≃₀ q → q ≃₀ p
 ≃₀-sym (≃₀-intro {{≃-ℤ}}) = ≃₀-intro {{sym ≃-ℤ}}
 
 ≃₀-trans : ∀ {p q r} → p ≃₀ q → q ≃₀ r → p ≃₀ r
 ≃₀-trans
-  {p↑ // p↓} {(q↑ // q↓) {{q↓≄ⁱ0}}} {r↑ // r↓}
+  {record { n = p↑ ; d = p↓ }}
+  {record { n = q↑ ; d = q↓ ; d≄0 = q↓≄0 }}
+  {record { n = r↑ ; d = r↓ }}
   (≃₀-intro {{p↑q↓≃q↑p↓}}) (≃₀-intro {{q↑r↓≃r↑q↓}}) with q↑ ≃? 0
 ... | yes q↑≃0 =
   let p↑q↓≃0 =
@@ -69,8 +72,8 @@ record _≃₀_ (p q : ℚ) : Set where
         ≃⟨ ℤ.*-zeroᴸ {r↓} ⟩
           0
         ∎
-      p↑≃0 = ∨-forceᴸ (≄ⁱ-elim {{i = q↓≄ⁱ0}}) (ℤ.*-either-zero {p↑} p↑q↓≃0)
-      r↑≃0 = ∨-forceᴸ (≄ⁱ-elim {{i = q↓≄ⁱ0}}) (ℤ.*-either-zero {r↑} r↑q↓≃0)
+      p↑≃0 = ∨-forceᴸ q↓≄0 (ℤ.*-either-zero {p↑} p↑q↓≃0)
+      r↑≃0 = ∨-forceᴸ q↓≄0 (ℤ.*-either-zero {r↑} r↑q↓≃0)
       p↑r↓≃r↑p↓ =
         begin
           p↑ * r↓
@@ -97,18 +100,9 @@ record _≃₀_ (p q : ℚ) : Set where
         ≃⟨ AA.comm {a = q↑ * q↓} ⟩
           (r↑ * p↓) * (q↑ * q↓)
         ∎
-      q↑q↓≄0 = ℤ.*-neither-zero q↑≄0 (≄ⁱ-elim {{i = q↓≄ⁱ0}})
+      q↑q↓≄0 = ℤ.*-neither-zero q↑≄0 q↓≄0
       p↑r↓≃r↑p↓ = ℤ.*-cancelᴿ q↑q↓≄0 p↑r↓[q↑q↓]≃r↑p↓[q↑q↓]
    in ≃₀-intro {{p↑r↓≃r↑p↓}}
-
-infix 4 _≄₀ⁱ_
-record _≄₀ⁱ_ (p q : ℚ) : Set where
-  instance constructor ≄₀ⁱ-intro
-  field
-    {{elim}} : let p↑ // p↓ = p ; q↑ // q↓ = q in p↑ * q↓ ≄ⁱ q↑ * p↓
-
-≄₀ⁱ-elim : ∀ {p q} {{i : p ≄₀ⁱ q}} → ¬ (p ≃₀ q)
-≄₀ⁱ-elim {{≄₀ⁱ-intro {{≄ⁱ-ℤ}}}} (≃₀-intro {{≃-ℤ}}) = ≄ⁱ-elim {{i = ≄ⁱ-ℤ}} ≃-ℤ
 
 instance
   eq : Eq ℚ
@@ -117,16 +111,15 @@ instance
     ; refl = ≃₀-refl
     ; sym = ≃₀-sym
     ; trans = ≃₀-trans
-    ; _≄ⁱ_ = _≄₀ⁱ_
-    ; ≄ⁱ-elim = λ {{i}} → ≄₀ⁱ-elim {{i}}
     }
 
   decEq : DecEq ℚ
   decEq = record { Constraint = λ _ _ → ⊤ ; _≃?_ = _≃?₀_ }
     where
       _≃?₀_ : (x y : ℚ) {{_ : ⊤}} → Dec (x ≃ y)
-      (p↑ // p↓) ≃?₀ (q↑ // q↓) =
-        dec-map (λ x → ≃₀-intro {{x}}) _≃₀_.elim (p↑ * q↓ ≃? q↑ * p↓)
+      p ≃?₀ q = dec-map (λ x → ≃₀-intro {{x}}) _≃₀_.elim ℤ≃?
+        where
+          ℤ≃? = ℚ.n p * ℚ.d q ≃? ℚ.n q * ℚ.d p
 
 _ : 3 // 4 ≃ 6 // 8
 _ = ≃-derive

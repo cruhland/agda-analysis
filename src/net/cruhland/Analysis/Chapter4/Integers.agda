@@ -96,7 +96,7 @@ _ = AA.substᴸ
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
 -- (n—0) × (m—0) = nm—0.
 _ : ∀ {n m} → n — 0 + m — 0 ≃ (n + m) — 0
-_ = ≃-derive
+_ = ≃ᶻ-intro
 
 *-compat-* : ∀ {n m} → n — 0 * m — 0 ≃ (n * m) — 0
 *-compat-* {n} {m} = ≃ᶻ-intro {{eq′}}
@@ -176,7 +176,7 @@ _ : ℕ → ℤ
 _ = ℤ.fromℕ
 
 _ : ∀ {n} → - (ℤ.fromℕ n) ≃ 0 — n
-_ = ≃-derive
+_ = ≃ᶻ-intro
 
 -- For instance -(3—5) = (5—3).
 _ : -(3 — 5) ≃ 5 — 3
