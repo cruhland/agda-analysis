@@ -17,6 +17,7 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
+open import net.cruhland.models.Rationals peanoArithmetic using (_//_; ℚ)
 
 {- 4.2 The rationals -}
 
@@ -25,12 +26,11 @@ open ℤ using (ℤ)
 -- considered to be a rational number. Two rational numbers are
 -- considered to be equal, a//b = c//d, if and only if ad = cb. The
 -- set of all rational numbers is denoted ℚ.
-infixl 8 _//_
-record ℚ : Set where
-  constructor _//_
-  field
-    n d : ℤ
-    {{d≄ⁱ0}} : d ≄ⁱ 0
+_ : Set
+_ = ℚ
+
+_ : (a b : ℤ) {{_ : b ≄ⁱ 0}} → ℚ
+_ = _//_
 
 infix 4 _≃₀_
 record _≃₀_ (p q : ℚ) : Set where
