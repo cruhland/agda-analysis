@@ -2,13 +2,14 @@ module net.cruhland.Analysis.Chapter4.Rationals where
 
 -- Needed for positive integer literals
 import Agda.Builtin.FromNat as FromNat
+open import Function using (_∘_)
 -- Needed for resolving instance arguments
 import Relation.Binary.PropositionalEquality as ≡
 open import Relation.Nullary.Decidable using (False)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.DecEq using (_≃?_; DecEq; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; Eq; sym; trans; module ≃-Reasoning)
+  (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_*_)
 open import net.cruhland.models.Logic using
@@ -34,23 +35,23 @@ _ = _//_
 
 infix 4 _≃₀_
 record _≃₀_ (p q : ℚ) : Set where
-  instance constructor ≃₀-intro
+  constructor ≃₀-intro
   field
-    {{elim}} : ℚ.n p * ℚ.d q ≃ ℚ.n q * ℚ.d p
+    elim : ℚ.n p * ℚ.d q ≃ ℚ.n q * ℚ.d p
 
 -- Exercise 4.2.1
 ≃₀-refl : ∀ {q} → q ≃₀ q
-≃₀-refl = ≃₀-intro
+≃₀-refl = ≃₀-intro refl
 
 ≃₀-sym : ∀ {p q} → p ≃₀ q → q ≃₀ p
-≃₀-sym (≃₀-intro {{≃-ℤ}}) = ≃₀-intro {{sym ≃-ℤ}}
+≃₀-sym = ≃₀-intro ∘ sym ∘ _≃₀_.elim
 
 ≃₀-trans : ∀ {p q r} → p ≃₀ q → q ≃₀ r → p ≃₀ r
 ≃₀-trans
   {record { n = p↑ ; d = p↓ }}
   {record { n = q↑ ; d = q↓ ; d≄0 = q↓≄0 }}
   {record { n = r↑ ; d = r↓ }}
-  (≃₀-intro {{p↑q↓≃q↑p↓}}) (≃₀-intro {{q↑r↓≃r↑q↓}}) with q↑ ≃? 0
+  (≃₀-intro p↑q↓≃q↑p↓) (≃₀-intro q↑r↓≃r↑q↓) with q↑ ≃? 0
 ... | yes q↑≃0 =
   let p↑q↓≃0 =
         begin
@@ -86,7 +87,7 @@ record _≃₀_ (p q : ℚ) : Set where
         ≃˘⟨ AA.substᴸ r↑≃0 ⟩
           r↑ * p↓
         ∎
-   in ≃₀-intro {{p↑r↓≃r↑p↓}}
+   in ≃₀-intro p↑r↓≃r↑p↓
 ... | no q↑≄0 =
   let p↑r↓[q↑q↓]≃r↑p↓[q↑q↓] =
         begin
@@ -102,7 +103,7 @@ record _≃₀_ (p q : ℚ) : Set where
         ∎
       q↑q↓≄0 = ℤ.*-neither-zero q↑≄0 q↓≄0
       p↑r↓≃r↑p↓ = ℤ.*-cancelᴿ q↑q↓≄0 p↑r↓[q↑q↓]≃r↑p↓[q↑q↓]
-   in ≃₀-intro {{p↑r↓≃r↑p↓}}
+   in ≃₀-intro p↑r↓≃r↑p↓
 
 instance
   eq : Eq ℚ
@@ -117,7 +118,7 @@ instance
   decEq = record { Constraint = λ _ _ → ⊤ ; _≃?_ = _≃?₀_ }
     where
       _≃?₀_ : (x y : ℚ) {{_ : ⊤}} → Dec (x ≃ y)
-      p ≃?₀ q = dec-map (λ x → ≃₀-intro {{x}}) _≃₀_.elim ℤ≃?
+      p ≃?₀ q = dec-map ≃₀-intro _≃₀_.elim ℤ≃?
         where
           ℤ≃? = ℚ.n p * ℚ.d q ≃? ℚ.n q * ℚ.d p
 
