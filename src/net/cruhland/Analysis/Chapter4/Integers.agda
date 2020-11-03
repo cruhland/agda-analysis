@@ -9,7 +9,7 @@ open import Relation.Binary using (IsEquivalence)
 import Relation.Binary.PropositionalEquality as ≡
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
+  (_≃_; _≄_; ≃-derive; ≄-derive; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
@@ -44,10 +44,10 @@ _ : ℤ
 _ = 3 — 5
 
 _ : 3 — 5 ≃ 2 — 4
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 _ : 3 — 5 ≄ 2 — 3
-_ = λ ()
+_ = ≄-derive
 
 -- Exercise 4.1.1
 _ : Eq ℤ
@@ -67,7 +67,7 @@ _ = _*_
 
 -- Thus for instance, (3—5) + (1—4) is equal to (4—9).
 _ : 3 — 5 + 1 — 4 ≃ 4 — 9
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 -- There is however one thing we have to check before we can accept
 -- these definitions - we have to check that if we replace one of the
@@ -76,7 +76,7 @@ _ = ≃ᶻ-intro
 -- ought to have the same value as (2—4) + (1—4), otherwise this would
 -- not give a consistent definition of addition.
 _ : 3 — 5 + 1 — 4 ≃ 2 — 4 + 1 — 4
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
 _ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
@@ -95,7 +95,7 @@ _ = AA.substᴸ
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
 -- (n—0) × (m—0) = nm—0.
 _ : ∀ {n m} → n — 0 + m — 0 ≃ (n + m) — 0
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 *-compat-* : ∀ {n m} → n — 0 * m — 0 ≃ (n * m) — 0
 *-compat-* {n} {m} = ≃ᶻ-intro {{eq′}}
@@ -129,23 +129,23 @@ _ = ℤ.number
 -- For instance the natural number 3 is now considered to be the same
 -- as the integer 3—0, thus 3 = 3—0.
 _ : 3 ≃ 3 — 0
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 -- In particular 0 is equal to 0—0 and 1 is equal to 1—0.
 _ : 0 ≃ 0 — 0
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 _ : 1 ≃ 1 — 0
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 -- Of course, if we set n equal to n—0, then it will also be equal to
 -- any other integer which is equal to n—0, for instance 3 is equal
 -- not only to 3—0, but also to 4—1, 5—2, etc.
 _ : 3 ≃ 4 — 1
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 _ : 3 ≃ 5 — 2
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 -- We can now define incrementation on the integers by defining
 -- step x ≔ x + 1 for any integer x; this is of course consistent with
@@ -175,11 +175,11 @@ _ : ℕ → ℤ
 _ = ℤ.fromℕ
 
 _ : ∀ {n} → - (ℤ.fromℕ n) ≃ 0 — n
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 -- For instance -(3—5) = (5—3).
 _ : -(3 — 5) ≃ 5 — 3
-_ = ≃ᶻ-intro
+_ = ≃-derive
 
 -- One can check this definition is well-defined.
 -- Exercise 4.1.2
@@ -308,7 +308,7 @@ _ : Negative ℤ
 _ = ℤ.negative
 
 _ : 5 > -3
-_ = ℤ.<-intro (ℤ.≤-intro 8 ≃ᶻ-intro) λ ()
+_ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
 
 -- Lemma 4.1.11 (Properties of order).
 -- Exercise 4.1.7
@@ -515,7 +515,7 @@ no-ind ind = ¬allP (ind P Pz Ps)
     P x = 0 ≤ x
 
     Pz : P 0
-    Pz = ℤ.≤-intro 0 ≃ᶻ-intro
+    Pz = ℤ.≤-intro 0 ≃-derive
 
     Ps : ∀ {b} → P b → P (step b)
     Ps {b} (ℤ.≤-intro n (≃ᶻ-intro {{b⁺+0≃n+b⁻}})) =

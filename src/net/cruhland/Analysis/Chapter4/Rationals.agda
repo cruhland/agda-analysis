@@ -7,7 +7,9 @@ import Relation.Binary.PropositionalEquality as ≡
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≃-gen; ≄-gen; sym; trans; module ≃-Reasoning)
+  ( _≃_; _≄_; _≄ⁱ_; ≃-derive; ≄-derive; ≄ⁱ-elim
+  ; Eq; sym; trans; module ≃-Reasoning
+  )
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_*_)
 open import net.cruhland.models.Logic using (∨-forceᴸ; ¬_; yes; no)
@@ -121,10 +123,10 @@ instance
     }
 
 _ : 3 // 4 ≃ 6 // 8
-_ = ≃-gen
+_ = ≃-derive
 
 _ : 6 // 8 ≃ -3 // -4
-_ = ≃-gen
+_ = ≃-derive
 
 _ : 3 // 4 ≄ 4 // 3
-_ = ≄-gen
+_ = ≄-derive
