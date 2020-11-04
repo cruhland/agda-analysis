@@ -7,6 +7,7 @@ open import Function using (_∘_; const; flip)
 open import Relation.Binary using (IsEquivalence)
 -- Need this so instance search can construct equalities
 import Relation.Binary.PropositionalEquality as ≡
+open import Relation.Nullary.Decidable using (fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.DecEq using (≃-derive ; ≄-derive)
 open import net.cruhland.axioms.Eq using
@@ -289,7 +290,7 @@ _ = AA.zero-prod {{r = ℤ.zero-product}}
 -- integers such that ac = bc and c is non-zero, then a = b.
 -- Exercise 4.1.6
 _ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
-_ = ℤ.*-cancelᴿ
+_ = λ c≄0 → AA.cancelᴿ {{r = ℤ.*-cancellativeᴿ}} {{c = fromWitnessFalse c≄0}}
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be
 -- integers. We say that n is _greater than or equal to_ m, and write
@@ -340,18 +341,6 @@ vanish {x} {y} =
   ≃⟨ ℤ.+-identityᴿ ⟩
     x
   ∎
-
-+-cancelᴿ : ∀ {a b c} → a + c ≃ b + c → a ≃ b
-+-cancelᴿ {a} {b} {c} a+c≃b+c =
-    begin
-      a
-    ≃˘⟨ vanish ⟩
-      a + c - c
-    ≃⟨ ℤ.sub-substᴸ a+c≃b+c ⟩
-      b + c - c
-    ≃⟨ vanish ⟩
-      b
-    ∎
 
 IsPositive-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → IsPositive a₁ → IsPositive a₂
 IsPositive-subst a₁≃a₂ record { n = n ; pos = n≄0 ; x≃n = a₁≃n } =
