@@ -2,7 +2,9 @@ module net.cruhland.Analysis.Chapter2 where
 
 open import Agda.Builtin.FromNat using (Number)
 open import Function using (id; const)
+open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
+open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; ¬sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
@@ -23,8 +25,7 @@ module _ (PA : PeanoArithmetic) where
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
-    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ
-    ; *-zeroᴸ; *-zeroᴿ; *-cancelᴿ; *-preserves-<
+    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-zeroᴸ; *-zeroᴿ
     ; _^_; ^-stepᴿ; ^-zeroᴿ
     )
 
@@ -378,11 +379,11 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.3.6 (Multiplication preserves order).
   _ : ∀ {a b c} → a < b → c ≄ 0 → a * c < b * c
-  _ = *-preserves-<
+  _ = ℕ.*-preserves-<ᴿ
 
   -- Corollary 2.3.7 (Cancellation law).
   _ : ∀ {a b c} → c ≄ 0 → a * c ≃ b * c → a ≃ b
-  _ = *-cancelᴿ
+  _ = λ c≄0 → AA.cancelᴿ {{r = ℕ.*-cancellativeᴿ}} {{c = fromWitnessFalse c≄0}}
 
   -- Proposition 2.3.9 (Euclidean algorithm).
   -- Exercise 2.3.5
