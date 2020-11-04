@@ -5,7 +5,7 @@ import Agda.Builtin.FromNat as FromNat
 open import Relation.Nullary.Decidable using (False)
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq using (_≃_; _≄_; Eq)
-open import net.cruhland.axioms.Operators using (_*_)
+open import net.cruhland.axioms.Operators using (_+_; _*_)
 -- Needed for positive integer literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
@@ -31,10 +31,10 @@ _ = _//_
 _ : ℚ → ℚ → Set
 _ = _≃_
 
-eq-def :
+_ :
   ∀ {a b c d} {{_ : False (b ≃? 0)}} {{_ : False (d ≃? 0)}} →
     a // b ≃ c // d ↔ a * d ≃ c * b
-eq-def = ↔-intro ℚ._≃₀_.elim ℚ.≃₀-intro
+_ = ↔-intro ℚ._≃₀_.elim ℚ.≃₀-intro
 
 -- Thus for instance 3//4 = 6//8 = -3//-4, but 3//4 ≠ 4//3.
 _ : 3 // 4 ≃ 6 // 8
@@ -46,6 +46,21 @@ _ = ≃-derive
 _ : 3 // 4 ≄ 4 // 3
 _ = ≄-derive
 
+-- This is a valid definition of equality.
 -- Exercise 4.2.1
 _ : Eq ℚ
 _ = ℚ.eq
+
+-- Now we need a notion of addition, multiplication, and
+-- negation. Again, we will take advantage of our pre-existing
+-- knowledge, which tells us that a/b+c/d should equal (ad+bc)/(bd)
+-- and that a/b*c/d should equal ac/bd, while -(a/b) equals
+-- (-a)/b. Note that if b and d are non-zero, then bd is also
+-- non-zero, by Proposition 4.1.8, so the sum or product of two
+-- rational numbers remains a rational number.
+-- Definition 4.2.2
+_ : ℚ → ℚ → ℚ
+_ = _+_ {{ℚ.plus}}
+
+_ : ℚ → ℚ → ℚ
+_ = _*_ {{ℚ.star}}

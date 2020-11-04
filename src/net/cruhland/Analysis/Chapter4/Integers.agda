@@ -96,23 +96,23 @@ _ = AA.substᴸ
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
 -- (n—0) × (m—0) = nm—0.
 _ : ∀ {n m} → n — 0 + m — 0 ≃ (n + m) — 0
-_ = ≃ᶻ-intro
+_ = ≃ᶻ-intro refl
 
 *-compat-* : ∀ {n m} → n — 0 * m — 0 ≃ (n * m) — 0
-*-compat-* {n} {m} = ≃ᶻ-intro {{eq′}}
+*-compat-* {n} {m} = ≃ᶻ-intro eq′
   where
     eq′ =
       begin
         n * m + 0 + 0
       ≃⟨ AA.assoc {a = n * m} ⟩
         n * m + (0 + 0)
-      ≃˘⟨ AA.substᴿ (AA.substᴸ {b = 0} (ℕ.*-zeroᴿ {n})) ⟩
+      ≃˘⟨ AA.substᴿ {a = n * m} (AA.substᴸ (ℕ.*-zeroᴿ {n})) ⟩
         n * m + (n * 0 + 0)
       ∎
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (AA.cancelᴿ ∘ ≃ᶻ-elim) (λ n≃m → ≃ᶻ-intro {{AA.substᴸ n≃m}})
+_ = ↔-intro (AA.cancelᴿ ∘ ≃ᶻ-elim) (≃ᶻ-intro ∘ AA.substᴸ)
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
@@ -176,7 +176,7 @@ _ : ℕ → ℤ
 _ = ℤ.fromℕ
 
 _ : ∀ {n} → - (ℤ.fromℕ n) ≃ 0 — n
-_ = ≃ᶻ-intro
+_ = ≃ᶻ-intro refl
 
 -- For instance -(3—5) = (5—3).
 _ : -(3 — 5) ≃ 5 — 3
@@ -236,7 +236,7 @@ _ = ℤ.+-identityᴿ
 *-assoc {x} = AA.assoc {a = x}
 
 *-identityᴸ : {x : ℤ} → 1 * x ≃ x
-*-identityᴸ {x⁺ — x⁻} = ≃ᶻ-intro {{eq′}}
+*-identityᴸ {x⁺ — x⁻} = ≃ᶻ-intro eq′
   where
     eq′ =
       begin
@@ -277,13 +277,13 @@ _ = _-_
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → ℤ.fromℕ a - ℤ.fromℕ b ≃ a — b
-natsub {a} = ≃ᶻ-intro {{AA.substᴸ (AA.identᴿ {a = a})}}
+natsub {a} = ≃ᶻ-intro (AA.substᴸ (AA.identᴿ {a = a}))
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
 -- Exercise 4.1.5
 _ : {a b : ℤ} → a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0
-_ = ℤ.*-either-zero
+_ = AA.zero-prod {{r = ℤ.zero-product}}
 
 -- Corollary 4.1.9 (Cancellation law for integers). If a, b, c are
 -- integers such that ac = bc and c is non-zero, then a = b.
@@ -420,7 +420,7 @@ sub-cancelᴿ {a} {b} {c} =
 *-preserves-pos {a} {b}
   record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
   record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
-    record { n = aᴺ * bᴺ ; pos = ℕ.*-positive aᴺ≄0 bᴺ≄0 ; x≃n = ab≃aᴺbᴺ }
+    record { n = aᴺ * bᴺ ; pos = AA.nonzero-prod aᴺ≄0 bᴺ≄0 ; x≃n = ab≃aᴺbᴺ }
   where
     ab≃aᴺbᴺ =
       begin
@@ -519,8 +519,8 @@ no-ind ind = ¬allP (ind P Pz Ps)
     Pz = ℤ.≤-intro 0 ≃-derive
 
     Ps : ∀ {b} → P b → P (step b)
-    Ps {b} (ℤ.≤-intro n (≃ᶻ-intro {{b⁺+0≃n+b⁻}})) =
-        ℤ.≤-intro (ℕ.step n) (≃ᶻ-intro {{sb⁺+0≃sn+sb⁻}})
+    Ps {b} (ℤ.≤-intro n (≃ᶻ-intro b⁺+0≃n+b⁻)) =
+        ℤ.≤-intro (ℕ.step n) (≃ᶻ-intro sb⁺+0≃sn+sb⁻)
       where
         sb⁺+0≃sn+sb⁻ =
           begin
@@ -539,5 +539,5 @@ no-ind ind = ¬allP (ind P Pz Ps)
 
     ¬allP : ¬ (∀ a → P a)
     ¬allP 0≰a =
-      let ℤ.≤-intro n (≃ᶻ-intro {{0≃n+1}}) = 0≰a -1
+      let ℤ.≤-intro n (≃ᶻ-intro 0≃n+1) = 0≰a -1
        in ℕ.step≄zero (trans ℕ.step≃+ (sym 0≃n+1))

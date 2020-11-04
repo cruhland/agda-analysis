@@ -15,7 +15,7 @@ open import net.cruhland.models.Logic using
   )
 
 module _ (PA : PeanoArithmetic) where
-  open module PA = PeanoArithmetic PA using
+  open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
@@ -23,8 +23,8 @@ module _ (PA : PeanoArithmetic) where
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
-    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-substᴸ; *-substᴿ
-    ; *-zeroᴸ; *-zeroᴿ; *-cancelᴿ; *-either-zero; *-preserves-<
+    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ
+    ; *-zeroᴸ; *-zeroᴿ; *-cancelᴿ; *-preserves-<
     ; _^_; ^-stepᴿ; ^-zeroᴿ
     )
 
@@ -220,37 +220,6 @@ module _ (PA : PeanoArithmetic) where
 
   -- Corollary 2.2.9. If a and b are natural numbers such that a + b = 0,
   -- then a = 0 and b = 0.
-  -- My first proof uses a direct argument instead of the book's approach of
-  -- proof by contradicition, because the latter is nonconstructive.
-  a+b≃0→a≃0∧b≃0 : ∀ {a b} → a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0
-  a+b≃0→a≃0∧b≃0 {a} {b} a+b≃0 with case a
-  ... | case-zero a≃0 = ∧-intro a≃0 b≃0
-    where
-      b≃0 =
-        begin
-          b
-        ≃˘⟨ AA.identᴸ ⟩
-          0 + b
-        ≃˘⟨ AA.substᴸ a≃0 ⟩
-          a + b
-        ≃⟨ a+b≃0 ⟩
-          0
-        ∎
-  ... | case-step (pred-intro p a≃sp) = ⊥-elim (step≄zero s[p+b]≃0)
-    where
-      s[p+b]≃0 =
-        begin
-          step (p + b)
-        ≃˘⟨ +-stepᴸ ⟩
-          step p + b
-        ≃˘⟨ AA.substᴸ a≃sp ⟩
-          a + b
-        ≃⟨ a+b≃0 ⟩
-          0
-        ∎
-
-  -- I realized that we could use the book's argument if we showed that
-  -- n ≃ 0 is decidable for any n.
   _ : ∀ {a b} → a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0
   _ = +-both-zero
 
@@ -392,11 +361,11 @@ module _ (PA : PeanoArithmetic) where
   -- Lemma 2.3.3 (Positive natural numbers have no zero divisors).
   -- Exercise 2.3.2
   no-zero-divs : ∀ {n m} → n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0
-  no-zero-divs {n} {m} = ↔-intro *-either-zero backward
+  no-zero-divs {n} {m} = ↔-intro AA.zero-prod backward
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
-      backward (∨-introᴸ n≃0) = trans (*-substᴸ n≃0) *-zeroᴸ
-      backward (∨-introᴿ m≃0) = trans (*-substᴿ m≃0) *-zeroᴿ
+      backward (∨-introᴸ n≃0) = trans (AA.substᴸ n≃0) *-zeroᴸ
+      backward (∨-introᴿ m≃0) = trans (AA.substᴿ m≃0) *-zeroᴿ
 
   -- Proposition 2.3.4 (Distributive law).
   _ : ∀ {a b c} → a * (b + c) ≃ a * b + a * c
@@ -475,7 +444,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 1
     ≃⟨ ^-stepᴿ ⟩
       x ^ 0 * x
-    ≃⟨ *-substᴸ x^0≃1 ⟩
+    ≃⟨ AA.substᴸ x^0≃1 ⟩
       1 * x
     ≃⟨ *-oneᴸ ⟩
       x
@@ -487,7 +456,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 2
     ≃⟨ ^-stepᴿ ⟩
       x ^ 1 * x
-    ≃⟨ *-substᴸ x^1≃x ⟩
+    ≃⟨ AA.substᴸ x^1≃x ⟩
       x * x
     ∎
 
@@ -497,7 +466,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 3
     ≃⟨ ^-stepᴿ ⟩
       x ^ 2 * x
-    ≃⟨ *-substᴸ x^2≃xx ⟩
+    ≃⟨ AA.substᴸ x^2≃xx ⟩
       x * x * x
     ∎
 
