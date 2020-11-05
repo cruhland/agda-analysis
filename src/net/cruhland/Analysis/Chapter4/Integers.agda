@@ -186,7 +186,7 @@ _ = ≃-derive
 -- One can check this definition is well-defined.
 -- Exercise 4.1.2
 _ : ∀ {a₁ a₂} → a₁ ≃ a₂ → - a₁ ≃ - a₂
-_ = ℤ.neg-subst
+_ = AA.subst {{r = ℤ.neg-substitutive}}
 
 -- Lemma 4.1.5 (Trichotomy of integers). Let x be an integer. Then
 -- exactly one of the following three statements is true: (a) x is
