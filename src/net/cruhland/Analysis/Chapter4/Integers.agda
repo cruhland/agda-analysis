@@ -26,7 +26,7 @@ import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
   ( _—_; -_; _-_; _≤_; _<_; _>_; AtLeastOne; ExactlyOneOf
   ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos
-  ; Trichotomy; trichotomy; ℤ; ℤ⁺; ℤ⁻
+  ; Trichotomy; trichotomy; ℤ
   )
 open Trichotomy using (at-least)
 
@@ -158,10 +158,10 @@ _ = ≃-derive
 step : ℤ → ℤ
 step x = x + 1
 
-ℤ⁺s≃sℤ⁺ : ∀ {a} → ℤ⁺ (step a) ≃ ℕ.step (ℤ⁺ a)
+ℤ⁺s≃sℤ⁺ : ∀ {a} → ℤ.ℤ.pos (step a) ≃ ℕ.step (ℤ.ℤ.pos a)
 ℤ⁺s≃sℤ⁺ {a⁺ — _} = sym ℕ.step≃+
 
-ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ⁻ (step a) ≃ ℤ⁻ a
+ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ.ℤ.neg (step a) ≃ ℤ.ℤ.neg a
 ℤ⁻s≃ℤ⁻ {_ — a⁻} = AA.identᴿ
 
 -- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
@@ -513,17 +513,17 @@ no-ind ind = ¬allP (ind P Pz Ps)
       where
         sb⁺+0≃sn+sb⁻ =
           begin
-            ℤ⁺ (step b) + 0
+            ℤ.ℤ.pos (step b) + 0
           ≃⟨ AA.substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
-            ℕ.step (ℤ⁺ b) + 0
+            ℕ.step (ℤ.ℤ.pos b) + 0
           ≃⟨⟩
-            ℕ.step (ℤ⁺ b + 0)
+            ℕ.step (ℤ.ℤ.pos b + 0)
           ≃⟨ AA.subst b⁺+0≃n+b⁻ ⟩
-            ℕ.step (n + ℤ⁻ b)
+            ℕ.step (n + ℤ.ℤ.neg b)
           ≃˘⟨ ℕ.+-stepᴸ {n} ⟩
-            ℕ.step n + ℤ⁻ b
+            ℕ.step n + ℤ.ℤ.neg b
           ≃˘⟨ AA.substᴿ (ℤ⁻s≃ℤ⁻ {b}) ⟩
-            ℕ.step n + ℤ⁻ (step b)
+            ℕ.step n + ℤ.ℤ.neg (step b)
           ∎
 
     ¬allP : ¬ (∀ a → P a)
