@@ -8,6 +8,7 @@ open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; ¬sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
+open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using
   ( _∧_; ∧-intro
@@ -20,12 +21,12 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; _+_; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
+    ; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
     ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
-    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ
+    ; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ
     ; _^_; ^-stepᴿ; ^-zeroᴿ
     )
 
@@ -156,10 +157,10 @@ module _ (PA : PeanoArithmetic) where
 
   -- Definition 2.2.1 (Addition of natural numbers).
   _ : ℕ → ℕ → ℕ
-  _ = _+_
+  _ = _+_ {{ℕ.plus}}
 
-  0+m : ∀ {m} → 0 + m ≃ m
-  0+m = AA.identᴸ
+  0+m : {m : ℕ} → 0 + m ≃ m
+  0+m = AA.identᴸ {{r = ℕ.+-identityᴸ}}
 
   1+m : ∀ {m} → 1 + m ≃ step m
   1+m {m} =
@@ -184,8 +185,8 @@ module _ (PA : PeanoArithmetic) where
     ∎
 
   -- Lemma 2.2.2. For any natural number n, n + 0 = n.
-  _ : ∀ {n} → n + 0 ≃ n
-  _ = AA.identᴿ
+  _ : {n : ℕ} → n + 0 ≃ n
+  _ = AA.identᴿ {{r = ℕ.+-identityᴿ}}
 
   -- Lemma 2.2.3. For any natural numbers n and m, n + step m = step (n + m).
   _ : ∀ {n m} → n + step m ≃ step (n + m)
@@ -195,17 +196,17 @@ module _ (PA : PeanoArithmetic) where
   _ = step≃+
 
   -- Proposition 2.2.4 (Addition is commutative).
-  _ : ∀ {n m} → n + m ≃ m + n
-  _ = AA.comm
+  _ : {n m : ℕ} → n + m ≃ m + n
+  _ = AA.comm {{r = ℕ.+-commutative}}
 
   -- Proposition 2.2.5 (Addition is associative).
   -- Exercise 2.2.1
-  _ : ∀ {a b c} → (a + b) + c ≃ a + (b + c)
-  _ = AA.assoc
+  _ : {a b c : ℕ} → (a + b) + c ≃ a + (b + c)
+  _ = AA.assoc {{r = ℕ.+-associative}}
 
   -- Proposition 2.2.6 (Cancellation law).
-  _ : ∀ {a b c} → a + b ≃ a + c → b ≃ c
-  _ = AA.cancelᴸ
+  _ : {a b c : ℕ} → a + b ≃ a + c → b ≃ c
+  _ = AA.cancelᴸ {{r = ℕ.+-cancellativeᴸ}}
 
   -- Definition 2.2.7 (Positive natural numbers).
   _ : ℕ → Set
@@ -221,7 +222,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Corollary 2.2.9. If a and b are natural numbers such that a + b = 0,
   -- then a = 0 and b = 0.
-  _ : ∀ {a b} → a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0
+  _ : {a b : ℕ} → a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0
   _ = +-both-zero
 
   -- Lemma 2.2.10. Let a be a positive natural number. Then there exists
@@ -343,25 +344,25 @@ module _ (PA : PeanoArithmetic) where
 
   -- Definition 2.3.1 (Multiplication of natural numbers).
   _ : ℕ → ℕ → ℕ
-  _ = _*_
+  _ = _*_ {{ℕ.star}}
 
-  0*m : ∀ {m} → 0 * m ≃ 0
+  0*m : {m : ℕ} → 0 * m ≃ 0
   0*m = AA.absorbᴸ {{r = ℕ.*-absorptiveᴸ}}
 
-  1*m : ∀ {m} → 1 * m ≃ 0 + m
+  1*m : {m : ℕ} → 1 * m ≃ 0 + m
   1*m {m} = trans *-stepᴸ (AA.substᴸ 0*m)
 
-  2*m : ∀ {m} → 2 * m ≃ 0 + m + m
+  2*m : {m : ℕ} → 2 * m ≃ 0 + m + m
   2*m {m} = trans *-stepᴸ (AA.substᴸ 1*m)
 
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
-  _ : ∀ {n m} → n * m ≃ m * n
-  _ = AA.comm
+  _ : {n m : ℕ} → n * m ≃ m * n
+  _ = AA.comm {{r = ℕ.*-commutative}}
 
   -- Lemma 2.3.3 (Positive natural numbers have no zero divisors).
   -- Exercise 2.3.2
-  no-zero-divs : ∀ {n m} → n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0
+  no-zero-divs : {n m : ℕ} → n * m ≃ 0 ↔ n ≃ 0 ∨ m ≃ 0
   no-zero-divs {n} {m} = ↔-intro AA.zero-prod backward
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
@@ -369,12 +370,12 @@ module _ (PA : PeanoArithmetic) where
       backward (∨-introᴿ m≃0) = trans (AA.substᴿ m≃0) AA.absorbᴿ
 
   -- Proposition 2.3.4 (Distributive law).
-  _ : ∀ {a b c} → a * (b + c) ≃ a * b + a * c
-  _ = AA.distribᴸ
+  _ : {a b c : ℕ} → a * (b + c) ≃ a * b + a * c
+  _ = AA.distribᴸ {{r = ℕ.*-distributive-+ᴸ}}
 
   -- Proposition 2.3.5 (Multiplication is associative).
   -- Exercise 2.3.3
-  _ : ∀ {a b c} → (a * b) * c ≃ a * (b * c)
+  _ : {a b c : ℕ} → (a * b) * c ≃ a * (b * c)
   _ = *-assoc
 
   -- Proposition 2.3.6 (Multiplication preserves order).
@@ -382,7 +383,7 @@ module _ (PA : PeanoArithmetic) where
   _ = ℕ.*-preserves-<ᴿ
 
   -- Corollary 2.3.7 (Cancellation law).
-  _ : ∀ {a b c} → c ≄ 0 → a * c ≃ b * c → a ≃ b
+  _ : {a b c : ℕ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
   _ = λ c≄0 → AA.cancelᴿ {{r = ℕ.*-cancellativeᴿ}} {{c = fromWitnessFalse c≄0}}
 
   -- Proposition 2.3.9 (Euclidean algorithm).

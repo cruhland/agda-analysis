@@ -13,7 +13,7 @@ open import net.cruhland.axioms.DecEq using (≃-derive ; ≄-derive)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_; _*_)
+open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Logic using
   (⊤; ⊤-intro; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
@@ -24,7 +24,7 @@ module ℕ = PeanoArithmetic peanoArithmetic
 open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
-  ( _—_; -_; _-_; _≤_; _<_; _>_; AtLeastOne; ExactlyOneOf
+  ( _—_; _≤_; _<_; _>_; AtLeastOne; ExactlyOneOf
   ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos
   ; Trichotomy; trichotomy; ℤ
   )
@@ -167,7 +167,7 @@ step x = x + 1
 -- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
 -- define the negation -(a—b) to be the integer (b—a).
 _ : ℤ → ℤ
-_ = -_
+_ = -_ {{ℤ.neg-dash}}
 
 -- In particular if n = n—0 is a positive natural number, we can
 -- define its negation -n = 0—n.
@@ -185,7 +185,7 @@ _ = ≃-derive
 
 -- One can check this definition is well-defined.
 -- Exercise 4.1.2
-_ : ∀ {a₁ a₂} → a₁ ≃ a₂ → - a₁ ≃ - a₂
+_ : {a₁ a₂ : ℤ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
 _ = AA.subst {{r = ℤ.neg-substitutive}}
 
 -- Lemma 4.1.5 (Trichotomy of integers). Let x be an integer. Then
@@ -347,7 +347,7 @@ IsPositive-subst a₁≃a₂ record { n = n ; pos = n≄0 ; x≃n = a₁≃n } =
   record { n = n ; pos = n≄0 ; x≃n = trans (sym a₁≃a₂) a₁≃n }
 
 -- Exercise 4.1.3
-_ : ∀ {a} → - a ≃ -1 * a
+_ : {a : ℤ} → - a ≃ -1 * a
 _ = ℤ.neg-mult
 
 sub-distrib : ∀ {a b c} → a - (b + c) ≃ a - b - c
