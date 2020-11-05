@@ -107,7 +107,7 @@ _ = ≃ᶻ-intro refl
         n * m + 0 + 0
       ≃⟨ AA.assoc {a = n * m} ⟩
         n * m + (0 + 0)
-      ≃˘⟨ AA.substᴿ {a = n * m} (AA.substᴸ (ℕ.*-zeroᴿ {n})) ⟩
+      ≃˘⟨ AA.substᴿ {a = n * m} (AA.substᴸ (AA.absorbᴿ {a = n})) ⟩
         n * m + (n * 0 + 0)
       ∎
 

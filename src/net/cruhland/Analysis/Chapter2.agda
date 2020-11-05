@@ -25,7 +25,7 @@ module _ (PA : PeanoArithmetic) where
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
-    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ; *-zeroᴸ; *-zeroᴿ
+    ; _*_; *-assoc; *-oneᴸ; *-stepᴸ; *-stepᴿ
     ; _^_; ^-stepᴿ; ^-zeroᴿ
     )
 
@@ -346,7 +346,7 @@ module _ (PA : PeanoArithmetic) where
   _ = _*_
 
   0*m : ∀ {m} → 0 * m ≃ 0
-  0*m = *-zeroᴸ
+  0*m = AA.absorbᴸ {{r = ℕ.*-absorptiveᴸ}}
 
   1*m : ∀ {m} → 1 * m ≃ 0 + m
   1*m {m} = trans *-stepᴸ (AA.substᴸ 0*m)
@@ -365,8 +365,8 @@ module _ (PA : PeanoArithmetic) where
   no-zero-divs {n} {m} = ↔-intro AA.zero-prod backward
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
-      backward (∨-introᴸ n≃0) = trans (AA.substᴸ n≃0) *-zeroᴸ
-      backward (∨-introᴿ m≃0) = trans (AA.substᴿ m≃0) *-zeroᴿ
+      backward (∨-introᴸ n≃0) = trans (AA.substᴸ n≃0) AA.absorbᴸ
+      backward (∨-introᴿ m≃0) = trans (AA.substᴿ m≃0) AA.absorbᴿ
 
   -- Proposition 2.3.4 (Distributive law).
   _ : ∀ {a b c} → a * (b + c) ≃ a * b + a * c
@@ -405,7 +405,7 @@ module _ (PA : PeanoArithmetic) where
           q = 0
           r = 0
           r<m = <-intro ≤-zero (¬sym m≄0)
-          n≃mq+r = sym (trans AA.identᴿ *-zeroᴿ)
+          n≃mq+r = sym (trans AA.identᴿ AA.absorbᴿ)
 
       Ps : step-case P
       Ps {k} (div-intro q r r<m k≃mq+r) with ≤→<∨≃ (<→s≤ r<m)
