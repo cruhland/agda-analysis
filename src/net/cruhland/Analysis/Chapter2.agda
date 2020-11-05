@@ -21,7 +21,7 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
+    ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
     ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
@@ -190,7 +190,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Lemma 2.2.3. For any natural numbers n and m, n + step m = step (n + m).
   _ : ∀ {n m} → n + step m ≃ step (n + m)
-  _ = +-stepᴿ
+  _ = AA.commᴿ {{r = ℕ.+-commutative-stepᴿ}}
 
   _ : ∀ {n} → step n ≃ n + 1
   _ = step≃+
@@ -412,7 +412,7 @@ module _ (PA : PeanoArithmetic) where
       Ps {k} (div-intro q r r<m k≃mq+r) with ≤→<∨≃ (<→s≤ r<m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
-          sk≃mq+sr = trans (AA.subst k≃mq+r) (sym +-stepᴿ)
+          sk≃mq+sr = trans (AA.subst k≃mq+r) (sym AA.commᴿ)
       ... | ∨-introᴿ sr≃m = div-intro (step q) 0 0<m sk≃m[sq]+0
         where
           0<m = <-intro ≤-zero (¬sym m≄0)
@@ -422,7 +422,7 @@ module _ (PA : PeanoArithmetic) where
               step k
             ≃⟨ AA.subst k≃mq+r ⟩
               step (m * q + r)
-            ≃˘⟨ +-stepᴿ ⟩
+            ≃˘⟨ AA.commᴿ ⟩
               m * q + step r
             ≃⟨ AA.substᴿ sr≃m ⟩
               m * q + m
