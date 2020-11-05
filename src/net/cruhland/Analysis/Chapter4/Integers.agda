@@ -9,6 +9,7 @@ open import Relation.Binary using (IsEquivalence)
 import Relation.Binary.PropositionalEquality as ≡
 open import Relation.Nullary.Decidable using (fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
+open import net.cruhland.axioms.Cast using (_as_)
 open import net.cruhland.axioms.DecEq using (≃-derive ; ≄-derive)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
@@ -174,9 +175,9 @@ _ = -_ {{ℤ.neg-dash}}
 -- [note] Here we must use a conversion function since n is not a
 -- literal.
 _ : ℕ → ℤ
-_ = ℤ.fromℕ
+_ = λ n → (n as ℤ) {{ℤ.from-ℕ}}
 
-_ : ∀ {n} → - (ℤ.fromℕ n) ≃ 0 — n
+_ : ∀ {n} → - (n as ℤ) ≃ 0 — n
 _ = ≃ᶻ-intro refl
 
 -- For instance -(3—5) = (5—3).
@@ -277,7 +278,7 @@ _ = _-_
 -- a - b = a + -b = (a—0) + (0—b) = a—b, and so a—b is just the same
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
-natsub : ∀ {a b} → ℤ.fromℕ a - ℤ.fromℕ b ≃ a — b
+natsub : ∀ {a b} → (a as ℤ) - (b as ℤ) ≃ a — b
 natsub {a} = ≃ᶻ-intro (AA.substᴸ (AA.identᴿ {a = a}))
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
@@ -398,11 +399,11 @@ sub-cancelᴿ {a} {b} {c} =
       begin
         a + b
       ≃⟨ AA.substᴸ a≃aᴺ ⟩
-        ℤ.fromℕ aᴺ + b
-      ≃⟨ AA.substᴿ {a = ℤ.fromℕ aᴺ} b≃bᴺ ⟩
-        ℤ.fromℕ aᴺ + ℤ.fromℕ bᴺ
+        (aᴺ as ℤ) + b
+      ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
+        (aᴺ as ℤ) + (bᴺ as ℤ)
       ≃˘⟨ ℤ.+-to-+ {aᴺ} ⟩
-        ℤ.fromℕ (aᴺ + bᴺ)
+        (aᴺ + bᴺ as ℤ)
       ∎
 
 *-preserves-pos : ∀ {a b} → IsPositive a → IsPositive b → IsPositive (a * b)
@@ -415,11 +416,11 @@ sub-cancelᴿ {a} {b} {c} =
       begin
         a * b
       ≃⟨ AA.substᴸ a≃aᴺ ⟩
-        ℤ.fromℕ aᴺ * b
-      ≃⟨ AA.substᴿ {a = ℤ.fromℕ aᴺ} b≃bᴺ ⟩
-        ℤ.fromℕ aᴺ * ℤ.fromℕ bᴺ
+        (aᴺ as ℤ) * b
+      ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
+        (aᴺ as ℤ) * (bᴺ as ℤ)
       ≃˘⟨ ℤ.*-to-* {aᴺ} ⟩
-        ℤ.fromℕ (aᴺ * bᴺ)
+        (aᴺ * bᴺ as ℤ)
       ∎
 
 -- (a)
@@ -435,8 +436,8 @@ sub-cancelᴿ {a} {b} {c} =
             x
           ≃˘⟨ ℤ.+-identityᴿ ⟩
             x + 0
-          ≃˘⟨ AA.substᴿ {a = x} (ℤ.ℕ≃→ℤ≃ a≃0) ⟩
-            x + ℤ.fromℕ a
+          ≃˘⟨ AA.substᴿ {a = x} (AA.subst a≃0) ⟩
+            x + (a as ℤ)
           ≃˘⟨ y≃x+a ⟩
             y
           ∎
