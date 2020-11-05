@@ -19,7 +19,7 @@ open import net.cruhland.models.Logic using
 
 module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
-    ( ℕ; ind; step; step-case; step-inj; step≄zero; zero
+    ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
     ; +-stepᴸ; +-stepᴿ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
     ; Positive; +-positive; +-both-zero
@@ -84,11 +84,11 @@ module _ (PA : PeanoArithmetic) where
 
   -- Axiom 2.4. Different natural numbers must have different successors.
   _ : ∀ {n m} → step n ≃ step m → n ≃ m
-  _ = step-inj
+  _ = AA.inject {{r = ℕ.step-injective}}
 
   -- Proposition 2.1.8. 6 is not equal to 2.
   6≄2 : 6 ≄ 2
-  6≄2 = λ 6≃2 → 4≄0 (step-inj (step-inj 6≃2))
+  6≄2 = λ 6≃2 → 4≄0 (AA.inject (AA.inject 6≃2))
 
   -- Axiom 2.5 (Principle of mathematical induction).
   _ : (P : ℕ → Set) → P 0 → (∀ {k} → P k → P (step k)) → ∀ n → P n
@@ -149,7 +149,7 @@ module _ (PA : PeanoArithmetic) where
               f-unique m≃sk (assign-zero m≃z) =
                 ⊥-elim (step≄zero (trans (sym m≃sk) m≃z))
               f-unique m≃sk (assign-step m≃sm′ b′≔m′) =
-                let m′≃k = step-inj (trans (sym m≃sm′) m≃sk)
+                let m′≃k = AA.inject (trans (sym m≃sm′) m≃sk)
                     a≃b′ = unique (AssignedTo-substᴿ m′≃k b′≔m′)
                  in f-subst (sym m′≃k) a≃b′
 
@@ -241,7 +241,7 @@ module _ (PA : PeanoArithmetic) where
   unique-predecessor : ∀ a → Positive a → UniquePred a
   unique-predecessor a a≄0 =
     let p@(pred-intro b a≃sb) = pred a≄0
-     in upred-intro p (λ b′ a≃sb′ → step-inj (trans (sym a≃sb) a≃sb′))
+     in upred-intro p (λ b′ a≃sb′ → AA.inject (trans (sym a≃sb) a≃sb′))
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
   _ : ℕ → ℕ → Set
@@ -268,7 +268,7 @@ module _ (PA : PeanoArithmetic) where
           8
         ∎
       5≤8 = ≤-intro 3 5+3≃8
-      si = step-inj
+      si = AA.inject
       5≄8 = λ 5≃8 → step≄zero (si (si (si (si (si (sym 5≃8))))))
 
   -- Proposition 2.2.12 (Basic properties of order for natural numbers).
