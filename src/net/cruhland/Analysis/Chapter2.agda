@@ -21,13 +21,11 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+
+    ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ
     ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
     ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
-    ; *-assoc; *-stepᴸ; *-stepᴿ
-    ; _^_; ^-stepᴿ; ^-zeroᴿ
     )
 
   {- 2.1 The Peano Axioms -}
@@ -376,7 +374,7 @@ module _ (PA : PeanoArithmetic) where
   -- Proposition 2.3.5 (Multiplication is associative).
   -- Exercise 2.3.3
   _ : {a b c : ℕ} → (a * b) * c ≃ a * (b * c)
-  _ = *-assoc
+  _ = AA.assoc {{r = ℕ.*-associative}}
 
   -- Proposition 2.3.6 (Multiplication preserves order).
   _ : ∀ {a b c} → a < b → c ≄ 0 → a * c < b * c
@@ -503,7 +501,7 @@ module _ (PA : PeanoArithmetic) where
       a * a + (a * b + a * b) + b * b
     ≃˘⟨ AA.substᴸ (AA.substᴿ 2x≃x+x) ⟩
       a * a + 2 * (a * b) + b * b
-    ≃˘⟨ AA.substᴸ (AA.substᴿ *-assoc) ⟩
+    ≃˘⟨ AA.substᴸ (AA.substᴿ AA.assoc) ⟩
       a * a + 2 * a * b + b * b
     ≃˘⟨ AA.substᴸ (AA.substᴸ x^2≃xx) ⟩
       a ^ 2 + 2 * a * b + b * b
