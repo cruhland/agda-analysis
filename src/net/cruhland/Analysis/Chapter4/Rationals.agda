@@ -70,17 +70,17 @@ _ : ℚ → ℚ
 _ = -_ {{ℚ.dashᴸ}}
 
 -- Lemma 4.2.3
-_ : {a₁ a₂ b : ℚ} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
+_ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
 _ = AA.substᴸ {{r = ℚ.+-substitutiveᴸ}}
 
 +-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
-+-substᴿ {a} = AA.substᴿ {{r = ℚ.+-substitutiveᴿ}} {a = a}
++-substᴿ {a} = AA.substᴿ {{r = ℚ.+-substitutiveᴿ}} {a}
 
-_ : {a₁ a₂ b : ℚ} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
+_ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
 _ = AA.substᴸ {{r = ℚ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.substᴿ {{r = ℚ.*-substitutiveᴿ}} {a = a}
+*-substᴿ {a} = AA.substᴿ {{r = ℚ.*-substitutiveᴿ}} {a}
 
 _ : {a₁ a₂ : ℚ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
 _ = AA.subst {{r = ℚ.neg-substitutive₁}}

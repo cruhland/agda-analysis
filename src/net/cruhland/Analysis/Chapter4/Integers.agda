@@ -82,13 +82,13 @@ _ : 3 — 5 + 1 — 4 ≃ 2 — 4 + 1 — 4
 _ = ≃-derive
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
-_ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
+_ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
 _ = AA.substᴸ {{r = ℤ.+-substitutiveᴸ}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 _ = AA.substᴿ {{r = ℤ.+-substitutiveᴿ}}
 
-_ : {a₁ a₂ b : ℤ} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
+_ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
 _ = AA.substᴸ {{r = ℤ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
