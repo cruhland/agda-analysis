@@ -220,10 +220,10 @@ _ = trichotomy
 +-assoc {x} = AA.assoc {{r = ℤ.+-associative}} {a = x}
 
 _ : {x : ℤ} → 0 + x ≃ x
-_ = ℤ.+-identityᴸ
+_ = AA.identᴸ {{r = ℤ.+-identityᴸ}}
 
 _ : {x : ℤ} → x + 0 ≃ x
-_ = ℤ.+-identityᴿ
+_ = AA.identᴿ {{r = ℤ.+-identityᴿ}}
 
 +-inverseᴸ : ∀ {x} → - x + x ≃ 0
 +-inverseᴸ {x} = ℤ.+-inverseᴸ {x}
@@ -237,31 +237,11 @@ _ = ℤ.+-identityᴿ
 *-assoc : {x y z : ℤ} → (x * y) * z ≃ x * (y * z)
 *-assoc {x} = AA.assoc {a = x}
 
-*-identityᴸ : {x : ℤ} → 1 * x ≃ x
-*-identityᴸ {x⁺ — x⁻} = ≃ᶻ-intro eq′
-  where
-    eq′ =
-      begin
-        ((x⁺ + 0) + 0) + x⁻
-      ≃⟨ AA.assoc {a = x⁺ + 0} ⟩
-        (x⁺ + 0) + (0 + x⁻)
-      ≃⟨ AA.substᴿ {a = x⁺ + 0} (AA.comm {a = 0}) ⟩
-        (x⁺ + 0) + (x⁻ + 0)
-      ≃⟨ AA.assoc {a = x⁺} ⟩
-        x⁺ + (0 + (x⁻ + 0))
-      ≃⟨ AA.substᴿ {a = x⁺} (AA.comm {a = 0}) ⟩
-        x⁺ + ((x⁻ + 0) + 0)
-      ∎
+_ : {x : ℤ} → 1 * x ≃ x
+_ = AA.identᴸ {{r = ℤ.*-identityᴸ}}
 
-*-identityᴿ : {x : ℤ} → x * 1 ≃ x
-*-identityᴿ {x} =
-  begin
-    x * 1
-  ≃⟨ AA.comm {a = x} ⟩
-    1 * x
-  ≃⟨ *-identityᴸ ⟩
-    x
-  ∎
+_ : {x : ℤ} → x * 1 ≃ x
+_ = AA.identᴿ {{r = ℤ.*-identityᴿ}}
 
 *-distrib-+ᴸ : ∀ {x y z} → x * (y + z) ≃ x * y + x * z
 *-distrib-+ᴸ {x} = ℤ.*-distrib-+ᴸ {x}
@@ -327,7 +307,7 @@ _ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
     c + (b - b)
   ≃⟨ AA.substᴿ {a = c} (+-inverseᴿ {b}) ⟩
     c + 0
-  ≃⟨ ℤ.+-identityᴿ ⟩
+  ≃⟨ AA.identᴿ ⟩
     c
   ∎
 
@@ -339,7 +319,7 @@ vanish {x} {y} =
     x + (y - y)
   ≃⟨ AA.substᴿ {a = x} (+-inverseᴿ {y}) ⟩
     x + 0
-  ≃⟨ ℤ.+-identityᴿ ⟩
+  ≃⟨ AA.identᴿ ⟩
     x
   ∎
 
@@ -434,7 +414,7 @@ sub-cancelᴿ {a} {b} {c} =
         x≃y =
           begin
             x
-          ≃˘⟨ ℤ.+-identityᴿ ⟩
+          ≃˘⟨ AA.identᴿ ⟩
             x + 0
           ≃˘⟨ AA.substᴿ {a = x} (AA.subst a≃0) ⟩
             x + (a as ℤ)
@@ -490,7 +470,7 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (IsPositive-subst b-a≃-a-[-b] (<→po
         b - b + (c - a)
       ≃⟨ AA.substᴸ (+-inverseᴿ {b}) ⟩
         0 + (c - a)
-      ≃⟨ ℤ.+-identityᴸ ⟩
+      ≃⟨ AA.identᴸ ⟩
         c - a
       ∎
 
