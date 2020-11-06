@@ -3,6 +3,7 @@ module net.cruhland.Analysis.Chapter4.Rationals where
 -- Needed for positive integer literals
 import Agda.Builtin.FromNat as FromNat
 open import Relation.Nullary.Decidable using (False)
+import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq using (_≃_; _≄_; Eq)
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_)
@@ -67,3 +68,19 @@ _ = _*_ {{ℚ.star}}
 
 _ : ℚ → ℚ
 _ = -_ {{ℚ.dashᴸ}}
+
+-- Lemma 4.2.3
+_ : {a₁ a₂ b : ℚ} → a₁ ≃ a₂ → a₁ + b ≃ a₂ + b
+_ = AA.substᴸ {{r = ℚ.+-substitutiveᴸ}}
+
++-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
++-substᴿ {a} = AA.substᴿ {{r = ℚ.+-substitutiveᴿ}} {a = a}
+
+_ : {a₁ a₂ b : ℚ} → a₁ ≃ a₂ → a₁ * b ≃ a₂ * b
+_ = AA.substᴸ {{r = ℚ.*-substitutiveᴸ}}
+
+*-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
+*-substᴿ {a} = AA.substᴿ {{r = ℚ.*-substitutiveᴿ}} {a = a}
+
+_ : {a₁ a₂ : ℚ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
+_ = AA.subst {{r = ℚ.neg-substitutive₁}}
