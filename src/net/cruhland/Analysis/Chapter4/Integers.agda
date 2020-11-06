@@ -56,17 +56,15 @@ _ = ≄-derive
 _ : Eq ℤ
 _ = ℤ.eq
 
-open ℤ._≃ᶻ_ using (≃ᶻ-elim)
-
 -- Definition 4.1.2. The sum of two integers, (a—b) + (c—d), is
 -- defined by the formula (a—b) + (c—d) ≔ (a + c)—(b + d).
 _ : ℤ → ℤ → ℤ
-_ = _+_
+_ = _+_ {{ℤ.plus}}
 
 -- The product of two integers, (a—b) × (c—d), is defined by
 -- (a—b) × (c—d) ≔ (ac + bd)—(ad + bc).
 _ : ℤ → ℤ → ℤ
-_ = _*_
+_ = _*_ {{ℤ.star}}
 
 -- Thus for instance, (3—5) + (1—4) is equal to (4—9).
 _ : 3 — 5 + 1 — 4 ≃ 4 — 9
@@ -114,7 +112,7 @@ _ = ≃ᶻ-intro refl
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (AA.cancelᴿ ∘ ≃ᶻ-elim) (≃ᶻ-intro ∘ AA.substᴸ)
+_ = ↔-intro (AA.cancelᴿ ∘ ℤ._≃ᶻ_.elim) (≃ᶻ-intro ∘ AA.substᴸ)
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
