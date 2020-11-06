@@ -5,7 +5,7 @@ import Agda.Builtin.FromNat as FromNat
 open import Relation.Nullary.Decidable using (False)
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq using (_≃_; _≄_; Eq)
-open import net.cruhland.axioms.Operators using (_+_; _*_)
+open import net.cruhland.axioms.Operators using (_+_; _*_; -_)
 -- Needed for positive integer literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
@@ -64,3 +64,6 @@ _ = _+_ {{ℚ.plus}}
 
 _ : ℚ → ℚ → ℚ
 _ = _*_ {{ℚ.star}}
+
+_ : ℚ → ℚ
+_ = -_ {{ℚ.dashᴸ}}
