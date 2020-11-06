@@ -225,11 +225,11 @@ _ = AA.identᴸ {{r = ℤ.+-identityᴸ}}
 _ : {x : ℤ} → x + 0 ≃ x
 _ = AA.identᴿ {{r = ℤ.+-identityᴿ}}
 
-+-inverseᴸ : ∀ {x} → - x + x ≃ 0
-+-inverseᴸ {x} = ℤ.+-inverseᴸ {x}
++-invᴸ : {x : ℤ} → - x + x ≃ 0
++-invᴸ {x} = AA.invᴸ {{r = ℤ.+-inverseᴸ}} {a = x}
 
-+-inverseᴿ : ∀ {x} → x + - x ≃ 0
-+-inverseᴿ {x} = ℤ.+-inverseᴿ {x}
++-invᴿ : {x : ℤ} → x + - x ≃ 0
++-invᴿ {x} = AA.invᴿ {{r = ℤ.+-inverseᴿ}} {a = x}
 
 *-comm : {x y : ℤ} → x * y ≃ y * x
 *-comm {x} = AA.comm {a = x}
@@ -295,7 +295,7 @@ _ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
 
 -- Lemma 4.1.11 (Properties of order).
 -- Exercise 4.1.7
-≃ᴿ-+ᴸ-toᴿ : ∀ {a b c} → a ≃ b + c → a - b ≃ c
+≃ᴿ-+ᴸ-toᴿ : {a b c : ℤ} → a ≃ b + c → a - b ≃ c
 ≃ᴿ-+ᴸ-toᴿ {a} {b} {c} a≃b+c =
   begin
     a - b
@@ -305,19 +305,19 @@ _ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
     c + b - b
   ≃⟨ AA.assoc {a = c} ⟩
     c + (b - b)
-  ≃⟨ AA.substᴿ {a = c} (+-inverseᴿ {b}) ⟩
+  ≃⟨ AA.substᴿ {a = c} (AA.invᴿ {a = b}) ⟩
     c + 0
   ≃⟨ AA.identᴿ ⟩
     c
   ∎
 
-vanish : ∀ {x y} → x + y - y ≃ x
+vanish : {x y : ℤ} → x + y - y ≃ x
 vanish {x} {y} =
   begin
     x + y - y
   ≃⟨ AA.assoc {a = x} ⟩
     x + (y - y)
-  ≃⟨ AA.substᴿ {a = x} (+-inverseᴿ {y}) ⟩
+  ≃⟨ AA.substᴿ {a = x} (AA.invᴿ {a = y}) ⟩
     x + 0
   ≃⟨ AA.identᴿ ⟩
     x
@@ -468,7 +468,7 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (IsPositive-subst b-a≃-a-[-b] (<→po
         b + (- b + (c - a))
       ≃˘⟨ AA.assoc {a = b} ⟩
         b - b + (c - a)
-      ≃⟨ AA.substᴸ (+-inverseᴿ {b}) ⟩
+      ≃⟨ AA.substᴸ (AA.invᴿ {a = b}) ⟩
         0 + (c - a)
       ≃⟨ AA.identᴸ ⟩
         c - a
