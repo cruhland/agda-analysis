@@ -5,7 +5,7 @@ import Agda.Builtin.FromNat as FromNat
 open import Relation.Nullary.Decidable using (False)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
-open import net.cruhland.axioms.Eq using (_≃_; _≄_; Eq)
+open import net.cruhland.axioms.Eq using (_≃_; _≄_; Eq; sym)
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_)
 -- Needed for positive integer literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro)
@@ -84,3 +84,8 @@ _ = AA.substᴸ {{r = ℚ.*-substitutiveᴸ}}
 
 _ : {a₁ a₂ : ℚ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
 _ = AA.subst {{r = ℚ.neg-substitutive₁}}
+
+-- We note that the rational numbers a//1 behave in a manner identical
+-- to the integers a:
+compat-+ : ∀ {a b} → (a // 1) + (b // 1) ≃ (a + b) // 1
+compat-+ {a} = sym (AA.compat {{r = ℚ.+-compatible-ℤ}} {a = a})

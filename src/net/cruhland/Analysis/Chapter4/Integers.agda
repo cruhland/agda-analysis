@@ -5,8 +5,6 @@ open import Agda.Builtin.FromNeg using (Negative)
 import Agda.Builtin.Nat as Nat
 open import Function using (_∘_; const; flip)
 open import Relation.Binary using (IsEquivalence)
--- Need this so instance search can construct equalities
-import Relation.Binary.PropositionalEquality as ≡
 open import Relation.Nullary.Decidable using (fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_)
