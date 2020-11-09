@@ -2,6 +2,7 @@ module net.cruhland.Analysis.Chapter4.Rationals where
 
 -- Needed for positive integer literals
 import Agda.Builtin.FromNat as FromNat
+open import Function using (_∘_)
 open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_; _value_)
@@ -20,7 +21,7 @@ open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 import net.cruhland.models.Rationals peanoArithmetic as ℚ
-open ℚ using (_//_; ℚ)
+open ℚ using (_//_; _//_⟨_⟩; ℚ)
 
 {- 4.2 The rationals -}
 
@@ -108,9 +109,9 @@ _ = ↔-intro
   (AA.inject {{r = ℚ.from-ℤ-injective}})
   (AA.subst {{r = ℚ.from-ℤ-substitutive₁}})
 
--- Because of this, we will identify a with a//1 for each integer a: a
--- ≡ a//1; the above identities then guarantee that the arithmetic of
--- the integers is consistent with the arithmetic of the
+-- Because of this, we will identify a with a//1 for each integer a:
+-- a ≡ a//1; the above identities then guarantee that the arithmetic
+-- of the integers is consistent with the arithmetic of the
 -- rationals. Thus just as we embedded the natural numbers inside the
 -- integers, we embed the integers inside the rational numbers.
 _ : ∀ {a} → (a as ℚ) ≃ a // 1     -- uses ℚ.from-ℤ for (a as ℚ)
@@ -125,37 +126,17 @@ _ : ((ℕ value 1) as ℚ) ≃ 1 // 1
 _ = ≃-derive
 
 -- Observe that a rational number a//b is equal to 0 = 0//1 if and
--- only if a × 1 = b × 0, i.e., if the numerator a is equal to 0. Thus
--- if a and b are non-zero then so is a//b.
-a//b≃0↔a≃0 : ∀ {q} → q ≃ 0 ↔ ℚ.n q ≃ 0
-a//b≃0↔a≃0 = ↔-intro fwd bwd
-  where
-    fwd : ∀ {q} → q ≃ 0 → ℚ.n q ≃ 0
-    fwd {q} (ℚ.≃₀-intro n1≃0d) =
-      begin
-        ℚ.n q
-      ≃˘⟨ AA.identᴿ ⟩
-        (ℚ.n q) * 1
-      ≃⟨ n1≃0d ⟩
-        0 * ℚ.d q
-      ≃⟨ AA.absorbᴸ {a = 0} ⟩
-        0
-      ∎
+-- only if a × 1 = b × 0, i.e., if the numerator a is equal to 0.
+_ : ∀ {q} → q ≃ 0 ↔ ℚ.n q ≃ 0
+_ = ↔-intro ℚ.q↑≃0 ℚ.q≃0
 
-    bwd : ∀ {q} → ℚ.n q ≃ 0 → q ≃ 0
-    bwd {q} n≃0 =
-      let n1≃0d =
-            begin
-              (ℚ.n q) * 1
-            ≃⟨ AA.identᴿ ⟩
-              ℚ.n q
-            ≃⟨ n≃0 ⟩
-              0
-            ≃˘⟨ AA.absorbᴸ {a = 0} ⟩
-              0 * ℚ.d q
-            ∎
-       in ℚ.≃₀-intro n1≃0d
+--  Thus if a and b are non-zero then so is a//b.
+_ : {a b : ℤ} → a ≄ 0 → {b≄0 : b ≄ 0} → a // b ⟨ b≄0 ⟩ ≄ 0
+_ = _∘ ℚ.q↑≃0
 
-nonzero :
-  {a b : ℤ} → a ≄ 0 → (b≄0 : b ≄ 0) → (a // b) {{fromWitnessFalse b≄0}} ≄ 0
-nonzero a≄0 b≄0 a//b≃0 = a≄0 (↔-elimᴸ a//b≃0↔a≃0 a//b≃0)
+-- We now define a new operation on the rationals: reciprocal.
+-- If x = a//b is a non-zero rational (so that a,b ≠ 0) then we
+-- define the _reciprocal_ x⁻¹ of x to be the rational number
+-- x⁻¹ ≔ b//a.
+_ : (q : ℚ) {q≄0 : q ≄ 0} → ℚ
+_ = ℚ._⁻¹
