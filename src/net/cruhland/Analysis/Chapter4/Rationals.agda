@@ -88,4 +88,10 @@ _ = AA.subst {{r = ℚ.neg-substitutive₁}}
 -- We note that the rational numbers a//1 behave in a manner identical
 -- to the integers a:
 compat-+ : ∀ {a b} → (a // 1) + (b // 1) ≃ (a + b) // 1
-compat-+ {a} = sym (AA.compat {{r = ℚ.+-compatible-ℤ}} {a = a})
+compat-+ {a} = sym (AA.compat₂ {{r = ℚ.+-compatible-ℤ}} {a})
+
+compat-* : ∀ {a b} → (a // 1) * (b // 1) ≃ (a * b) // 1
+compat-* {a} = sym (AA.compat₂ {{r = ℚ.*-compatible-ℤ}} {a})
+
+_ : ∀ {a} → - (a // 1) ≃ (- a) // 1
+_ = sym (AA.compat₁ {{r = ℚ.neg-compatible-ℤ}})

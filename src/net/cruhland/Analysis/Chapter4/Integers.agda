@@ -378,7 +378,7 @@ sub-cancelᴿ {a} {b} {c} =
         (aᴺ as ℤ) + b
       ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
         (aᴺ as ℤ) + (bᴺ as ℤ)
-      ≃˘⟨ AA.compat {a = aᴺ} ⟩
+      ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
         (aᴺ + bᴺ as ℤ)
       ∎
 
@@ -395,7 +395,7 @@ sub-cancelᴿ {a} {b} {c} =
         (aᴺ as ℤ) * b
       ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
         (aᴺ as ℤ) * (bᴺ as ℤ)
-      ≃˘⟨ AA.compat {a = aᴺ} ⟩
+      ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
         (aᴺ * bᴺ as ℤ)
       ∎
 
