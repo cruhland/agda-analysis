@@ -2,15 +2,21 @@ module net.cruhland.Analysis.Chapter4.Rationals where
 
 -- Needed for positive integer literals
 import Agda.Builtin.FromNat as FromNat
-open import Relation.Nullary.Decidable using (False)
+open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
+open import net.cruhland.axioms.Cast using (_as_; _value_)
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
-open import net.cruhland.axioms.Eq using (_≃_; _≄_; Eq; sym)
+open import net.cruhland.axioms.Eq using
+  (_≃_; _≄_; Eq; refl; sym; module ≃-Reasoning)
+open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_)
+open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 -- Needed for positive integer literals
-open import net.cruhland.models.Logic using (_↔_; ↔-intro)
+open import net.cruhland.models.Logic using (_↔_; ↔-intro; ↔-elimᴸ)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
+module ℕ = PeanoArithmetic peanoArithmetic
+open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 import net.cruhland.models.Rationals peanoArithmetic as ℚ
@@ -95,3 +101,61 @@ compat-* {a} = sym (AA.compat₂ {{r = ℚ.*-compatible-ℤ}} {a})
 
 _ : ∀ {a} → - (a // 1) ≃ (- a) // 1
 _ = sym (AA.compat₁ {{r = ℚ.neg-compatible-ℤ}})
+
+-- Also, a//1 and b//1 are only equal when a and b are equal.
+_ : ∀ {a b} → a // 1 ≃ b // 1 ↔ a ≃ b
+_ = ↔-intro
+  (AA.inject {{r = ℚ.from-ℤ-injective}})
+  (AA.subst {{r = ℚ.from-ℤ-substitutive₁}})
+
+-- Because of this, we will identify a with a//1 for each integer a: a
+-- ≡ a//1; the above identities then guarantee that the arithmetic of
+-- the integers is consistent with the arithmetic of the
+-- rationals. Thus just as we embedded the natural numbers inside the
+-- integers, we embed the integers inside the rational numbers.
+_ : ∀ {a} → (a as ℚ) ≃ a // 1     -- uses ℚ.from-ℤ for (a as ℚ)
+_ = ℚ.≃₀-intro refl
+
+-- In particular, all natural numbers are rational numbers, for
+-- instance 0 is equal to 0//1 and 1 is equal to 1//1.
+_ : ((ℕ value 0) as ℚ) ≃ 0 // 1
+_ = ≃-derive
+
+_ : ((ℕ value 1) as ℚ) ≃ 1 // 1
+_ = ≃-derive
+
+-- Observe that a rational number a//b is equal to 0 = 0//1 if and
+-- only if a × 1 = b × 0, i.e., if the numerator a is equal to 0. Thus
+-- if a and b are non-zero then so is a//b.
+a//b≃0↔a≃0 : ∀ {q} → q ≃ 0 ↔ ℚ.n q ≃ 0
+a//b≃0↔a≃0 = ↔-intro fwd bwd
+  where
+    fwd : ∀ {q} → q ≃ 0 → ℚ.n q ≃ 0
+    fwd {q} (ℚ.≃₀-intro n1≃0d) =
+      begin
+        ℚ.n q
+      ≃˘⟨ AA.identᴿ ⟩
+        (ℚ.n q) * 1
+      ≃⟨ n1≃0d ⟩
+        0 * ℚ.d q
+      ≃⟨ AA.absorbᴸ {a = 0} ⟩
+        0
+      ∎
+
+    bwd : ∀ {q} → ℚ.n q ≃ 0 → q ≃ 0
+    bwd {q} n≃0 =
+      let n1≃0d =
+            begin
+              (ℚ.n q) * 1
+            ≃⟨ AA.identᴿ ⟩
+              ℚ.n q
+            ≃⟨ n≃0 ⟩
+              0
+            ≃˘⟨ AA.absorbᴸ {a = 0} ⟩
+              0 * ℚ.d q
+            ∎
+       in ℚ.≃₀-intro n1≃0d
+
+nonzero :
+  {a b : ℤ} → a ≄ 0 → (b≄0 : b ≄ 0) → (a // b) {{fromWitnessFalse b≄0}} ≄ 0
+nonzero a≄0 b≄0 a//b≃0 = a≄0 (↔-elimᴸ a//b≃0↔a≃0 a//b≃0)
