@@ -21,7 +21,7 @@ open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 import net.cruhland.models.Rationals peanoArithmetic as ℚ
-open ℚ using (_//_; _//_⟨_⟩; ℚ)
+open ℚ using (_//_; _//_~_; _⁻¹; ℚ)
 
 {- 4.2 The rationals -}
 
@@ -131,12 +131,18 @@ _ : ∀ {q} → q ≃ 0 ↔ ℚ.n q ≃ 0
 _ = ↔-intro ℚ.q↑≃0 ℚ.q≃0
 
 --  Thus if a and b are non-zero then so is a//b.
-_ : {a b : ℤ} → a ≄ 0 → {b≄0 : b ≄ 0} → a // b ⟨ b≄0 ⟩ ≄ 0
+_ : {a b : ℤ} → a ≄ 0 → {b≄0 : b ≄ 0} → a // b ~ b≄0 ≄ 0
 _ = _∘ ℚ.q↑≃0
 
 -- We now define a new operation on the rationals: reciprocal.
 -- If x = a//b is a non-zero rational (so that a,b ≠ 0) then we
 -- define the _reciprocal_ x⁻¹ of x to be the rational number
 -- x⁻¹ ≔ b//a.
-_ : (q : ℚ) {q≄0 : q ≄ 0} → ℚ
-_ = ℚ._⁻¹
+_ : {q : ℚ} → q ≄ 0 → ℚ
+_ = _⁻¹
+
+-- It is easy to check that this operation is consistent with our
+-- notion of equality: if two rational numbers a//b, a′//b′ are equal,
+-- then their reciprocals are also equal.
+_ : {q₁ q₂ : ℚ} (q₁≄0 : q₁ ≄ 0) (q₂≄0 : q₂ ≄ 0) → q₁ ≃ q₂ → q₁≄0 ⁻¹ ≃ q₂≄0 ⁻¹
+_ = ℚ.recip-subst
