@@ -146,3 +146,11 @@ _ = _⁻¹
 -- then their reciprocals are also equal.
 _ : {q₁ q₂ : ℚ} (q₁≄0 : q₁ ≄ 0) (q₂≄0 : q₂ ≄ 0) → q₁ ≃ q₂ → q₁≄0 ⁻¹ ≃ q₂≄0 ⁻¹
 _ = ℚ.recip-subst
+
+-- Proposition 4.2.4 (Laws of algebra for rationals)
+-- Exercise 4.2.3
++-comm : {x y : ℚ} → x + y ≃ y + x
++-comm {x} = AA.comm {{r = ℚ.+-commutative}} {x}
+
++-assoc : {x y z : ℚ} → (x + y) + z ≃ x + (y + z)
++-assoc {x} = AA.assoc {{r = ℚ.+-associative}} {x}
