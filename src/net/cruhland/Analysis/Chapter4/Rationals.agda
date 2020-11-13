@@ -154,3 +154,15 @@ _ = ℚ.recip-subst
 
 +-assoc : {x y z : ℚ} → (x + y) + z ≃ x + (y + z)
 +-assoc {x} = AA.assoc {{r = ℚ.+-associative}} {x}
+
+_ : {x : ℚ} → x + 0 ≃ x
+_ = AA.identᴿ {{r = ℚ.+-identityᴿ}}
+
+_ : {x : ℚ} → 0 + x ≃ x
+_ = AA.identᴸ {{r = ℚ.+-identityᴸ}}
+
++-invᴿ : {x : ℚ} → x + (- x) ≃ 0
++-invᴿ {x} = AA.invᴿ {{r = ℚ.+-inverseᴿ}} {x}
+
++-invᴸ : {x : ℚ} → (- x) + x ≃ 0
++-invᴸ {x} = AA.invᴸ {{r = ℚ.+-inverseᴸ}} {x}
