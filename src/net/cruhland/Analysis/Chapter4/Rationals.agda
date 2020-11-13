@@ -166,3 +166,9 @@ _ = AA.identᴸ {{r = ℚ.+-identityᴸ}}
 
 +-invᴸ : {x : ℚ} → (- x) + x ≃ 0
 +-invᴸ {x} = AA.invᴸ {{r = ℚ.+-inverseᴸ}} {x}
+
+*-comm : {x y : ℚ} → x * y ≃ y * x
+*-comm {x} = AA.comm {{r = ℚ.*-commutative}} {x}
+
+*-assoc : {x y z : ℚ} → (x * y) * z ≃ x * (y * z)
+*-assoc {x} = AA.assoc {{r = ℚ.*-associative}} {x}
