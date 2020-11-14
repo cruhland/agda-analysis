@@ -172,3 +172,9 @@ _ = AA.identᴸ {{r = ℚ.+-identityᴸ}}
 
 *-assoc : {x y z : ℚ} → (x * y) * z ≃ x * (y * z)
 *-assoc {x} = AA.assoc {{r = ℚ.*-associative}} {x}
+
+_ : {x : ℚ} → x * 1 ≃ x
+_ = AA.identᴿ {{r = ℚ.*-identityᴿ}}
+
+_ : {x : ℚ} → 1 * x ≃ x
+_ = AA.identᴸ {{r = ℚ.*-identityᴸ}}
