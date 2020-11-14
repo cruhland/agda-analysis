@@ -8,7 +8,7 @@ import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_; _value_)
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; Eq; refl; sym; module ≃-Reasoning)
+  (_≃_; _≄_; _≄ⁱ_; Eq; refl; sym; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
@@ -21,7 +21,7 @@ open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 import net.cruhland.models.Rationals peanoArithmetic as ℚ
-open ℚ using (_//_; _//_~_; _⁻¹; ℚ)
+open ℚ using (_//_; _//_~_; _⁻¹; _⁻¹′; ℚ)
 
 {- 4.2 The rationals -}
 
@@ -184,3 +184,9 @@ _ = AA.identᴸ {{r = ℚ.*-identityᴸ}}
 
 *-distrib-+ᴿ : {x y z : ℚ} → (y + z) * x ≃ y * x + z * x
 *-distrib-+ᴿ {x} {y} = AA.distribᴿ {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
+
+_ : ∀ {x} {{_ : x ≄ⁱ 0}} → x * x ⁻¹′ ≃ 1
+_ = AA.invⁱᴿ {{r = ℚ.recip-inverseⁱᴿ}}
+
+_ : ∀ {x} {{_ : x ≄ⁱ 0}} → x ⁻¹′ * x ≃ 1
+_ = AA.invⁱᴸ {{r = ℚ.recip-inverseⁱᴸ}}
