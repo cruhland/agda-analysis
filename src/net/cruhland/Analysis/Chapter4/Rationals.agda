@@ -6,11 +6,12 @@ open import Function using (_∘_)
 open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_; _value_)
-open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
+open import net.cruhland.axioms.DecEq using
+  (_≃?_; ≃-derive; ≄-derive; ≄ⁱ-derive)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; _≄ⁱ_; Eq; refl; sym; module ≃-Reasoning)
+  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; refl; sym; module ≃-Reasoning)
 open ≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_; _*_; -_)
+open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 -- Needed for positive integer literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro; ↔-elimᴸ)
@@ -21,7 +22,7 @@ open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 import net.cruhland.models.Rationals peanoArithmetic as ℚ
-open ℚ using (_//_; _//_~_; _⁻¹; _⁻¹′; ℚ)
+open ℚ using (_//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
 
 {- 4.2 The rationals -}
 
@@ -190,3 +191,33 @@ _ = AA.invⁱᴿ {{r = ℚ.recip-inverseⁱᴿ}}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x ⁻¹′ * x ≃ 1
 _ = AA.invⁱᴸ {{r = ℚ.recip-inverseⁱᴸ}}
+
+-- We can now define the _quotient_ x/y of two rational numbers x and
+-- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
+_ : (x y : ℚ) {{_ : y ≄ⁱ 0}} → ℚ
+_ = _/′_
+
+-- Thus, for instance:
+_ = let instance _ = ≄ⁱ-derive in
+  begin
+    (3 // 4) /′ (5 // 6)
+  ≃⟨⟩
+    (3 // 4) * (6 // 5)
+  ≃⟨⟩
+    18 // 20
+  ≃⟨ ℚ.≃₀-intro refl ⟩
+    9 // 10
+  ∎
+
+-- Using this formula, it is easy to see that a/b = a//b for every
+-- integer a and every non-zero integer b. Thus we can now discard the
+-- // notation, and use the more customary a/b instead of a//b.
+//-redundant :
+  {a b : ℤ} {{b≄ⁱ0 : b ≄ⁱ 0}} {{_ : (b as ℚ) ≄ⁱ 0}} →
+    (a as ℚ) /′ (b as ℚ) ≃ a // b ~ ≄ⁱ-elim b≄ⁱ0
+//-redundant {a} = ℚ.≃₀-intro (AA.assoc {_⊙_ = _*_} {a = a})
+
+-- In a similar spirit, we define subtraction on the rationals by the
+-- formula x - y ≔ x + (- y), just as we did with the integers.
+_ : ℚ → ℚ → ℚ
+_ = _-_ {{r = ℚ.dash₂}}
