@@ -1,7 +1,7 @@
 module net.cruhland.Analysis.Chapter4.Integers where
 
 open import Agda.Builtin.FromNat using (Number)
-open import Agda.Builtin.FromNeg using (Negative)
+import Agda.Builtin.FromNeg as FromNeg
 import Agda.Builtin.Nat as Nat
 open import Function using (_∘_; const; flip)
 open import Relation.Binary using (IsEquivalence)
@@ -24,7 +24,7 @@ open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using
   ( _—_; _≤_; _<_; _>_; AtLeastOne; ExactlyOneOf
-  ; ≃ᶻ-intro; IsNegative; IsPositive; MoreThanOne; neg; nil; pos
+  ; ≃ᶻ-intro; Negative; Positive; MoreThanOne; neg; nil; pos
   ; Trichotomy; trichotomy; ℤ
   )
 open Trichotomy using (at-least)
@@ -190,10 +190,10 @@ _ = AA.subst {{r = ℤ.neg-substitutive}}
 -- zero; (b) x is equal to a positive natural number n; or (c) x is
 -- the negation -n of a positive natural number n.
 _ : ℤ → Set
-_ = IsPositive
+_ = Positive
 
 _ : ℤ → Set
-_ = IsNegative
+_ = Negative
 
 _ : ℤ → Set
 _ = AtLeastOne
@@ -283,7 +283,7 @@ _ = _<_
 _ : ℤ → ℤ → Set
 _ = _>_
 
-_ : Negative ℤ
+_ : FromNeg.Negative ℤ
 _ = ℤ.negative
 
 _ : 5 > -3
@@ -319,8 +319,8 @@ vanish {x} {y} =
     x
   ∎
 
-IsPositive-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → IsPositive a₁ → IsPositive a₂
-IsPositive-subst a₁≃a₂ record { n = n ; pos = n≄0 ; x≃n = a₁≃n } =
+Positive-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → Positive a₁ → Positive a₂
+Positive-subst a₁≃a₂ record { n = n ; pos = n≄0 ; x≃n = a₁≃n } =
   record { n = n ; pos = n≄0 ; x≃n = trans (sym a₁≃a₂) a₁≃n }
 
 -- Exercise 4.1.3
@@ -365,7 +365,7 @@ sub-cancelᴿ {a} {b} {c} =
     a - b
   ∎
 
-+-preserves-pos : ∀ {a b} → IsPositive a → IsPositive b → IsPositive (a + b)
++-preserves-pos : ∀ {a b} → Positive a → Positive b → Positive (a + b)
 +-preserves-pos {a} {b}
   record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
   record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
@@ -382,7 +382,7 @@ sub-cancelᴿ {a} {b} {c} =
         (aᴺ + bᴺ as ℤ)
       ∎
 
-*-preserves-pos : ∀ {a b} → IsPositive a → IsPositive b → IsPositive (a * b)
+*-preserves-pos : ∀ {a b} → Positive a → Positive b → Positive (a * b)
 *-preserves-pos {a} {b}
   record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
   record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
@@ -400,7 +400,7 @@ sub-cancelᴿ {a} {b} {c} =
       ∎
 
 -- (a)
-<→pos : ∀ {x y} → x < y → IsPositive (y - x)
+<→pos : ∀ {x y} → x < y → Positive (y - x)
 <→pos {x} {y} (ℤ.<-intro (ℤ.≤-intro a y≃x+a) x≄y) =
     record { n = a ; pos = a≄0 ; x≃n = ≃ᴿ-+ᴸ-toᴿ y≃x+a }
   where
@@ -418,23 +418,23 @@ sub-cancelᴿ {a} {b} {c} =
             y
           ∎
 
-pos-diff : ∀ {a b} → a < b ↔ IsPositive (b - a)
+pos-diff : ∀ {a b} → a < b ↔ Positive (b - a)
 pos-diff = ↔-intro <→pos ℤ.pos→<
 
 -- (b) Addition preserves order
 +-preserves-<ᴿ : ∀ {a b c} → a < b → a + c < b + c
 +-preserves-<ᴿ {a} {b} {c} a<b =
-  ℤ.pos→< (IsPositive-subst (sym (sub-cancelᴿ {b})) (<→pos a<b))
+  ℤ.pos→< (Positive-subst (sym (sub-cancelᴿ {b})) (<→pos a<b))
 
 -- (c) Positive multiplication preserves order
-*⁺-preserves-<ᴿ : ∀ {a b c} → IsPositive c → a < b → a * c < b * c
+*⁺-preserves-<ᴿ : ∀ {a b c} → Positive c → a < b → a * c < b * c
 *⁺-preserves-<ᴿ {a} {b} {c} c>0 a<b =
   let [b-a]c>0 = *-preserves-pos (<→pos a<b) c>0
-   in ℤ.pos→< (IsPositive-subst (ℤ.*-distrib-subᴿ {b}) [b-a]c>0)
+   in ℤ.pos→< (Positive-subst (ℤ.*-distrib-subᴿ {b}) [b-a]c>0)
 
 -- (d) Negation reverses order
 neg-reverses-< : ∀ {a b} → a < b → - b < - a
-neg-reverses-< {a} {b} a<b = ℤ.pos→< (IsPositive-subst b-a≃-a-[-b] (<→pos a<b))
+neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos a<b))
   where
     b-a≃-a-[-b] =
       begin
@@ -449,7 +449,7 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (IsPositive-subst b-a≃-a-[-b] (<→po
 <-trans : ∀ {a b c} → a < b → b < c → a < c
 <-trans {a} {b} {c} a<b b<c =
     let 0<b-a+c-b = +-preserves-pos (<→pos a<b) (<→pos b<c)
-     in ℤ.pos→< (IsPositive-subst b-a+c-b≃c-a 0<b-a+c-b)
+     in ℤ.pos→< (Positive-subst b-a+c-b≃c-a 0<b-a+c-b)
   where
     b-a+c-b≃c-a =
       begin

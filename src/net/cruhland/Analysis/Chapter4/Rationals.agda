@@ -9,7 +9,7 @@ open import net.cruhland.axioms.Cast using (_as_; _value_)
 open import net.cruhland.axioms.DecEq using
   (_≃?_; ≃-derive; ≄-derive; ≄ⁱ-derive)
 open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; refl; sym; module ≃-Reasoning)
+  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≄ⁱ-intro; refl; sym; module ≃-Reasoning)
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
@@ -221,3 +221,52 @@ _ = let instance _ = ≄ⁱ-derive in
 -- formula x - y ≔ x + (- y), just as we did with the integers.
 _ : ℚ → ℚ → ℚ
 _ = _-_ {{r = ℚ.dash₂}}
+
+-- Definition 4.2.6. A rational number x is said to be _positive_ iff
+-- we have x = a/b for some positive integers a and b. It is said to
+-- be _negative_ iff we have x = -y for some positive rational y
+-- (i.e., x = (- a)/b for some positive integers a and b).
+_ : ℚ → Set
+_ = ℚ.Positive
+
+_ : ℚ → Set
+_ = ℚ.Negative
+
+alt-negative :
+  ∀ {a b} → ℤ.Positive a → (b⁺ : ℤ.Positive b) →
+    let instance b≄ⁱ0 = ≄ⁱ-intro (AA.≄-subst (ℤ.pos-nonzero b⁺))
+     in ℚ.Negative ((- a as ℚ) /′ (b as ℚ))
+alt-negative {a} {b} a⁺ b⁺ =
+  let instance b≄ⁱ0 = ≄ⁱ-intro (AA.≄-subst (ℤ.pos-nonzero b⁺))
+      p = (a as ℚ) /′ (b as ℚ)
+      p-pos = record
+        { n-pos = AA.substᴾ (sym AA.identᴿ) a⁺
+        ; d-pos = AA.substᴾ (sym AA.identᴸ) b⁺ }
+      [-a]/b≃-p =
+        begin
+          (- a as ℚ) /′ (b as ℚ)
+        ≃⟨⟩
+          (- a as ℚ) * (b as ℚ) ⁻¹′
+        ≃⟨ AA.substᴸ {a = (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
+          (- (a as ℚ)) * (b as ℚ) ⁻¹′
+        ≃⟨ AA.commᴸ {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
+          - ((a as ℚ) * (b as ℚ) ⁻¹′)
+        ≃⟨⟩
+          - ((a as ℚ) /′ (b as ℚ))
+        ≃⟨⟩
+          - p
+        ∎
+   in record { p = p ; p-pos = p-pos ; q≃-p = [-a]/b≃-p }
+
+-- Thus for instance, every positive integer is a positive rational
+-- number, and every negative integer is a negative rational number,
+-- so our new definition is consistent with our old one.
+ℚ⁺-compat-ℤ⁺ : ∀ {a} → ℤ.Positive a → ℚ.Positive (a as ℚ)
+ℚ⁺-compat-ℤ⁺ a⁺ = record { n-pos = a⁺ ; d-pos = ℤ.1-Positive }
+
+ℚ⁻-compat-ℤ⁻ : ∀ {a} → ℤ.Negative a → ℚ.Negative (a as ℚ)
+ℚ⁻-compat-ℤ⁻ {a} a⁻ = record
+  { p = - (a as ℚ)
+  ; p-pos = record { n-pos = ℤ.neg-Negative a⁻ ; d-pos = ℤ.1-Positive }
+  ; q≃-p = refl
+  }
