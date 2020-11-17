@@ -25,7 +25,7 @@ module _ (PA : PeanoArithmetic) where
     ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
-    ; _<⁺_; <→<⁺; <⁺→<; strong-ind; Trichotomy; trichotomy
+    ; _<⁺_; <→<⁺; <⁺→<; strong-ind; order-trichotomy
     )
 
   {- 2.1 The Peano Axioms -}
@@ -297,21 +297,8 @@ module _ (PA : PeanoArithmetic) where
   <↔<⁺ = ↔-intro <→<⁺ <⁺→<
 
   -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
-  trichotomy-of-order :
-    ∀ {a b} →
-      Trichotomy a b ∧ ¬ ((a < b ∧ a ≃ b) ∨ (a > b ∧ a ≃ b) ∨ (a < b ∧ a > b))
-  trichotomy-of-order {a} {b} = ∧-intro trichotomy any-pair-absurd
-    where
-      any-pair-absurd : ¬ ((a < b ∧ a ≃ b) ∨ (a > b ∧ a ≃ b) ∨ (a < b ∧ a > b))
-      any-pair-absurd
-        (∨-introᴸ (∧-intro (<-intro a≤b a≄b) a≃b)) =
-          a≄b a≃b
-      any-pair-absurd
-        (∨-introᴿ (∨-introᴸ (∧-intro (<-intro b≤a b≄a) a≃b))) =
-          b≄a (sym a≃b)
-      any-pair-absurd
-        (∨-introᴿ (∨-introᴿ (∧-intro (<-intro a≤b a≄b) (<-intro b≤a b≄a)))) =
-          a≄b (≤-antisym a≤b b≤a)
+  _ : ∀ {a b} → AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b)
+  _ = order-trichotomy
 
   -- Proposition 2.2.14
   -- Exercise 2.2.5
