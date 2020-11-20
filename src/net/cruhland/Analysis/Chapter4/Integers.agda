@@ -1,6 +1,5 @@
 module net.cruhland.Analysis.Chapter4.Integers where
 
-open import Agda.Builtin.FromNat using (Number)
 import Agda.Builtin.FromNeg as FromNeg
 import Agda.Builtin.Nat as Nat
 open import Function using (_∘_; const; flip)
@@ -14,8 +13,9 @@ open import net.cruhland.axioms.Eq using
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
+import net.cruhland.models.Literals as Literals
 open import net.cruhland.models.Logic using
-  (⊤; ⊤-intro; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
+  (⊤; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
@@ -117,7 +117,7 @@ _ = ↔-intro (AA.cancelᴿ ∘ ℤ._≃ᶻ_.elim) (≃ᶻ-intro ∘ AA.substᴸ
 -- Number typeclass to interpret numeric literals as elements of
 -- ℤ. And we can define a function to convert natural numbers to their
 -- integer equivalent.
-_ : Number ℤ
+_ : Literals.Number ℤ
 _ = ℤ.number
 
 -- For instance the natural number 3 is now considered to be the same
