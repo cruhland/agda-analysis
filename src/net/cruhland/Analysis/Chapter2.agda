@@ -21,7 +21,7 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; step≃+; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ
+    ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ
     ; Positive; +-positive; +-both-zero
     ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
     ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
@@ -191,7 +191,7 @@ module _ (PA : PeanoArithmetic) where
   _ = AA.commᴿ {{r = ℕ.+-commutative-stepᴿ}}
 
   _ : ∀ {n} → step n ≃ n + 1
-  _ = step≃+
+  _ = ℕ.sn≃n+1
 
   -- Proposition 2.2.4 (Addition is commutative).
   _ : {n m : ℕ} → n + m ≃ m + n

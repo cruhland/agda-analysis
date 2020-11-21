@@ -151,7 +151,7 @@ step : ℤ → ℤ
 step x = x + 1
 
 ℤ⁺s≃sℤ⁺ : ∀ {a} → ℤ.ℤ.pos (step a) ≃ ℕ.step (ℤ.ℤ.pos a)
-ℤ⁺s≃sℤ⁺ {a⁺ — _} = sym ℕ.step≃+
+ℤ⁺s≃sℤ⁺ {a⁺ — _} = sym ℕ.sn≃n+1
 
 ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ.ℤ.neg (step a) ≃ ℤ.ℤ.neg a
 ℤ⁻s≃ℤ⁻ {_ — a⁻} = AA.identᴿ
@@ -486,4 +486,4 @@ no-ind ind = ¬allP (ind P Pz Ps)
     ¬allP : ¬ (∀ a → P a)
     ¬allP 0≰a =
       let ℤ.≤-intro n (≃ᶻ-intro 0≃n+1) = 0≰a -1
-       in ℕ.step≄zero (trans ℕ.step≃+ (sym 0≃n+1))
+       in ℕ.step≄zero (trans ℕ.sn≃n+1 (sym 0≃n+1))
