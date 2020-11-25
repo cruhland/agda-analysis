@@ -3,10 +3,10 @@ module net.cruhland.Analysis.Chapter2 where
 open import Function using (id; const)
 open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
+open import net.cruhland.axioms.Cast using (_as_; cast)
 open import net.cruhland.axioms.DecEq using (_≃?_)
-open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; Eq; refl; sym; ¬sym; trans; module ≃-Reasoning)
-open ≃-Reasoning
+open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
+open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.models.Literals
@@ -21,11 +21,8 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; +-stepᴸ⃗ᴿ; +-stepᴿ⃗ᴸ; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ
-    ; Positive; +-positive; +-both-zero
-    ; _≤_; _<_; _>_; <→s≤; s≤→<; ≤→<∨≃; ≤s→≤∨≃s; ≤-intro; <-intro
-    ; ≤-antisym; ≤-compat-+ᴰᴿ; ≤-compat-+ᵁᴿ; ≤-refl; ≤-trans; ≤-zero; <-zero
-    ; _<⁺_; <→<⁺; <⁺→<; strong-ind; order-trichotomy
+    ; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ; Positive; +-positive
+    ; +-both-zero; _≤_; _<_; _>_; _<⁺_; ≤-intro; <-intro
     )
 
   {- 2.1 The Peano Axioms -}
@@ -45,22 +42,22 @@ module _ (PA : PeanoArithmetic) where
   -- Definition 2.1.3
   -- The digit-based representation is provided by the Peano.Literals module
   _ : 1 ≃ step zero
-  _ = refl
+  _ = Eq.refl
 
   _ : 2 ≃ step (step zero)
-  _ = refl
+  _ = Eq.refl
 
   _ : 3 ≃ step (step (step zero))
-  _ = refl
+  _ = Eq.refl
 
   _ : 1 ≃ step 0
-  _ = refl
+  _ = Eq.refl
 
   _ : 2 ≃ step 1
-  _ = refl
+  _ = Eq.refl
 
   _ : 3 ≃ step 2
-  _ = refl
+  _ = Eq.refl
 
   -- Proposition 2.1.4. 3 is a natural number.
   _ : ℕ
@@ -114,9 +111,9 @@ module _ (PA : PeanoArithmetic) where
     AssignedTo-substᴿ :
       ∀ {m n₁ n₂} → n₁ ≃ n₂ → m AssignedTo n₁ → m AssignedTo n₂
     AssignedTo-substᴿ n₁≃n₂ (assign-zero n₁≃z) =
-      assign-zero (trans (sym n₁≃n₂) n₁≃z)
+      assign-zero (Eq.trans (Eq.sym n₁≃n₂) n₁≃z)
     AssignedTo-substᴿ n₁≃n₂ (assign-step n₁≃sn₁′ m′≔n₁′) =
-      assign-step (trans (sym n₁≃n₂) n₁≃sn₁′) m′≔n₁′
+      assign-step (Eq.trans (Eq.sym n₁≃n₂) n₁≃sn₁′) m′≔n₁′
 
     record UniqueAssignment (n : ℕ) : Set where
       constructor assign-intro
@@ -131,25 +128,25 @@ module _ (PA : PeanoArithmetic) where
         P = UniqueAssignment
 
         Pz : P zero
-        Pz = assign-intro c (assign-zero refl) (c-unique refl)
+        Pz = assign-intro c (assign-zero Eq.refl) (c-unique Eq.refl)
           where
             c-unique : ∀ {m} → m ≃ zero → ∀ {b} → b AssignedTo m → c ≃ b
             c-unique m≃z (assign-zero _) =
-              refl
+              Eq.refl
             c-unique m≃z (assign-step m≃sm′ b′≔m′) =
-              ⊥-elim (step≄zero (trans (sym m≃sm′) m≃z))
+              ⊥-elim (step≄zero (Eq.trans (Eq.sym m≃sm′) m≃z))
 
         Ps : step-case P
         Ps {k} (assign-intro a a≔k unique) =
-          assign-intro (f k a) (assign-step refl a≔k) (f-unique refl)
+          assign-intro (f k a) (assign-step Eq.refl a≔k) (f-unique Eq.refl)
             where
               f-unique : ∀ {m} → m ≃ step k → ∀ {b} → b AssignedTo m → f k a ≃ b
               f-unique m≃sk (assign-zero m≃z) =
-                ⊥-elim (step≄zero (trans (sym m≃sk) m≃z))
+                ⊥-elim (step≄zero (Eq.trans (Eq.sym m≃sk) m≃z))
               f-unique m≃sk (assign-step m≃sm′ b′≔m′) =
-                let m′≃k = AA.inject (trans (sym m≃sm′) m≃sk)
+                let m′≃k = AA.inject (Eq.trans (Eq.sym m≃sm′) m≃sk)
                     a≃b′ = unique (AssignedTo-substᴿ m′≃k b′≔m′)
-                 in f-subst (sym m′≃k) a≃b′
+                 in f-subst (Eq.sym m′≃k) a≃b′
 
   {- 2.2 Addition -}
 
@@ -164,7 +161,7 @@ module _ (PA : PeanoArithmetic) where
   1+m {m} =
     begin
       1 + m
-    ≃⟨ +-stepᴸ⃗ᴿ ⟩
+    ≃⟨ AA.comm-swap ⟩
       0 + step m
     ≃⟨ AA.identᴸ ⟩
       step m
@@ -174,9 +171,9 @@ module _ (PA : PeanoArithmetic) where
   2+3≃5 =
     begin
       2 + 3
-    ≃⟨ +-stepᴸ⃗ᴿ ⟩
+    ≃⟨ AA.comm-swap ⟩
       1 + 4
-    ≃⟨ +-stepᴸ⃗ᴿ ⟩
+    ≃⟨ AA.comm-swap ⟩
       0 + 5
     ≃⟨ AA.identᴸ ⟩
       5
@@ -239,7 +236,7 @@ module _ (PA : PeanoArithmetic) where
   unique-predecessor : ∀ a → Positive a → UniquePred a
   unique-predecessor a a≄0 =
     let p@(pred-intro b a≃sb) = pred a≄0
-     in upred-intro p (λ b′ a≃sb′ → AA.inject (trans (sym a≃sb) a≃sb′))
+     in upred-intro p (λ b′ a≃sb′ → AA.inject (Eq.trans (Eq.sym a≃sb) a≃sb′))
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
   _ : ℕ → ℕ → Set
@@ -254,11 +251,11 @@ module _ (PA : PeanoArithmetic) where
           5 + 3
         ≃⟨⟩
           5 + step (step (step zero))
-        ≃⟨ +-stepᴿ⃗ᴸ ⟩
+        ≃˘⟨ AA.comm-swap ⟩
           step 5 + step (step zero)
-        ≃⟨ +-stepᴿ⃗ᴸ ⟩
+        ≃˘⟨ AA.comm-swap ⟩
           step (step 5) + step zero
-        ≃⟨ +-stepᴿ⃗ᴸ ⟩
+        ≃˘⟨ AA.comm-swap ⟩
           step (step (step 5)) + zero
         ≃⟨ AA.identᴿ ⟩
           step (step (step 5))
@@ -267,38 +264,38 @@ module _ (PA : PeanoArithmetic) where
         ∎
       5≤8 = ≤-intro 3 5+3≃8
       si = AA.inject
-      5≄8 = λ 5≃8 → step≄zero (si (si (si (si (si (sym 5≃8))))))
+      5≄8 = λ 5≃8 → step≄zero (si (si (si (si (si (Eq.sym 5≃8))))))
 
   -- Proposition 2.2.12 (Basic properties of order for natural numbers).
   -- Exercise 2.2.3
 
   -- (a) (Order is reflexive)
   _ : ∀ {a} → a ≤ a
-  _ = ≤-refl
+  _ = Eq.refl {{r = ℕ.≤-reflexive}}
 
   -- (b) (Order is transitive)
   _ : ∀ {a b c} → a ≤ b → b ≤ c → a ≤ c
-  _ = ≤-trans
+  _ = Eq.trans {{r = ℕ.≤-transitive}}
 
   -- (c) (Order is anti-symmetric)
   _ : ∀ {a b} → a ≤ b → b ≤ a → a ≃ b
-  _ = ≤-antisym
+  _ = AA.antisym {{r = ℕ.≤-antisymmetric}}
 
   -- (d) (Addition preserves order)
   _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
-  _ = ↔-intro ≤-compat-+ᵁᴿ ≤-compat-+ᴰᴿ
+  _ = ↔-intro AA.substᴸ AA.cancelᴿ
 
   -- (e)
-  _ : ∀ {a b} → a < b ↔ step a ≤ b
-  _ = ↔-intro <→s≤ s≤→<
+  a<b↔sa≤b : ∀ {a b} → a < b ↔ step a ≤ b
+  a<b↔sa≤b {a} {b} = ↔-intro (cast {{r = ℕ.<-as-s≤}}) (cast {{r = ℕ.s≤-as-<}})
 
   -- (f)
   <↔<⁺ : ∀ {a b} → a < b ↔ a <⁺ b
-  <↔<⁺ = ↔-intro <→<⁺ <⁺→<
+  <↔<⁺ = ↔-intro (cast {{r = ℕ.<-as-<⁺}}) (cast {{r = ℕ.<⁺-as-<}})
 
   -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
   _ : ∀ {a b} → AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b)
-  _ = order-trichotomy
+  _ = ℕ.order-trichotomy
 
   -- Proposition 2.2.14
   -- Exercise 2.2.5
@@ -306,7 +303,7 @@ module _ (PA : PeanoArithmetic) where
     (P : ℕ → Set) (b : ℕ) →
     (∀ m → b ≤ m → (∀ k → b ≤ k → k < m → P k) → P m) →
     ∀ n → b ≤ n → P n
-  _ = strong-ind
+  _ = ℕ.strong-ind
 
   -- Exercise 2.2.6
   backwards-ind :
@@ -318,12 +315,12 @@ module _ (PA : PeanoArithmetic) where
       Q = λ x → P x → ∀ {y} → y ≤ x → P y
 
       Qz : Q 0
-      Qz Pz y≤z = P-subst (sym (∨-forceᴿ <-zero (≤→<∨≃ y≤z))) Pz
+      Qz Pz y≤z = P-subst (Eq.sym (∨-forceᴿ ℕ.n≮0 (ℕ.≤-split y≤z))) Pz
 
       Qs : step-case Q
-      Qs Qk Psk y≤sk with ≤s→≤∨≃s y≤sk
+      Qs Qk Psk y≤sk with ℕ.≤s-split y≤sk
       ... | ∨-introᴸ y≤k = Qk (Pk Psk) y≤k
-      ... | ∨-introᴿ y≃sk = P-subst (sym y≃sk) Psk
+      ... | ∨-introᴿ y≃sk = P-subst (Eq.sym y≃sk) Psk
 
   {- 2.3 Multiplication -}
 
@@ -335,10 +332,10 @@ module _ (PA : PeanoArithmetic) where
   0*m = AA.absorbᴸ {{r = ℕ.*-absorptiveᴸ}}
 
   1*m : {m : ℕ} → 1 * m ≃ 0 + m
-  1*m {m} = trans *-stepᴸ (AA.substᴸ 0*m)
+  1*m {m} = Eq.trans *-stepᴸ (AA.substᴸ 0*m)
 
   2*m : {m : ℕ} → 2 * m ≃ 0 + m + m
-  2*m {m} = trans *-stepᴸ (AA.substᴸ 1*m)
+  2*m {m} = Eq.trans *-stepᴸ (AA.substᴸ 1*m)
 
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
@@ -351,8 +348,8 @@ module _ (PA : PeanoArithmetic) where
   no-zero-divs {n} {m} = ↔-intro AA.zero-prod backward
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
-      backward (∨-introᴸ n≃0) = trans (AA.substᴸ n≃0) AA.absorbᴸ
-      backward (∨-introᴿ m≃0) = trans (AA.substᴿ m≃0) AA.absorbᴿ
+      backward (∨-introᴸ n≃0) = Eq.trans (AA.substᴸ n≃0) AA.absorbᴸ
+      backward (∨-introᴿ m≃0) = Eq.trans (AA.substᴿ m≃0) AA.absorbᴿ
 
   -- Proposition 2.3.4 (Distributive law).
   _ : {a b c : ℕ} → a * (b + c) ≃ a * b + a * c
@@ -390,17 +387,17 @@ module _ (PA : PeanoArithmetic) where
         where
           q = 0
           r = 0
-          r<m = <-intro ≤-zero (¬sym m≄0)
-          n≃mq+r = sym (trans AA.identᴿ AA.absorbᴿ)
+          r<m = <-intro ℕ.0≤n (Eq.¬sym m≄0)
+          n≃mq+r = Eq.sym (Eq.trans AA.identᴿ AA.absorbᴿ)
 
       Ps : step-case P
-      Ps {k} (div-intro q r r<m k≃mq+r) with ≤→<∨≃ (<→s≤ r<m)
+      Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (r<m as step r ≤ m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
-          sk≃mq+sr = trans (AA.subst k≃mq+r) (sym AA.commᴿ)
+          sk≃mq+sr = Eq.trans (AA.subst k≃mq+r) (Eq.sym AA.commᴿ)
       ... | ∨-introᴿ sr≃m = div-intro (step q) 0 0<m sk≃m[sq]+0
         where
-          0<m = <-intro ≤-zero (¬sym m≄0)
+          0<m = <-intro ℕ.0≤n (Eq.¬sym m≄0)
 
           sk≃m[sq]+0 =
             begin

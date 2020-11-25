@@ -20,7 +20,7 @@ open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
 import net.cruhland.models.Rationals peanoArithmetic as ℚ
-open ℚ using (_//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
+open ℚ using (_//1; _//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
 
 {- 4.2 The rationals -}
 
@@ -93,17 +93,17 @@ _ = AA.subst {{r = ℚ.neg-substitutive₁}}
 
 -- We note that the rational numbers a//1 behave in a manner identical
 -- to the integers a:
-compat-+ : ∀ {a b} → (a // 1) + (b // 1) ≃ (a + b) // 1
+compat-+ : ∀ {a b} → (a //1) + (b //1) ≃ (a + b) //1
 compat-+ {a} = sym (AA.compat₂ {{r = ℚ.+-compatible-ℤ}} {a})
 
-compat-* : ∀ {a b} → (a // 1) * (b // 1) ≃ (a * b) // 1
+compat-* : ∀ {a b} → (a //1) * (b //1) ≃ (a * b) //1
 compat-* {a} = sym (AA.compat₂ {{r = ℚ.*-compatible-ℤ}} {a})
 
-_ : ∀ {a} → - (a // 1) ≃ (- a) // 1
+_ : ∀ {a} → - (a //1) ≃ (- a) //1
 _ = sym (AA.compat₁ {{r = ℚ.neg-compatible-ℤ}})
 
 -- Also, a//1 and b//1 are only equal when a and b are equal.
-_ : ∀ {a b} → a // 1 ≃ b // 1 ↔ a ≃ b
+_ : ∀ {a b} → a //1 ≃ b //1 ↔ a ≃ b
 _ = ↔-intro
   (AA.inject {{r = ℚ.from-ℤ-injective}})
   (AA.subst {{r = ℚ.from-ℤ-substitutive₁}})
