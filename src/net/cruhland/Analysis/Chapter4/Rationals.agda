@@ -238,8 +238,8 @@ alt-negative {a} {b} a⁺ b⁺ =
   let instance b≄ⁱ0 = ≄ⁱ-intro (AA.≄-subst (ℤ.pos-nonzero b⁺))
       p = (a as ℚ) /′ (b as ℚ)
       p-pos = record
-        { n-pos = AA.substᴾ (sym AA.identᴿ) a⁺
-        ; d-pos = AA.substᴾ (sym AA.identᴸ) b⁺ }
+        { n-pos = AA.subst (sym AA.identᴿ) a⁺
+        ; d-pos = AA.subst (sym AA.identᴸ) b⁺ }
       [-a]/b≃-p =
         begin
           (- a as ℚ) /′ (b as ℚ)
