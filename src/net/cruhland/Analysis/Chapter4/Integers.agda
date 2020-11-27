@@ -74,13 +74,13 @@ _ = ≃-derive
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
-_ = AA.substᴸ {{r = ℤ.+-substitutiveᴸ}}
+_ = AA.subst {{r = ℤ.+-substitutiveᴸ}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 _ = AA.substᴿ {{r = ℤ.+-substitutiveᴿ}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
-_ = AA.substᴸ {{r = ℤ.*-substitutiveᴸ}}
+_ = AA.subst {{r = ℤ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
 *-substᴿ {a} = AA.substᴿ {{r = ℤ.*-substitutiveᴿ}} {a = a}
@@ -99,13 +99,13 @@ _ = ≃ᶻ-intro refl
         n * m + 0 + 0
       ≃⟨ AA.assoc {a = n * m} ⟩
         n * m + (0 + 0)
-      ≃˘⟨ AA.substᴿ {a = n * m} (AA.substᴸ (AA.absorbᴿ {a = n})) ⟩
+      ≃˘⟨ AA.substᴿ {a = n * m} (AA.subst (AA.absorbᴿ {a = n})) ⟩
         n * m + (n * 0 + 0)
       ∎
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (AA.cancelᴿ ∘ ℤ._≃ᶻ_.elim) (≃ᶻ-intro ∘ AA.substᴸ)
+_ = ↔-intro (AA.cancelᴿ ∘ ℤ._≃ᶻ_.elim) (≃ᶻ-intro ∘ AA.subst)
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
@@ -235,7 +235,7 @@ _ = _-_
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → (a as ℤ) - (b as ℤ) ≃ a — b
-natsub {a} = ≃ᶻ-intro (AA.substᴸ (AA.identᴿ {a = a}))
+natsub {a} = ≃ᶻ-intro (AA.subst (AA.identᴿ {a = a}))
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
@@ -317,7 +317,7 @@ sub-distrib {a} {b} {c} =
     a + -1 * (b + c)
   ≃⟨ AA.substᴿ {a = a} (AA.distribᴸ {a = -1} {b = b}) ⟩
     a + (-1 * b + -1 * c)
-  ≃˘⟨ AA.substᴿ {a = a} (AA.substᴸ (ℤ.neg-mult {b})) ⟩
+  ≃˘⟨ AA.substᴿ {a = a} (AA.subst (ℤ.neg-mult {b})) ⟩
     a + (- b + -1 * c)
   ≃˘⟨ AA.substᴿ {a = a} (AA.substᴿ {a = - b} (ℤ.neg-mult {c})) ⟩
     a + (- b + - c)
@@ -333,11 +333,11 @@ sub-cancelᴿ {a} {b} {c} =
     a + c - b - c
   ≃⟨⟩
     ((a + c) + - b) + - c
-  ≃⟨ AA.substᴸ (AA.assoc {_⊙_ = _+_} {a = a}) ⟩
+  ≃⟨ AA.subst (AA.assoc {_⊙_ = _+_} {a = a}) ⟩
     (a + (c + - b)) + - c
-  ≃⟨ AA.substᴸ (AA.substᴿ {_⊙_ = _+_} {a = a} (AA.comm {a = c})) ⟩
+  ≃⟨ AA.subst (AA.substᴿ {_⊙_ = _+_} {a = a} (AA.comm {a = c})) ⟩
     (a + (- b + c)) + - c
-  ≃˘⟨ AA.substᴸ (AA.assoc {_⊙_ = _+_} {a = a}) ⟩
+  ≃˘⟨ AA.subst (AA.assoc {_⊙_ = _+_} {a = a}) ⟩
     ((a + - b) + c) + - c
   ≃⟨⟩
     a - b + c - c
@@ -354,7 +354,7 @@ sub-cancelᴿ {a} {b} {c} =
     a+b≃aᴺ+bᴺ =
       begin
         a + b
-      ≃⟨ AA.substᴸ a≃aᴺ ⟩
+      ≃⟨ AA.subst a≃aᴺ ⟩
         (aᴺ as ℤ) + b
       ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
         (aᴺ as ℤ) + (bᴺ as ℤ)
@@ -371,7 +371,7 @@ sub-cancelᴿ {a} {b} {c} =
     ab≃aᴺbᴺ =
       begin
         a * b
-      ≃⟨ AA.substᴸ a≃aᴺ ⟩
+      ≃⟨ AA.subst a≃aᴺ ⟩
         (aᴺ as ℤ) * b
       ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
         (aᴺ as ℤ) * (bᴺ as ℤ)
@@ -438,13 +438,13 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos 
         b + (- a + (c - b))
       ≃⟨ AA.substᴿ {a = b} (AA.comm {a = - a}) ⟩
         b + (c - b - a)
-      ≃⟨ AA.substᴿ {a = b} (AA.substᴸ (AA.comm {_⊙_ = _+_} {a = c} )) ⟩
+      ≃⟨ AA.substᴿ {a = b} (AA.subst (AA.comm {_⊙_ = _+_} {a = c} )) ⟩
         b + (- b + c - a)
       ≃⟨ AA.substᴿ {a = b} (AA.assoc {_⊙_ = _+_} {a = - b}) ⟩
         b + (- b + (c - a))
       ≃˘⟨ AA.assoc {a = b} ⟩
         b - b + (c - a)
-      ≃⟨ AA.substᴸ (AA.invᴿ {a = b}) ⟩
+      ≃⟨ AA.subst (AA.invᴿ {a = b}) ⟩
         0 + (c - a)
       ≃⟨ AA.identᴸ ⟩
         c - a
@@ -471,7 +471,7 @@ no-ind ind = ¬allP (ind P Pz Ps)
         sb⁺+0≃sn+sb⁻ =
           begin
             ℤ.ℤ.pos (step b) + 0
-          ≃⟨ AA.substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
+          ≃⟨ AA.subst (ℤ⁺s≃sℤ⁺ {b}) ⟩
             ℕ.step (ℤ.ℤ.pos b) + 0
           ≃⟨⟩
             ℕ.step (ℤ.ℤ.pos b + 0)

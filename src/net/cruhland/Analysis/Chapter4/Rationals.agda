@@ -77,13 +77,13 @@ _ = -_ {{ℚ.dashᴸ}}
 
 -- Lemma 4.2.3
 _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
-_ = AA.substᴸ {{r = ℚ.+-substitutiveᴸ}}
+_ = AA.subst {{r = ℚ.+-substitutiveᴸ}}
 
 +-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
 +-substᴿ {a} = AA.substᴿ {{r = ℚ.+-substitutiveᴿ}} {a}
 
 _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
-_ = AA.substᴸ {{r = ℚ.*-substitutiveᴸ}}
+_ = AA.subst {{r = ℚ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
 *-substᴿ {a} = AA.substᴿ {{r = ℚ.*-substitutiveᴿ}} {a}
@@ -245,7 +245,7 @@ alt-negative {a} {b} a⁺ b⁺ =
           (- a as ℚ) /′ (b as ℚ)
         ≃⟨⟩
           (- a as ℚ) * (b as ℚ) ⁻¹′
-        ≃⟨ AA.substᴸ {a = (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
+        ≃⟨ AA.subst {f = _* (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
           (- (a as ℚ)) * (b as ℚ) ⁻¹′
         ≃⟨ AA.commᴸ {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
           - ((a as ℚ) * (b as ℚ) ⁻¹′)

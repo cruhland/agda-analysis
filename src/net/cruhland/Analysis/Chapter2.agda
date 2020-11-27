@@ -283,7 +283,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- (d) (Addition preserves order)
   _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
-  _ = ↔-intro AA.substᴸ AA.cancelᴿ
+  _ = ↔-intro AA.subst AA.cancelᴿ
 
   -- (e)
   a<b↔sa≤b : ∀ {a b} → a < b ↔ step a ≤ b
@@ -332,10 +332,10 @@ module _ (PA : PeanoArithmetic) where
   0*m = AA.absorbᴸ {{r = ℕ.*-absorptiveᴸ}}
 
   1*m : {m : ℕ} → 1 * m ≃ 0 + m
-  1*m {m} = Eq.trans *-stepᴸ (AA.substᴸ 0*m)
+  1*m {m} = Eq.trans *-stepᴸ (AA.subst 0*m)
 
   2*m : {m : ℕ} → 2 * m ≃ 0 + m + m
-  2*m {m} = Eq.trans *-stepᴸ (AA.substᴸ 1*m)
+  2*m {m} = Eq.trans *-stepᴸ (AA.subst 1*m)
 
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
@@ -348,7 +348,7 @@ module _ (PA : PeanoArithmetic) where
   no-zero-divs {n} {m} = ↔-intro AA.zero-prod backward
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
-      backward (∨-introᴸ n≃0) = Eq.trans (AA.substᴸ n≃0) AA.absorbᴸ
+      backward (∨-introᴸ n≃0) = Eq.trans (AA.subst n≃0) AA.absorbᴸ
       backward (∨-introᴿ m≃0) = Eq.trans (AA.substᴿ m≃0) AA.absorbᴿ
 
   -- Proposition 2.3.4 (Distributive law).
@@ -428,7 +428,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 1
     ≃⟨ ^-stepᴿ ⟩
       x ^ 0 * x
-    ≃⟨ AA.substᴸ x^0≃1 ⟩
+    ≃⟨ AA.subst x^0≃1 ⟩
       1 * x
     ≃⟨ AA.identᴸ ⟩
       x
@@ -440,7 +440,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 2
     ≃⟨ ^-stepᴿ ⟩
       x ^ 1 * x
-    ≃⟨ AA.substᴸ x^1≃x ⟩
+    ≃⟨ AA.subst x^1≃x ⟩
       x * x
     ∎
 
@@ -450,7 +450,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 3
     ≃⟨ ^-stepᴿ ⟩
       x ^ 2 * x
-    ≃⟨ AA.substᴸ x^2≃xx ⟩
+    ≃⟨ AA.subst x^2≃xx ⟩
       x * x * x
     ∎
 
@@ -462,7 +462,7 @@ module _ (PA : PeanoArithmetic) where
       step 1 * x
     ≃⟨ *-stepᴸ ⟩
       1 * x + x
-    ≃⟨ AA.substᴸ AA.identᴸ ⟩
+    ≃⟨ AA.subst AA.identᴸ ⟩
       x + x
     ∎
 
@@ -477,17 +477,17 @@ module _ (PA : PeanoArithmetic) where
       a * (a + b) + b * (a + b)
     ≃⟨ AA.distrib-twoᴸ ⟩
       a * a + a * b + (b * a + b * b)
-    ≃⟨ AA.substᴿ (AA.substᴸ AA.comm) ⟩
+    ≃⟨ AA.substᴿ (AA.subst AA.comm) ⟩
       a * a + a * b + (a * b + b * b)
     ≃˘⟨ AA.assoc ⟩
       a * a + a * b + a * b + b * b
-    ≃⟨ AA.substᴸ AA.assoc ⟩
+    ≃⟨ AA.subst AA.assoc ⟩
       a * a + (a * b + a * b) + b * b
-    ≃˘⟨ AA.substᴸ (AA.substᴿ 2x≃x+x) ⟩
+    ≃˘⟨ AA.subst (AA.substᴿ 2x≃x+x) ⟩
       a * a + 2 * (a * b) + b * b
-    ≃˘⟨ AA.substᴸ (AA.substᴿ AA.assoc) ⟩
+    ≃˘⟨ AA.subst (AA.substᴿ AA.assoc) ⟩
       a * a + 2 * a * b + b * b
-    ≃˘⟨ AA.substᴸ (AA.substᴸ x^2≃xx) ⟩
+    ≃˘⟨ AA.subst (AA.subst x^2≃xx) ⟩
       a ^ 2 + 2 * a * b + b * b
     ≃˘⟨ AA.substᴿ x^2≃xx ⟩
       a ^ 2 + 2 * a * b + b ^ 2
