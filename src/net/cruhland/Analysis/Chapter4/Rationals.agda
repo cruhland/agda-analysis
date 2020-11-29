@@ -11,7 +11,7 @@ open import net.cruhland.axioms.Eq using
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-import net.cruhland.models.Literals
+open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro; ↔-elimᴸ)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 

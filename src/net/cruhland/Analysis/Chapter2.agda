@@ -9,7 +9,7 @@ open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-import net.cruhland.models.Literals
+open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using
   ( _∧_; ∧-intro
   ; _∨_; ∨-forceᴿ; ∨-introᴸ; ∨-introᴿ

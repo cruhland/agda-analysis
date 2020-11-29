@@ -13,7 +13,7 @@ open import net.cruhland.axioms.Eq using
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-import net.cruhland.models.Literals as Literals
+open import net.cruhland.models.Literals as Literals
 open import net.cruhland.models.Logic using
   (⊤; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
@@ -392,7 +392,7 @@ sub-cancelᴿ {a} {b} {c} =
             x
           ≃˘⟨ AA.identᴿ ⟩
             x + 0
-          ≃˘⟨ AA.substᴿ {a = x} (AA.subst a≃0) ⟩
+          ≃˘⟨ AA.substᴿ {a = x} (AA.subst {_~_ = _≃_} {_≈_ = _≃_} a≃0) ⟩
             x + (a as ℤ)
           ≃˘⟨ y≃x+a ⟩
             y
