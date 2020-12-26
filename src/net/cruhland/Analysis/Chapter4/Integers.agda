@@ -77,13 +77,13 @@ _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
 _ = AA.subst {{r = ℤ.+-substitutiveᴸ}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
-_ = AA.substᴿ {{r = ℤ.+-substitutiveᴿ}}
+_ = AA.subst {{r = ℤ.+-substitutiveᴿ}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
 _ = AA.subst {{r = ℤ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.substᴿ {{r = ℤ.*-substitutiveᴿ}} {a = a}
+*-substᴿ {a} = AA.subst {{r = ℤ.*-substitutiveᴿ {a}}}
 
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
@@ -99,13 +99,15 @@ _ = ≃ᶻ-intro refl
         n * m + 0 + 0
       ≃⟨ AA.assoc {a = n * m} ⟩
         n * m + (0 + 0)
-      ≃˘⟨ AA.substᴿ {a = n * m} (AA.subst (AA.absorbᴿ {a = n})) ⟩
+      ≃˘⟨ AA.subst {f = n * m +_}
+                   (AA.subst {{r = ℕ.+-substitutiveᴸ}} (AA.absorbᴿ {a = n})) ⟩
         n * m + (n * 0 + 0)
       ∎
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (AA.cancelᴿ ∘ ℤ._≃ᶻ_.elim) (≃ᶻ-intro ∘ AA.subst)
+_ = ↔-intro (AA.cancelᴿ ∘ ℤ._≃ᶻ_.elim)
+            (≃ᶻ-intro ∘ AA.subst {{r = ℕ.+-substitutiveᴸ}})
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
@@ -281,7 +283,7 @@ _ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
     c + b - b
   ≃⟨ AA.assoc {a = c} ⟩
     c + (b - b)
-  ≃⟨ AA.substᴿ {a = c} (AA.invᴿ {a = b}) ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.invᴿ {a = b}) ⟩
     c + 0
   ≃⟨ AA.identᴿ ⟩
     c
@@ -293,7 +295,7 @@ vanish {x} {y} =
     x + y - y
   ≃⟨ AA.assoc {a = x} ⟩
     x + (y - y)
-  ≃⟨ AA.substᴿ {a = x} (AA.invᴿ {a = y}) ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.invᴿ {a = y}) ⟩
     x + 0
   ≃⟨ AA.identᴿ ⟩
     x
@@ -313,19 +315,23 @@ sub-distrib {a} {b} {c} =
     a - (b + c)
   ≃⟨⟩
     a + -(b + c)
-  ≃⟨ AA.substᴿ {a = a} ℤ.neg-mult ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} ℤ.neg-mult ⟩
     a + -1 * (b + c)
-  ≃⟨ AA.substᴿ {a = a} (AA.distribᴸ {a = -1} {b = b}) ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} (AA.distribᴸ {a = -1} {b}) ⟩
     a + (-1 * b + -1 * c)
-  ≃˘⟨ AA.substᴿ {a = a} (AA.subst (ℤ.neg-mult {b})) ⟩
+  ≃˘⟨ AA.subst
+        {{r = ℤ.+-substitutiveᴿ {a}}}
+        (AA.subst {{r = ℤ.+-substitutiveᴸ}} (ℤ.neg-mult {b})) ⟩
     a + (- b + -1 * c)
-  ≃˘⟨ AA.substᴿ {a = a} (AA.substᴿ {a = - b} (ℤ.neg-mult {c})) ⟩
+  ≃˘⟨ AA.subst
+        {{r = ℤ.+-substitutiveᴿ {a}}}
+        (AA.subst {{r = ℤ.+-substitutiveᴿ}} (ℤ.neg-mult {c})) ⟩
     a + (- b + - c)
   ≃˘⟨ AA.assoc {a = a} ⟩
     a - b - c
   ∎
 
-sub-cancelᴿ : ∀ {a b c} → a + c - (b + c) ≃ a - b
+sub-cancelᴿ : {a b c : ℤ} → a + c - (b + c) ≃ a - b
 sub-cancelᴿ {a} {b} {c} =
   begin
     a + c - (b + c)
@@ -333,11 +339,13 @@ sub-cancelᴿ {a} {b} {c} =
     a + c - b - c
   ≃⟨⟩
     ((a + c) + - b) + - c
-  ≃⟨ AA.subst (AA.assoc {_⊙_ = _+_} {a = a}) ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ { - c}}} (AA.assoc {a = a}) ⟩
     (a + (c + - b)) + - c
-  ≃⟨ AA.subst (AA.substᴿ {_⊙_ = _+_} {a = a} (AA.comm {a = c})) ⟩
+  ≃⟨ AA.subst
+       {{r = ℤ.+-substitutiveᴸ { - c}}}
+       (AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} (AA.comm {a = c})) ⟩
     (a + (- b + c)) + - c
-  ≃˘⟨ AA.subst (AA.assoc {_⊙_ = _+_} {a = a}) ⟩
+  ≃˘⟨ AA.subst {{r = ℤ.+-substitutiveᴸ { - c}}} (AA.assoc {a = a}) ⟩
     ((a + - b) + c) + - c
   ≃⟨⟩
     a - b + c - c
@@ -354,9 +362,9 @@ sub-cancelᴿ {a} {b} {c} =
     a+b≃aᴺ+bᴺ =
       begin
         a + b
-      ≃⟨ AA.subst a≃aᴺ ⟩
+      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ {b}}} a≃aᴺ ⟩
         (aᴺ as ℤ) + b
-      ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
+      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {aᴺ as ℤ}}} b≃bᴺ ⟩
         (aᴺ as ℤ) + (bᴺ as ℤ)
       ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
         (aᴺ + bᴺ as ℤ)
@@ -371,9 +379,9 @@ sub-cancelᴿ {a} {b} {c} =
     ab≃aᴺbᴺ =
       begin
         a * b
-      ≃⟨ AA.subst a≃aᴺ ⟩
+      ≃⟨ AA.subst {{r = ℤ.*-substitutiveᴸ}} a≃aᴺ ⟩
         (aᴺ as ℤ) * b
-      ≃⟨ AA.substᴿ {a = aᴺ as ℤ} b≃bᴺ ⟩
+      ≃⟨ AA.subst {{r = ℤ.*-substitutiveᴿ {aᴺ as ℤ}}} b≃bᴺ ⟩
         (aᴺ as ℤ) * (bᴺ as ℤ)
       ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
         (aᴺ * bᴺ as ℤ)
@@ -392,7 +400,8 @@ sub-cancelᴿ {a} {b} {c} =
             x
           ≃˘⟨ AA.identᴿ ⟩
             x + 0
-          ≃˘⟨ AA.substᴿ {a = x} (AA.subst {_~_ = _≃_} {_≈_ = _≃_} a≃0) ⟩
+          ≃˘⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}}
+                (AA.subst {{r = ℤ.from-ℕ-substitutive₁}} a≃0) ⟩
             x + (a as ℤ)
           ≃˘⟨ y≃x+a ⟩
             y
@@ -421,7 +430,7 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos 
         b - a
       ≃⟨ AA.comm {a = b} ⟩
         - a + b
-      ≃˘⟨ AA.substᴿ {a = - a} (ℤ.neg-involutive {b}) ⟩
+      ≃˘⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (ℤ.neg-involutive {b}) ⟩
         - a - (- b)
       ∎
 
@@ -436,15 +445,16 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos 
         b - a + (c - b)
       ≃⟨ AA.assoc {a = b} ⟩
         b + (- a + (c - b))
-      ≃⟨ AA.substᴿ {a = b} (AA.comm {a = - a}) ⟩
+      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {b}}} (AA.comm {a = - a}) ⟩
         b + (c - b - a)
-      ≃⟨ AA.substᴿ {a = b} (AA.subst (AA.comm {_⊙_ = _+_} {a = c} )) ⟩
+      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {b}}}
+           (AA.subst {{r = ℤ.+-substitutiveᴸ { - a}}} (AA.comm {a = c})) ⟩
         b + (- b + c - a)
-      ≃⟨ AA.substᴿ {a = b} (AA.assoc {_⊙_ = _+_} {a = - b}) ⟩
+      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {b}}} (AA.assoc {a = - b}) ⟩
         b + (- b + (c - a))
       ≃˘⟨ AA.assoc {a = b} ⟩
         b - b + (c - a)
-      ≃⟨ AA.subst (AA.invᴿ {a = b}) ⟩
+      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ}} (AA.invᴿ {a = b}) ⟩
         0 + (c - a)
       ≃⟨ AA.identᴸ ⟩
         c - a
@@ -471,15 +481,15 @@ no-ind ind = ¬allP (ind P Pz Ps)
         sb⁺+0≃sn+sb⁻ =
           begin
             ℤ.ℤ.pos (step b) + 0
-          ≃⟨ AA.subst (ℤ⁺s≃sℤ⁺ {b}) ⟩
+          ≃⟨ AA.subst {{r = ℕ.+-substitutiveᴸ}} (ℤ⁺s≃sℤ⁺ {b}) ⟩
             ℕ.step (ℤ.ℤ.pos b) + 0
           ≃⟨⟩
             ℕ.step (ℤ.ℤ.pos b + 0)
-          ≃⟨ AA.subst b⁺+0≃n+b⁻ ⟩
+          ≃⟨ AA.subst {{r = ℕ.step-substitutive}} b⁺+0≃n+b⁻ ⟩
             ℕ.step (n + ℤ.ℤ.neg b)
           ≃˘⟨ AA.commᴸ {a = n} ⟩
             ℕ.step n + ℤ.ℤ.neg b
-          ≃˘⟨ AA.substᴿ (ℤ⁻s≃ℤ⁻ {b}) ⟩
+          ≃˘⟨ AA.subst (ℤ⁻s≃ℤ⁻ {b}) ⟩
             ℕ.step n + ℤ.ℤ.neg (step b)
           ∎
 

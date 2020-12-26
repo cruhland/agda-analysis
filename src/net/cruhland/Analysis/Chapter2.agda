@@ -349,7 +349,7 @@ module _ (PA : PeanoArithmetic) where
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
       backward (∨-introᴸ n≃0) = Eq.trans (AA.subst n≃0) AA.absorbᴸ
-      backward (∨-introᴿ m≃0) = Eq.trans (AA.substᴿ m≃0) AA.absorbᴿ
+      backward (∨-introᴿ m≃0) = Eq.trans (AA.subst m≃0) AA.absorbᴿ
 
   -- Proposition 2.3.4 (Distributive law).
   _ : {a b c : ℕ} → a * (b + c) ≃ a * b + a * c
@@ -406,7 +406,7 @@ module _ (PA : PeanoArithmetic) where
               step (m * q + r)
             ≃˘⟨ AA.commᴿ ⟩
               m * q + step r
-            ≃⟨ AA.substᴿ sr≃m ⟩
+            ≃⟨ AA.subst sr≃m ⟩
               m * q + m
             ≃˘⟨ *-stepᴿ ⟩
               m * step q
@@ -477,18 +477,18 @@ module _ (PA : PeanoArithmetic) where
       a * (a + b) + b * (a + b)
     ≃⟨ AA.distrib-twoᴸ ⟩
       a * a + a * b + (b * a + b * b)
-    ≃⟨ AA.substᴿ (AA.subst AA.comm) ⟩
+    ≃⟨ AA.subst (AA.subst AA.comm) ⟩
       a * a + a * b + (a * b + b * b)
     ≃˘⟨ AA.assoc ⟩
       a * a + a * b + a * b + b * b
     ≃⟨ AA.subst AA.assoc ⟩
       a * a + (a * b + a * b) + b * b
-    ≃˘⟨ AA.subst (AA.substᴿ 2x≃x+x) ⟩
+    ≃˘⟨ AA.subst (AA.subst 2x≃x+x) ⟩
       a * a + 2 * (a * b) + b * b
-    ≃˘⟨ AA.subst (AA.substᴿ AA.assoc) ⟩
+    ≃˘⟨ AA.subst (AA.subst AA.assoc) ⟩
       a * a + 2 * a * b + b * b
     ≃˘⟨ AA.subst (AA.subst x^2≃xx) ⟩
       a ^ 2 + 2 * a * b + b * b
-    ≃˘⟨ AA.substᴿ x^2≃xx ⟩
+    ≃˘⟨ AA.subst x^2≃xx ⟩
       a ^ 2 + 2 * a * b + b ^ 2
     ∎

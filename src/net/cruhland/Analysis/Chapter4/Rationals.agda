@@ -80,13 +80,13 @@ _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
 _ = AA.subst {{r = ℚ.+-substitutiveᴸ}}
 
 +-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
-+-substᴿ {a} = AA.substᴿ {{r = ℚ.+-substitutiveᴿ}} {a}
++-substᴿ {a} = AA.subst {{r = ℚ.+-substitutiveᴿ {a}}}
 
 _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
 _ = AA.subst {{r = ℚ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.substᴿ {{r = ℚ.*-substitutiveᴿ}} {a}
+*-substᴿ {a} = AA.subst {{r = ℚ.*-substitutiveᴿ {a}}}
 
 _ : {a₁ a₂ : ℚ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
 _ = AA.subst {{r = ℚ.neg-substitutive₁}}
@@ -245,7 +245,8 @@ alt-negative {a} {b} a⁺ b⁺ =
           (- a as ℚ) /′ (b as ℚ)
         ≃⟨⟩
           (- a as ℚ) * (b as ℚ) ⁻¹′
-        ≃⟨ AA.subst {f = _* (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
+        ≃⟨ AA.subst {{r = ℚ.*-substitutiveᴸ {(b as ℚ) ⁻¹′}}}
+             (AA.compat₁ {a = a}) ⟩
           (- (a as ℚ)) * (b as ℚ) ⁻¹′
         ≃⟨ AA.commᴸ {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
           - ((a as ℚ) * (b as ℚ) ⁻¹′)
