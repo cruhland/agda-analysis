@@ -249,7 +249,9 @@ _ = AA.zero-prod {{r = ℤ.zero-product}}
 -- integers such that ac = bc and c is non-zero, then a = b.
 -- Exercise 4.1.6
 _ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
-_ = λ c≄0 → AA.cancelᴿ {{r = ℤ.*-cancellativeᴿ}} {{c = fromWitnessFalse c≄0}}
+_ = λ c≄0 →
+      let instance c≄ⁱ0 = fromWitnessFalse c≄0
+       in AA.cancelᴿ {{cancel = ℤ.*-cancellativeᴿ}}
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be
 -- integers. We say that n is _greater than or equal to_ m, and write

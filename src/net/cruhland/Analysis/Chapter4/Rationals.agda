@@ -232,10 +232,10 @@ _ = ℚ.Negative
 
 alt-negative :
   ∀ {a b} → ℤ.Positive a → (b⁺ : ℤ.Positive b) →
-    let instance b≄ⁱ0 = ≄ⁱ-intro (AA.≄-subst (ℤ.pos-nonzero b⁺))
+    let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst (ℤ.pos-nonzero b⁺))
      in ℚ.Negative ((- a as ℚ) /′ (b as ℚ))
 alt-negative {a} {b} a⁺ b⁺ =
-  let instance b≄ⁱ0 = ≄ⁱ-intro (AA.≄-subst (ℤ.pos-nonzero b⁺))
+  let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst (ℤ.pos-nonzero b⁺))
       p = (a as ℚ) /′ (b as ℚ)
       p-pos = record
         { n-pos = AA.subst (sym AA.identᴿ) a⁺
