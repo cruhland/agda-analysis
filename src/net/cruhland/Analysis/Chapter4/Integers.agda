@@ -88,21 +88,11 @@ _ = AA.subst {{r = ℤ.*-substitutiveᴸ}}
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
 -- (n—0) × (m—0) = nm—0.
-_ : ∀ {n m} → n — 0 + m — 0 ≃ (n + m) — 0
-_ = ≃ᶻ-intro refl
++-compat-ℕ : ∀ {n m} → n — 0 + m — 0 ≃ (n + m) — 0
++-compat-ℕ {n} = sym (AA.compat₂ {{r = ℤ.+-compatible-ℕ}} {n})
 
-*-compat-* : ∀ {n m} → n — 0 * m — 0 ≃ (n * m) — 0
-*-compat-* {n} {m} = ≃ᶻ-intro eq′
-  where
-    eq′ =
-      begin
-        n * m + 0 + 0
-      ≃⟨ AA.assoc {a = n * m} ⟩
-        n * m + (0 + 0)
-      ≃˘⟨ AA.subst {f = n * m +_}
-                   (AA.subst {{r = ℕ.+-substitutiveᴸ}} (AA.absorbᴿ {a = n})) ⟩
-        n * m + (n * 0 + 0)
-      ∎
+*-compat-ℕ : ∀ {n m} → n — 0 * m — 0 ≃ (n * m) — 0
+*-compat-ℕ {n} = sym (AA.compat₂ {{r = ℤ.*-compatible-ℕ}} {n})
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
