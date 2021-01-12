@@ -1,6 +1,5 @@
 module net.cruhland.Analysis.Chapter2 where
 
-open import Function using (id; const)
 open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_; cast)
@@ -9,6 +8,7 @@ open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
+open import net.cruhland.models.Function using (const; id)
 open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using
   ( _∧_; ∧-intro

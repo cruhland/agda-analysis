@@ -1,5 +1,4 @@
 open import Data.List using ([]; _∷_; _++_; List)
-open import Function using (_∘_; const; id)
 open import Level using (_⊔_; Level; 0ℓ) renaming (suc to sℓ)
 open import Relation.Binary using (DecSetoid)
 import Relation.Binary.PropositionalEquality as ≡
@@ -10,6 +9,7 @@ open import net.cruhland.axioms.Eq using
 open ≃-Reasoning
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
+open import net.cruhland.models.Function using (_∘_; const; id)
 open import net.cruhland.models.Logic using
   ( _∧_; ∧-dup; ∧-intro; uncurry
   ; _∨_; ∨-comm; ∨-forceᴸ; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec

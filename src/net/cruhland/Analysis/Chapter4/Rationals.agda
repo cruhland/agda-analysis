@@ -1,6 +1,5 @@
 module net.cruhland.Analysis.Chapter4.Rationals where
 
-open import Function using (_∘_)
 open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_; _value_)
@@ -11,6 +10,7 @@ open import net.cruhland.axioms.Eq using
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
+open import net.cruhland.models.Function using (_∘_)
 open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro; ↔-elimᴸ)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
