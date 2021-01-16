@@ -188,7 +188,7 @@ _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x * x ⁻¹′ ≃ 1
 _ = AA.invⁱᴿ {{r = ℚ.recip-inverseⁱᴿ}}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x ⁻¹′ * x ≃ 1
-_ = AA.invⁱᴸ {{r = ℚ.recip-inverseⁱᴸ}}
+_ = AA.invᴸ {{r = ℚ.recip′-inverseᴸ}}
 
 -- We can now define the _quotient_ x/y of two rational numbers x and
 -- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
