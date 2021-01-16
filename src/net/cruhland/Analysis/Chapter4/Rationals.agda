@@ -185,7 +185,7 @@ _ = AA.identᴸ {{r = ℚ.*-identityᴸ}}
 *-distrib-+ᴿ {x} {y} = AA.distribᴿ {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x * x ⁻¹′ ≃ 1
-_ = AA.invⁱᴿ {{r = ℚ.recip-inverseⁱᴿ}}
+_ = AA.invᴿ {{r = ℚ.recip′-inverseᴿ}}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x ⁻¹′ * x ≃ 1
 _ = AA.invᴸ {{r = ℚ.recip′-inverseᴸ}}
