@@ -161,10 +161,10 @@ _ : {x : ℚ} → 0 + x ≃ x
 _ = AA.identᴸ {{r = ℚ.+-identityᴸ}}
 
 +-invᴿ : {x : ℚ} → x + (- x) ≃ 0
-+-invᴿ {x} = AA.invᴿ {{r = ℚ.+-inverseᴿ}} {x}
++-invᴿ {x} = AA.inv {{r = ℚ.+-inverseᴿ}} {x}
 
 +-invᴸ : {x : ℚ} → (- x) + x ≃ 0
-+-invᴸ {x} = AA.invᴸ {{r = ℚ.+-inverseᴸ}} {x}
++-invᴸ {x} = AA.inv {{r = ℚ.+-inverseᴸ}} {x}
 
 *-comm : {x y : ℚ} → x * y ≃ y * x
 *-comm {x} = AA.comm {{r = ℚ.*-commutative}} {x}

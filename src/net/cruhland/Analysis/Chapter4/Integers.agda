@@ -194,10 +194,10 @@ _ : {x : ℤ} → x + 0 ≃ x
 _ = AA.identᴿ {{r = ℤ.+-identityᴿ}}
 
 +-invᴸ : {x : ℤ} → - x + x ≃ 0
-+-invᴸ {x} = AA.invᴸ {{r = ℤ.+-inverseᴸ}} {a = x}
++-invᴸ {x} = AA.inv {{r = ℤ.+-inverseᴸ}} {a = x}
 
 +-invᴿ : {x : ℤ} → x + - x ≃ 0
-+-invᴿ {x} = AA.invᴿ {{r = ℤ.+-inverseᴿ}} {a = x}
++-invᴿ {x} = AA.inv {{r = ℤ.+-inverseᴿ}} {a = x}
 
 *-comm : {x y : ℤ} → x * y ≃ y * x
 *-comm {x} = AA.comm {a = x}
