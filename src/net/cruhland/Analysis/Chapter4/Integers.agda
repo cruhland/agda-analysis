@@ -188,10 +188,10 @@ _ = ℤ.trichotomy
 +-assoc {x} = AA.assoc {{r = ℤ.+-associative}} {a = x}
 
 _ : {x : ℤ} → 0 + x ≃ x
-_ = AA.identᴸ {{r = ℤ.+-identityᴸ}}
+_ = AA.ident {{r = ℤ.+-identityᴸ}}
 
 _ : {x : ℤ} → x + 0 ≃ x
-_ = AA.identᴿ {{r = ℤ.+-identityᴿ}}
+_ = AA.ident {{r = ℤ.+-identityᴿ}}
 
 +-invᴸ : {x : ℤ} → - x + x ≃ 0
 +-invᴸ {x} = AA.inv {{r = ℤ.+-inverseᴸ}} {a = x}
@@ -206,10 +206,10 @@ _ = AA.identᴿ {{r = ℤ.+-identityᴿ}}
 *-assoc {x} = AA.assoc {a = x}
 
 _ : {x : ℤ} → 1 * x ≃ x
-_ = AA.identᴸ {{r = ℤ.*-identityᴸ}}
+_ = AA.ident {{r = ℤ.*-identityᴸ}}
 
 _ : {x : ℤ} → x * 1 ≃ x
-_ = AA.identᴿ {{r = ℤ.*-identityᴿ}}
+_ = AA.ident {{r = ℤ.*-identityᴿ}}
 
 *-distrib-+ᴸ : {x y z : ℤ} → x * (y + z) ≃ x * y + x * z
 *-distrib-+ᴸ {x} = AA.distribᴸ {{r = ℤ.*-distributive-+ᴸ}} {a = x}
@@ -275,9 +275,9 @@ _ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
     c + b - b
   ≃⟨ AA.assoc {a = c} ⟩
     c + (b - b)
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.invᴿ {a = b}) ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.inv {a = b}) ⟩
     c + 0
-  ≃⟨ AA.identᴿ ⟩
+  ≃⟨ AA.ident ⟩
     c
   ∎
 
@@ -287,9 +287,9 @@ vanish {x} {y} =
     x + y - y
   ≃⟨ AA.assoc {a = x} ⟩
     x + (y - y)
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.invᴿ {a = y}) ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.inv {a = y}) ⟩
     x + 0
-  ≃⟨ AA.identᴿ ⟩
+  ≃⟨ AA.ident ⟩
     x
   ∎
 
@@ -390,7 +390,7 @@ sub-cancelᴿ {a} {b} {c} =
         x≃y =
           begin
             x
-          ≃˘⟨ AA.identᴿ ⟩
+          ≃˘⟨ AA.ident ⟩
             x + 0
           ≃˘⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}}
                 (AA.subst {{r = ℤ.from-ℕ-substitutive₁}} a≃0) ⟩
@@ -446,9 +446,9 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos 
         b + (- b + (c - a))
       ≃˘⟨ AA.assoc {a = b} ⟩
         b - b + (c - a)
-      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ}} (AA.invᴿ {a = b}) ⟩
+      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ}} (AA.inv {a = b}) ⟩
         0 + (c - a)
-      ≃⟨ AA.identᴸ ⟩
+      ≃⟨ AA.ident ⟩
         c - a
       ∎
 

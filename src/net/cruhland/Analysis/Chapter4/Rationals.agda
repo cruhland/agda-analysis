@@ -155,10 +155,10 @@ _ = ℚ.recip-subst
 +-assoc {x} = AA.assoc {{r = ℚ.+-associative}} {x}
 
 _ : {x : ℚ} → x + 0 ≃ x
-_ = AA.identᴿ {{r = ℚ.+-identityᴿ}}
+_ = AA.ident {{r = ℚ.+-identityᴿ}}
 
 _ : {x : ℚ} → 0 + x ≃ x
-_ = AA.identᴸ {{r = ℚ.+-identityᴸ}}
+_ = AA.ident {{r = ℚ.+-identityᴸ}}
 
 +-invᴿ : {x : ℚ} → x + (- x) ≃ 0
 +-invᴿ {x} = AA.inv {{r = ℚ.+-inverseᴿ}} {x}
@@ -173,10 +173,10 @@ _ = AA.identᴸ {{r = ℚ.+-identityᴸ}}
 *-assoc {x} = AA.assoc {{r = ℚ.*-associative}} {x}
 
 _ : {x : ℚ} → x * 1 ≃ x
-_ = AA.identᴿ {{r = ℚ.*-identityᴿ}}
+_ = AA.ident {{r = ℚ.*-identityᴿ}}
 
 _ : {x : ℚ} → 1 * x ≃ x
-_ = AA.identᴸ {{r = ℚ.*-identityᴸ}}
+_ = AA.ident {{r = ℚ.*-identityᴸ}}
 
 *-distrib-+ᴸ : {x y z : ℚ} → x * (y + z) ≃ x * y + x * z
 *-distrib-+ᴸ {x} = AA.distribᴸ {{r = ℚ.*-distributive-+ᴸ}} {x}
@@ -185,10 +185,10 @@ _ = AA.identᴸ {{r = ℚ.*-identityᴸ}}
 *-distrib-+ᴿ {x} {y} = AA.distribᴿ {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x * x ⁻¹′ ≃ 1
-_ = AA.invᴿ {{r = ℚ.recip′-inverseᴿ}}
+_ = AA.inv {{r = ℚ.recip′-inverseᴿ}}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x ⁻¹′ * x ≃ 1
-_ = AA.invᴸ {{r = ℚ.recip′-inverseᴸ}}
+_ = AA.inv {{r = ℚ.recip′-inverseᴸ}}
 
 -- We can now define the _quotient_ x/y of two rational numbers x and
 -- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
@@ -238,8 +238,8 @@ alt-negative {a} {b} a⁺ b⁺ =
   let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst (ℤ.pos-nonzero b⁺))
       p = (a as ℚ) /′ (b as ℚ)
       p-pos = record
-        { n-pos = AA.subst (sym AA.identᴿ) a⁺
-        ; d-pos = AA.subst (sym AA.identᴸ) b⁺ }
+        { n-pos = AA.subst (sym AA.ident) a⁺
+        ; d-pos = AA.subst (sym AA.ident) b⁺ }
       [-a]/b≃-p =
         begin
           (- a as ℚ) /′ (b as ℚ)

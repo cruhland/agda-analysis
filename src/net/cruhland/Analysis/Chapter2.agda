@@ -155,7 +155,7 @@ module _ (PA : PeanoArithmetic) where
   _ = _+_ {{ℕ.plus}}
 
   0+m : {m : ℕ} → 0 + m ≃ m
-  0+m = AA.identᴸ {{r = ℕ.+-identityᴸ}}
+  0+m = AA.ident {{r = ℕ.+-identityᴸ}}
 
   1+m : ∀ {m} → 1 + m ≃ step m
   1+m {m} =
@@ -163,7 +163,7 @@ module _ (PA : PeanoArithmetic) where
       1 + m
     ≃⟨ AA.comm-swap ⟩
       0 + step m
-    ≃⟨ AA.identᴸ ⟩
+    ≃⟨ AA.ident ⟩
       step m
     ∎
 
@@ -175,13 +175,13 @@ module _ (PA : PeanoArithmetic) where
       1 + 4
     ≃⟨ AA.comm-swap ⟩
       0 + 5
-    ≃⟨ AA.identᴸ ⟩
+    ≃⟨ AA.ident ⟩
       5
     ∎
 
   -- Lemma 2.2.2. For any natural number n, n + 0 = n.
   _ : {n : ℕ} → n + 0 ≃ n
-  _ = AA.identᴿ {{r = ℕ.+-identityᴿ}}
+  _ = AA.ident {{r = ℕ.+-identityᴿ}}
 
   -- Lemma 2.2.3. For any natural numbers n and m, n + step m = step (n + m).
   _ : ∀ {n m} → n + step m ≃ step (n + m)
@@ -257,7 +257,7 @@ module _ (PA : PeanoArithmetic) where
           step (step 5) + step zero
         ≃˘⟨ AA.comm-swap ⟩
           step (step (step 5)) + zero
-        ≃⟨ AA.identᴿ ⟩
+        ≃⟨ AA.ident ⟩
           step (step (step 5))
         ≃⟨⟩
           8
@@ -329,7 +329,7 @@ module _ (PA : PeanoArithmetic) where
   _ = _*_ {{ℕ.star}}
 
   0*m : {m : ℕ} → 0 * m ≃ 0
-  0*m = AA.absorbᴸ {{r = ℕ.*-absorptiveᴸ}}
+  0*m = AA.absorb {{r = ℕ.*-absorptiveᴸ}}
 
   1*m : {m : ℕ} → 1 * m ≃ 0 + m
   1*m {m} = Eq.trans *-stepᴸ (AA.subst 0*m)
@@ -348,8 +348,8 @@ module _ (PA : PeanoArithmetic) where
   no-zero-divs {n} {m} = ↔-intro AA.zero-prod backward
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
-      backward (∨-introᴸ n≃0) = Eq.trans (AA.subst n≃0) AA.absorbᴸ
-      backward (∨-introᴿ m≃0) = Eq.trans (AA.subst m≃0) AA.absorbᴿ
+      backward (∨-introᴸ n≃0) = Eq.trans (AA.subst n≃0) AA.absorb
+      backward (∨-introᴿ m≃0) = Eq.trans (AA.subst m≃0) AA.absorb
 
   -- Proposition 2.3.4 (Distributive law).
   _ : {a b c : ℕ} → a * (b + c) ≃ a * b + a * c
@@ -390,7 +390,7 @@ module _ (PA : PeanoArithmetic) where
           q = 0
           r = 0
           r<m = <-intro ℕ.0≤n (Eq.¬sym m≄0)
-          n≃mq+r = Eq.sym (Eq.trans AA.identᴿ AA.absorbᴿ)
+          n≃mq+r = Eq.sym (Eq.trans AA.ident AA.absorb)
 
       Ps : step-case P
       Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (r<m as step r ≤ m)
@@ -412,7 +412,7 @@ module _ (PA : PeanoArithmetic) where
               m * q + m
             ≃˘⟨ *-stepᴿ ⟩
               m * step q
-            ≃˘⟨ AA.identᴿ ⟩
+            ≃˘⟨ AA.ident ⟩
               m * step q + 0
             ∎
 
@@ -432,7 +432,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 0 * x
     ≃⟨ AA.subst x^0≃1 ⟩
       1 * x
-    ≃⟨ AA.identᴸ ⟩
+    ≃⟨ AA.ident ⟩
       x
     ∎
 
@@ -464,7 +464,7 @@ module _ (PA : PeanoArithmetic) where
       step 1 * x
     ≃⟨ *-stepᴸ ⟩
       1 * x + x
-    ≃⟨ AA.subst AA.identᴸ ⟩
+    ≃⟨ AA.subst AA.ident ⟩
       x + x
     ∎
 
