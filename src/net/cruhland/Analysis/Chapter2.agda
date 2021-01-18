@@ -353,7 +353,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.3.4 (Distributive law).
   _ : {a b c : ℕ} → a * (b + c) ≃ a * b + a * c
-  _ = AA.distribᴸ {{r = ℕ.*-distributive-+ᴸ}}
+  _ = AA.distrib {{r = ℕ.*-distributive-+ᴸ}}
 
   -- Proposition 2.3.5 (Multiplication is associative).
   -- Exercise 2.3.3
@@ -475,7 +475,7 @@ module _ (PA : PeanoArithmetic) where
       (a + b) ^ 2
     ≃⟨ x^2≃xx ⟩
       (a + b) * (a + b)
-    ≃⟨ AA.distribᴿ ⟩
+    ≃⟨ AA.distrib ⟩
       a * (a + b) + b * (a + b)
     ≃⟨ AA.distrib-twoᴸ ⟩
       a * a + a * b + (b * a + b * b)

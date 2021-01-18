@@ -179,10 +179,10 @@ _ : {x : ℚ} → 1 * x ≃ x
 _ = AA.ident {{r = ℚ.*-identityᴸ}}
 
 *-distrib-+ᴸ : {x y z : ℚ} → x * (y + z) ≃ x * y + x * z
-*-distrib-+ᴸ {x} = AA.distribᴸ {{r = ℚ.*-distributive-+ᴸ}} {x}
+*-distrib-+ᴸ {x} = AA.distrib {{r = ℚ.*-distributive-+ᴸ}} {x}
 
 *-distrib-+ᴿ : {x y z : ℚ} → (y + z) * x ≃ y * x + z * x
-*-distrib-+ᴿ {x} {y} = AA.distribᴿ {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
+*-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x * x ⁻¹′ ≃ 1
 _ = AA.inv {{r = ℚ.recip′-inverseᴿ}}

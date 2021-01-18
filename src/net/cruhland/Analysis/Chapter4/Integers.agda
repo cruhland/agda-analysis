@@ -212,10 +212,10 @@ _ : {x : ℤ} → x * 1 ≃ x
 _ = AA.ident {{r = ℤ.*-identityᴿ}}
 
 *-distrib-+ᴸ : {x y z : ℤ} → x * (y + z) ≃ x * y + x * z
-*-distrib-+ᴸ {x} = AA.distribᴸ {{r = ℤ.*-distributive-+ᴸ}} {a = x}
+*-distrib-+ᴸ {x} = AA.distrib {{r = ℤ.*-distributive-+ᴸ}} {a = x}
 
 *-distrib-+ᴿ : {x y z : ℤ} → (y + z) * x ≃ y * x + z * x
-*-distrib-+ᴿ {x} {y} = AA.distribᴿ {{r = ℤ.*-distributive-+ᴿ}} {a = x} {b = y}
+*-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℤ.*-distributive-+ᴿ}} {a = x} {b = y}
 
 -- We now define the operation of _subtraction_ x - y of two integers
 -- by the formula x - y ≔ x + (-y).
@@ -309,7 +309,7 @@ sub-distrib {a} {b} {c} =
     a + -(b + c)
   ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} ℤ.neg-mult ⟩
     a + -1 * (b + c)
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} (AA.distribᴸ {a = -1} {b}) ⟩
+  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} (AA.distrib {a = -1} {b}) ⟩
     a + (-1 * b + -1 * c)
   ≃˘⟨ AA.subst
         {{r = ℤ.+-substitutiveᴿ {a}}}
