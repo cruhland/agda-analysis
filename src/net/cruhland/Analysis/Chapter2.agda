@@ -201,7 +201,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.2.6 (Cancellation law).
   _ : {a b c : ℕ} → a + b ≃ a + c → b ≃ c
-  _ = AA.cancelᴸ {{cancel = ℕ.+-cancellativeᴸ}}
+  _ = AA.cancel {{r = ℕ.+-cancellativeᴸ}}
 
   -- Definition 2.2.7 (Positive natural numbers).
   _ : ℕ → Set
@@ -283,7 +283,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- (d) (Addition preserves order)
   _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
-  _ = ↔-intro AA.subst AA.cancelᴿ
+  _ = ↔-intro AA.subst AA.cancel
 
   -- (e)
   a<b↔sa≤b : ∀ {a b} → a < b ↔ step a ≤ b
@@ -368,7 +368,7 @@ module _ (PA : PeanoArithmetic) where
   _ : {a b c : ℕ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
   _ = λ c≄0 →
         let instance c≄ⁱ0 = fromWitnessFalse c≄0
-         in AA.cancelᴿ {{cancel = ℕ.*-cancellativeᴿ}}
+         in AA.cancel {{r = ℕ.*-cancellativeᴿ}}
 
   -- Proposition 2.3.9 (Euclidean algorithm).
   -- Exercise 2.3.5

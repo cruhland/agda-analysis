@@ -96,7 +96,7 @@ _ = AA.subst {{r = ℤ.*-substitutiveᴸ}}
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (AA.cancelᴿ ∘ ℤ._≃ᶻ_.elim)
+_ = ↔-intro (AA.cancel {{r = ℕ.+-cancellativeᴿ}} ∘ ℤ._≃ᶻ_.elim)
             (≃ᶻ-intro ∘ AA.subst {{r = ℕ.+-substitutiveᴸ}})
 
 -- Thus we may _identify_ the natural numbers with integers by setting
@@ -241,7 +241,7 @@ _ = AA.zero-prod {{r = ℤ.zero-product}}
 _ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
 _ = λ c≄0 →
       let instance c≄ⁱ0 = fromWitnessFalse c≄0
-       in AA.cancelᴿ {{cancel = ℤ.*-cancellativeᴿ}}
+       in AA.cancel {{r = ℤ.*-cancellativeᴿ}}
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be
 -- integers. We say that n is _greater than or equal to_ m, and write
