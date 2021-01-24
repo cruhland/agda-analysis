@@ -161,7 +161,7 @@ module _ (PA : PeanoArithmetic) where
   1+m {m} =
     begin
       1 + m
-    ≃⟨ AA.comm-swap ⟩
+    ≃⟨ AA.fnOpCommSwap ⟩
       0 + step m
     ≃⟨ AA.ident ⟩
       step m
@@ -171,9 +171,9 @@ module _ (PA : PeanoArithmetic) where
   2+3≃5 =
     begin
       2 + 3
-    ≃⟨ AA.comm-swap ⟩
+    ≃⟨ AA.fnOpCommSwap ⟩
       1 + 4
-    ≃⟨ AA.comm-swap ⟩
+    ≃⟨ AA.fnOpCommSwap ⟩
       0 + 5
     ≃⟨ AA.ident ⟩
       5
@@ -185,7 +185,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Lemma 2.2.3. For any natural numbers n and m, n + step m = step (n + m).
   _ : ∀ {n m} → n + step m ≃ step (n + m)
-  _ = AA.commᴿ {{r = ℕ.+-commutative-stepᴿ}}
+  _ = Eq.sym (AA.fnOpComm {{r = ℕ.+-fnOpCommutative-stepᴿ}})
 
   _ : ∀ {n} → step n ≃ n + 1
   _ = ℕ.sn≃n+1
@@ -251,11 +251,11 @@ module _ (PA : PeanoArithmetic) where
           5 + 3
         ≃⟨⟩
           5 + step (step (step zero))
-        ≃˘⟨ AA.comm-swap ⟩
+        ≃˘⟨ AA.fnOpCommSwap ⟩
           step 5 + step (step zero)
-        ≃˘⟨ AA.comm-swap ⟩
+        ≃˘⟨ AA.fnOpCommSwap ⟩
           step (step 5) + step zero
-        ≃˘⟨ AA.comm-swap ⟩
+        ≃˘⟨ AA.fnOpCommSwap ⟩
           step (step (step 5)) + zero
         ≃⟨ AA.ident ⟩
           step (step (step 5))
@@ -396,7 +396,7 @@ module _ (PA : PeanoArithmetic) where
       Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (r<m as step r ≤ m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
-          sk≃mq+sr = Eq.trans (AA.subst k≃mq+r) (Eq.sym AA.commᴿ)
+          sk≃mq+sr = Eq.trans (AA.subst k≃mq+r) AA.fnOpComm
       ... | ∨-introᴿ sr≃m = div-intro (step q) 0 0<m sk≃m[sq]+0
         where
           0<m = <-intro ℕ.0≤n (Eq.¬sym m≄0)
@@ -406,7 +406,7 @@ module _ (PA : PeanoArithmetic) where
               step k
             ≃⟨ AA.subst k≃mq+r ⟩
               step (m * q + r)
-            ≃˘⟨ AA.commᴿ ⟩
+            ≃⟨ AA.fnOpComm ⟩
               m * q + step r
             ≃⟨ AA.subst sr≃m ⟩
               m * q + m

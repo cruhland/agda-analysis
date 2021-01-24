@@ -248,7 +248,7 @@ alt-negative {a} {b} a⁺ b⁺ =
         ≃⟨ AA.subst {{r = ℚ.*-substitutiveᴸ {(b as ℚ) ⁻¹′}}}
              (AA.compat₁ {a = a}) ⟩
           (- (a as ℚ)) * (b as ℚ) ⁻¹′
-        ≃⟨ AA.commᴸ {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
+        ≃˘⟨ AA.fnOpComm {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
           - ((a as ℚ) * (b as ℚ) ⁻¹′)
         ≃⟨⟩
           - ((a as ℚ) /′ (b as ℚ))
