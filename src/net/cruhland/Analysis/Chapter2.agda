@@ -283,7 +283,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- (d) (Addition preserves order)
   _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
-  _ = ↔-intro AA.subst AA.cancel
+  _ = ↔-intro AA.subst₁ AA.cancel
 
   -- (e)
   a<b↔sa≤b : ∀ {a b} → a < b ↔ step a ≤ b
@@ -332,10 +332,10 @@ module _ (PA : PeanoArithmetic) where
   0*m = AA.absorb {{r = ℕ.*-absorptiveᴸ}}
 
   1*m : {m : ℕ} → 1 * m ≃ 0 + m
-  1*m {m} = Eq.trans *-stepᴸ (AA.subst 0*m)
+  1*m {m} = Eq.trans *-stepᴸ (AA.subst₂ 0*m)
 
   2*m : {m : ℕ} → 2 * m ≃ 0 + m + m
-  2*m {m} = Eq.trans *-stepᴸ (AA.subst 1*m)
+  2*m {m} = Eq.trans *-stepᴸ (AA.subst₂ 1*m)
 
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
@@ -348,8 +348,8 @@ module _ (PA : PeanoArithmetic) where
   no-zero-divs {n} {m} = ↔-intro AA.zero-prod backward
     where
       backward : n ≃ 0 ∨ m ≃ 0 → n * m ≃ 0
-      backward (∨-introᴸ n≃0) = Eq.trans (AA.subst n≃0) AA.absorb
-      backward (∨-introᴿ m≃0) = Eq.trans (AA.subst m≃0) AA.absorb
+      backward (∨-introᴸ n≃0) = Eq.trans (AA.subst₂ n≃0) AA.absorb
+      backward (∨-introᴿ m≃0) = Eq.trans (AA.subst₂ m≃0) AA.absorb
 
   -- Proposition 2.3.4 (Distributive law).
   _ : {a b c : ℕ} → a * (b + c) ≃ a * b + a * c
@@ -396,7 +396,7 @@ module _ (PA : PeanoArithmetic) where
       Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (r<m as step r ≤ m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
-          sk≃mq+sr = Eq.trans (AA.subst k≃mq+r) AA.fnOpComm
+          sk≃mq+sr = Eq.trans (AA.subst₁ k≃mq+r) AA.fnOpComm
       ... | ∨-introᴿ sr≃m = div-intro (step q) 0 0<m sk≃m[sq]+0
         where
           0<m = <-intro ℕ.0≤n (Eq.¬sym m≄0)
@@ -404,11 +404,11 @@ module _ (PA : PeanoArithmetic) where
           sk≃m[sq]+0 =
             begin
               step k
-            ≃⟨ AA.subst k≃mq+r ⟩
+            ≃⟨ AA.subst₁ k≃mq+r ⟩
               step (m * q + r)
             ≃⟨ AA.fnOpComm ⟩
               m * q + step r
-            ≃⟨ AA.subst sr≃m ⟩
+            ≃⟨ AA.subst₂ sr≃m ⟩
               m * q + m
             ≃˘⟨ *-stepᴿ ⟩
               m * step q
@@ -430,7 +430,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 1
     ≃⟨ ^-stepᴿ ⟩
       x ^ 0 * x
-    ≃⟨ AA.subst x^0≃1 ⟩
+    ≃⟨ AA.subst₂ x^0≃1 ⟩
       1 * x
     ≃⟨ AA.ident ⟩
       x
@@ -442,7 +442,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 2
     ≃⟨ ^-stepᴿ ⟩
       x ^ 1 * x
-    ≃⟨ AA.subst x^1≃x ⟩
+    ≃⟨ AA.subst₂ x^1≃x ⟩
       x * x
     ∎
 
@@ -452,7 +452,7 @@ module _ (PA : PeanoArithmetic) where
       x ^ 3
     ≃⟨ ^-stepᴿ ⟩
       x ^ 2 * x
-    ≃⟨ AA.subst x^2≃xx ⟩
+    ≃⟨ AA.subst₂ x^2≃xx ⟩
       x * x * x
     ∎
 
@@ -464,7 +464,7 @@ module _ (PA : PeanoArithmetic) where
       step 1 * x
     ≃⟨ *-stepᴸ ⟩
       1 * x + x
-    ≃⟨ AA.subst AA.ident ⟩
+    ≃⟨ AA.subst₂ AA.ident ⟩
       x + x
     ∎
 
@@ -479,18 +479,18 @@ module _ (PA : PeanoArithmetic) where
       a * (a + b) + b * (a + b)
     ≃⟨ AA.distrib-twoᴸ ⟩
       a * a + a * b + (b * a + b * b)
-    ≃⟨ AA.subst (AA.subst AA.comm) ⟩
+    ≃⟨ AA.subst₂ (AA.subst₂ AA.comm) ⟩
       a * a + a * b + (a * b + b * b)
     ≃˘⟨ AA.assoc ⟩
       a * a + a * b + a * b + b * b
-    ≃⟨ AA.subst AA.assoc ⟩
+    ≃⟨ AA.subst₂ AA.assoc ⟩
       a * a + (a * b + a * b) + b * b
-    ≃˘⟨ AA.subst (AA.subst 2x≃x+x) ⟩
+    ≃˘⟨ AA.subst₂ (AA.subst₂ 2x≃x+x) ⟩
       a * a + 2 * (a * b) + b * b
-    ≃˘⟨ AA.subst (AA.subst AA.assoc) ⟩
+    ≃˘⟨ AA.subst₂ (AA.subst₂ AA.assoc) ⟩
       a * a + 2 * a * b + b * b
-    ≃˘⟨ AA.subst (AA.subst x^2≃xx) ⟩
+    ≃˘⟨ AA.subst₂ (AA.subst₂ x^2≃xx) ⟩
       a ^ 2 + 2 * a * b + b * b
-    ≃˘⟨ AA.subst x^2≃xx ⟩
+    ≃˘⟨ AA.subst₂ x^2≃xx ⟩
       a ^ 2 + 2 * a * b + b ^ 2
     ∎

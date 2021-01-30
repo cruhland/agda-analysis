@@ -77,19 +77,19 @@ _ = -_ {{ℚ.dashᴸ}}
 
 -- Lemma 4.2.3
 _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
-_ = AA.subst {{r = ℚ.+-substitutiveᴸ}}
+_ = AA.subst₂ {{r = ℚ.+-substitutiveᴸ}}
 
 +-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
-+-substᴿ {a} = AA.subst {{r = ℚ.+-substitutiveᴿ {a}}}
++-substᴿ {a} = AA.subst₂ {{r = ℚ.+-substitutiveᴿ}} {b = a}
 
 _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
-_ = AA.subst {{r = ℚ.*-substitutiveᴸ}}
+_ = AA.subst₂ {{r = ℚ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.subst {{r = ℚ.*-substitutiveᴿ {a}}}
+*-substᴿ {a} = AA.subst₂ {{r = ℚ.*-substitutiveᴿ}} {b = a}
 
 _ : {a₁ a₂ : ℚ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
-_ = AA.subst {{r = ℚ.neg-substitutive₁}}
+_ = AA.subst₁ {{r = ℚ.neg-substitutive₁}}
 
 -- We note that the rational numbers a//1 behave in a manner identical
 -- to the integers a:
@@ -106,7 +106,7 @@ _ = sym (AA.compat₁ {{r = ℚ.neg-compatible-ℤ}})
 _ : ∀ {a b} → a //1 ≃ b //1 ↔ a ≃ b
 _ = ↔-intro
   (AA.inject {{r = ℚ.from-ℤ-injective}})
-  (AA.subst {{r = ℚ.from-ℤ-substitutive₁}})
+  (AA.subst₁ {{r = ℚ.from-ℤ-substitutive₁}})
 
 -- Because of this, we will identify a with a//1 for each integer a:
 -- a ≡ a//1; the above identities then guarantee that the arithmetic
@@ -232,21 +232,20 @@ _ = ℚ.Negative
 
 alt-negative :
   ∀ {a b} → ℤ.Positive a → (b⁺ : ℤ.Positive b) →
-    let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst (ℤ.pos-nonzero b⁺))
+    let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst₁ (ℤ.pos-nonzero b⁺))
      in ℚ.Negative ((- a as ℚ) /′ (b as ℚ))
 alt-negative {a} {b} a⁺ b⁺ =
-  let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst (ℤ.pos-nonzero b⁺))
+  let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst₁ (ℤ.pos-nonzero b⁺))
       p = (a as ℚ) /′ (b as ℚ)
       p-pos = record
-        { n-pos = AA.subst (sym AA.ident) a⁺
-        ; d-pos = AA.subst (sym AA.ident) b⁺ }
+        { n-pos = AA.subst₁ (sym AA.ident) a⁺
+        ; d-pos = AA.subst₁ (sym AA.ident) b⁺ }
       [-a]/b≃-p =
         begin
           (- a as ℚ) /′ (b as ℚ)
         ≃⟨⟩
           (- a as ℚ) * (b as ℚ) ⁻¹′
-        ≃⟨ AA.subst {{r = ℚ.*-substitutiveᴸ {(b as ℚ) ⁻¹′}}}
-             (AA.compat₁ {a = a}) ⟩
+        ≃⟨ AA.substᴸ {b = (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
           (- (a as ℚ)) * (b as ℚ) ⁻¹′
         ≃˘⟨ AA.fnOpComm {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
           - ((a as ℚ) * (b as ℚ) ⁻¹′)

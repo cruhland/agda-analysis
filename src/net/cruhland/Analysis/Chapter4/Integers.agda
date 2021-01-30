@@ -74,16 +74,16 @@ _ = ≃-derive
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
-_ = AA.subst {{r = ℤ.+-substitutiveᴸ}}
+_ = AA.subst₂ {{r = ℤ.+-substitutiveᴸ}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
-_ = AA.subst {{r = ℤ.+-substitutiveᴿ}}
+_ = AA.subst₂ {{r = ℤ.+-substitutiveᴿ}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
-_ = AA.subst {{r = ℤ.*-substitutiveᴸ}}
+_ = AA.subst₂ {{r = ℤ.*-substitutiveᴸ}}
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.subst {{r = ℤ.*-substitutiveᴿ {a}}}
+*-substᴿ {a} = AA.subst₂ {{r = ℤ.*-substitutiveᴿ}} {b = a}
 
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
@@ -97,7 +97,7 @@ _ = AA.subst {{r = ℤ.*-substitutiveᴸ}}
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
 _ = ↔-intro (AA.cancel {{r = ℕ.+-cancellativeᴿ}} ∘ ℤ._≃ᶻ_.elim)
-            (≃ᶻ-intro ∘ AA.subst {{r = ℕ.+-substitutiveᴸ}})
+            (≃ᶻ-intro ∘ AA.substᴸ)
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
@@ -170,7 +170,7 @@ _ = ≃-derive
 -- One can check this definition is well-defined.
 -- Exercise 4.1.2
 _ : {a₁ a₂ : ℤ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
-_ = AA.subst {{r = ℤ.neg-substitutive}}
+_ = AA.subst₁ {{r = ℤ.neg-substitutive}}
 
 -- Lemma 4.1.5 (Trichotomy of integers). Let x be an integer. Then
 -- exactly one of the following three statements is true: (a) x is
@@ -227,7 +227,7 @@ _ = _-_
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → (a as ℤ) - (b as ℤ) ≃ a — b
-natsub {a} = ≃ᶻ-intro (AA.subst (AA.identᴿ {a = a}))
+natsub {a} = ≃ᶻ-intro (AA.subst₂ (AA.identᴿ {a = a}))
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
@@ -275,7 +275,7 @@ _ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
     c + b - b
   ≃⟨ AA.assoc {a = c} ⟩
     c + (b - b)
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.inv {a = b}) ⟩
+  ≃⟨ AA.substᴿ {b = c} (AA.inv {a = b}) ⟩
     c + 0
   ≃⟨ AA.ident ⟩
     c
@@ -287,7 +287,7 @@ vanish {x} {y} =
     x + y - y
   ≃⟨ AA.assoc {a = x} ⟩
     x + (y - y)
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (AA.inv {a = y}) ⟩
+  ≃⟨ AA.substᴿ {b = x} (AA.inv {a = y}) ⟩
     x + 0
   ≃⟨ AA.ident ⟩
     x
@@ -307,17 +307,13 @@ sub-distrib {a} {b} {c} =
     a - (b + c)
   ≃⟨⟩
     a + -(b + c)
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} ℤ.neg-mult ⟩
+  ≃⟨ AA.substᴿ {b = a} ℤ.neg-mult ⟩
     a + -1 * (b + c)
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} (AA.distrib {a = -1} {b}) ⟩
+  ≃⟨ AA.substᴿ {b = a} (AA.distrib {a = -1} {b}) ⟩
     a + (-1 * b + -1 * c)
-  ≃˘⟨ AA.subst
-        {{r = ℤ.+-substitutiveᴿ {a}}}
-        (AA.subst {{r = ℤ.+-substitutiveᴸ}} (ℤ.neg-mult {b})) ⟩
+  ≃˘⟨ AA.substᴿ {b = a} (AA.substᴸ (ℤ.neg-mult {b})) ⟩
     a + (- b + -1 * c)
-  ≃˘⟨ AA.subst
-        {{r = ℤ.+-substitutiveᴿ {a}}}
-        (AA.subst {{r = ℤ.+-substitutiveᴿ}} (ℤ.neg-mult {c})) ⟩
+  ≃˘⟨ AA.substᴿ {b = a} (AA.substᴿ {b = - b} (ℤ.neg-mult {c})) ⟩
     a + (- b + - c)
   ≃˘⟨ AA.assoc {a = a} ⟩
     a - b - c
@@ -331,13 +327,11 @@ sub-cancelᴿ {a} {b} {c} =
     a + c - b - c
   ≃⟨⟩
     ((a + c) + - b) + - c
-  ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ { - c}}} (AA.assoc {a = a}) ⟩
+  ≃⟨ AA.substᴸ {_⊙_ = _+_} (AA.assoc {a = a}) ⟩
     (a + (c + - b)) + - c
-  ≃⟨ AA.subst
-       {{r = ℤ.+-substitutiveᴸ { - c}}}
-       (AA.subst {{r = ℤ.+-substitutiveᴿ {a}}} (AA.comm {a = c})) ⟩
+  ≃⟨ AA.substᴸ {_⊙_ = _+_} (AA.substᴿ {b = a} (AA.comm {a = c})) ⟩
     (a + (- b + c)) + - c
-  ≃˘⟨ AA.subst {{r = ℤ.+-substitutiveᴸ { - c}}} (AA.assoc {a = a}) ⟩
+  ≃˘⟨ AA.substᴸ {_⊙_ = _+_} (AA.assoc {a = a}) ⟩
     ((a + - b) + c) + - c
   ≃⟨⟩
     a - b + c - c
@@ -354,9 +348,9 @@ sub-cancelᴿ {a} {b} {c} =
     a+b≃aᴺ+bᴺ =
       begin
         a + b
-      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ {b}}} a≃aᴺ ⟩
+      ≃⟨ AA.substᴸ a≃aᴺ ⟩
         (aᴺ as ℤ) + b
-      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {aᴺ as ℤ}}} b≃bᴺ ⟩
+      ≃⟨ AA.substᴿ {_⊙_ = _+_} b≃bᴺ ⟩
         (aᴺ as ℤ) + (bᴺ as ℤ)
       ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
         (aᴺ + bᴺ as ℤ)
@@ -371,9 +365,9 @@ sub-cancelᴿ {a} {b} {c} =
     ab≃aᴺbᴺ =
       begin
         a * b
-      ≃⟨ AA.subst {{r = ℤ.*-substitutiveᴸ}} a≃aᴺ ⟩
+      ≃⟨ AA.substᴸ a≃aᴺ ⟩
         (aᴺ as ℤ) * b
-      ≃⟨ AA.subst {{r = ℤ.*-substitutiveᴿ {aᴺ as ℤ}}} b≃bᴺ ⟩
+      ≃⟨ AA.substᴿ {b = aᴺ as ℤ} b≃bᴺ ⟩
         (aᴺ as ℤ) * (bᴺ as ℤ)
       ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
         (aᴺ * bᴺ as ℤ)
@@ -392,8 +386,7 @@ sub-cancelᴿ {a} {b} {c} =
             x
           ≃˘⟨ AA.ident ⟩
             x + 0
-          ≃˘⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}}
-                (AA.subst {{r = ℤ.from-ℕ-substitutive₁}} a≃0) ⟩
+          ≃˘⟨ AA.substᴿ {b = x} (AA.subst₁ a≃0) ⟩
             x + (a as ℤ)
           ≃˘⟨ y≃x+a ⟩
             y
@@ -422,7 +415,7 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos 
         b - a
       ≃⟨ AA.comm {a = b} ⟩
         - a + b
-      ≃˘⟨ AA.subst {{r = ℤ.+-substitutiveᴿ}} (ℤ.neg-involutive {b}) ⟩
+      ≃˘⟨ AA.substᴿ {b = - a} (ℤ.neg-involutive {b}) ⟩
         - a - (- b)
       ∎
 
@@ -437,16 +430,15 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos 
         b - a + (c - b)
       ≃⟨ AA.assoc {a = b} ⟩
         b + (- a + (c - b))
-      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {b}}} (AA.comm {a = - a}) ⟩
+      ≃⟨ AA.substᴿ {b = b} (AA.comm {a = - a}) ⟩
         b + (c - b - a)
-      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {b}}}
-           (AA.subst {{r = ℤ.+-substitutiveᴸ { - a}}} (AA.comm {a = c})) ⟩
+      ≃⟨ AA.substᴿ {b = b} (AA.substᴸ {_⊙_ = _+_} (AA.comm {a = c})) ⟩
         b + (- b + c - a)
-      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴿ {b}}} (AA.assoc {a = - b}) ⟩
+      ≃⟨ AA.substᴿ {b = b} (AA.assoc {a = - b}) ⟩
         b + (- b + (c - a))
       ≃˘⟨ AA.assoc {a = b} ⟩
         b - b + (c - a)
-      ≃⟨ AA.subst {{r = ℤ.+-substitutiveᴸ}} (AA.inv {a = b}) ⟩
+      ≃⟨ AA.substᴸ {_⊙_ = _+_} (AA.inv {a = b}) ⟩
         0 + (c - a)
       ≃⟨ AA.ident ⟩
         c - a
@@ -473,15 +465,15 @@ no-ind ind = ¬allP (ind P Pz Ps)
         sb⁺+0≃sn+sb⁻ =
           begin
             ℤ.ℤ.pos (step b) + 0
-          ≃⟨ AA.subst {{r = ℕ.+-substitutiveᴸ}} (ℤ⁺s≃sℤ⁺ {b}) ⟩
+          ≃⟨ AA.substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
             ℕ.step (ℤ.ℤ.pos b) + 0
           ≃⟨⟩
             ℕ.step (ℤ.ℤ.pos b + 0)
-          ≃⟨ AA.subst {{r = ℕ.step-substitutive}} b⁺+0≃n+b⁻ ⟩
+          ≃⟨ AA.subst₁ b⁺+0≃n+b⁻ ⟩
             ℕ.step (n + ℤ.ℤ.neg b)
           ≃⟨ AA.fnOpComm {a = n} ⟩
             ℕ.step n + ℤ.ℤ.neg b
-          ≃˘⟨ AA.subst (ℤ⁻s≃ℤ⁻ {b}) ⟩
+          ≃˘⟨ AA.subst₂ (ℤ⁻s≃ℤ⁻ {b}) ⟩
             ℕ.step n + ℤ.ℤ.neg (step b)
           ∎
 
