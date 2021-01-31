@@ -8,6 +8,7 @@ open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
+import net.cruhland.axioms.Sign as Sign
 open import net.cruhland.models.Function using (const; id)
 open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using
@@ -21,7 +22,7 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ; Positive; +-positive
+    ; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ
     ; +-both-zero; _≤_; _<_; _>_; _<⁺_; ≤-intro; <-intro
     )
 
@@ -205,15 +206,15 @@ module _ (PA : PeanoArithmetic) where
 
   -- Definition 2.2.7 (Positive natural numbers).
   _ : ℕ → Set
-  _ = Positive
+  _ = Sign.Positive
 
-  positive-step : ∀ {n} → Positive (step n)
-  positive-step = step≄zero
+  positive-step : ∀ {n} → Sign.Positive (step n)
+  positive-step = ℕ.mkPositive step≄zero
 
   -- Proposition 2.2.8. If a is positive and b is a natural number,
   -- then a + b is positive.
-  _ : ∀ {a b} → Positive a → Positive (a + b)
-  _ = +-positive
+  _ : {a b : ℕ} → Sign.Positive a → Sign.Positive (a + b)
+  _ = ℕ.+-positive
 
   -- Corollary 2.2.9. If a and b are natural numbers such that a + b = 0,
   -- then a = 0 and b = 0.
@@ -233,9 +234,9 @@ module _ (PA : PeanoArithmetic) where
     field
       pred-unique : ∀ m → m IsPred n → pred-value ≃ m
 
-  unique-predecessor : ∀ a → Positive a → UniquePred a
-  unique-predecessor a a≄0 =
-    let p@(pred-intro b a≃sb) = pred a≄0
+  unique-predecessor : ∀ a → Sign.Positive a → UniquePred a
+  unique-predecessor a pos-a =
+    let p@(pred-intro b a≃sb) = pred (Sign.nonzero pos-a)
      in upred-intro p (λ b′ a≃sb′ → AA.inject (Eq.trans (Eq.sym a≃sb) a≃sb′))
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
