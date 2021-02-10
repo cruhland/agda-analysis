@@ -6,7 +6,7 @@ open import net.cruhland.axioms.Cast using (_as_; cast)
 open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_; _*_)
+open import net.cruhland.axioms.Operators using (_+_; _*_; _^_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as Sign
 open import net.cruhland.models.Function using (const; id)
@@ -22,7 +22,7 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; *-stepᴸ; *-stepᴿ; _^_; ^-stepᴿ; ^-zeroᴿ
+    ; *-stepᴸ; *-stepᴿ; ^-stepᴿ; ^-zeroᴿ
     ; +-both-zero; _≤_; _<_; _>_; _<⁺_; ≤-intro; <-intro
     )
 
@@ -422,10 +422,10 @@ module _ (PA : PeanoArithmetic) where
   _ = _^_
 
   -- Examples 2.3.12
-  x^0≃1 : ∀ {x} → x ^ 0 ≃ 1
+  x^0≃1 : {x : ℕ} → x ^ 0 ≃ 1
   x^0≃1 = ^-zeroᴿ
 
-  x^1≃x : ∀ {x} → x ^ 1 ≃ x
+  x^1≃x : {x : ℕ} → x ^ 1 ≃ x
   x^1≃x {x} =
     begin
       x ^ 1
@@ -437,7 +437,7 @@ module _ (PA : PeanoArithmetic) where
       x
     ∎
 
-  x^2≃xx : ∀ {x} → x ^ 2 ≃ x * x
+  x^2≃xx : {x : ℕ} → x ^ 2 ≃ x * x
   x^2≃xx {x} =
     begin
       x ^ 2
@@ -447,7 +447,7 @@ module _ (PA : PeanoArithmetic) where
       x * x
     ∎
 
-  x^3≃xxx : ∀ {x} → x ^ 3 ≃ x * x * x
+  x^3≃xxx : {x : ℕ} → x ^ 3 ≃ x * x * x
   x^3≃xxx {x} =
     begin
       x ^ 3
@@ -470,7 +470,7 @@ module _ (PA : PeanoArithmetic) where
     ∎
 
   -- Exercise 2.3.4
-  ex234 : ∀ {a b} → (a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2
+  ex234 : {a b : ℕ} → (a + b) ^ 2 ≃ a ^ 2 + 2 * a * b + b ^ 2
   ex234 {a} {b} =
     begin
       (a + b) ^ 2
