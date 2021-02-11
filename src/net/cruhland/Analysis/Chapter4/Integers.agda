@@ -6,7 +6,7 @@ open import Relation.Binary using (IsEquivalence)
 open import Relation.Nullary.Decidable using (fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_)
-open import net.cruhland.axioms.DecEq using (≃-derive ; ≄-derive)
+open import net.cruhland.axioms.DecEq using (≃-derive ; ≄-derive ; DecEq)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
@@ -15,7 +15,7 @@ open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.models.Function using (_∘_; const; flip)
 open import net.cruhland.models.Literals as Literals
 open import net.cruhland.models.Logic using
-  (⊤; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
+  (⊤; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro; yes; no)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
@@ -238,10 +238,30 @@ _ = AA.zero-prod {{r = ℤ.zero-product}}
 -- Corollary 4.1.9 (Cancellation law for integers). If a, b, c are
 -- integers such that ac = bc and c is non-zero, then a = b.
 -- Exercise 4.1.6
-_ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
-_ = λ c≄0 →
-      let instance c≄ⁱ0 = fromWitnessFalse c≄0
-       in AA.cancel {{r = ℤ.*-cancellativeᴿ}}
+record IntegerCancellation : Set where
+  field
+    proof : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
+
+_ : IntegerCancellation
+_ = record { proof = λ c≄0 →
+                   let instance c≄ⁱ0 = fromWitnessFalse c≄0
+                   in AA.cancel {{r = ℤ.*-cancellativeᴿ}}
+           }
+
+CancellationConverse : IntegerCancellation → {a b : ℤ} → a * b ≃ 0 → a ≃ 0 ∨ b ≃ 0
+CancellationConverse ic {a} {b} ab=0 with (((DecEq._≃?_) ℤ.decEq) b 0)
+...                    | yes b=0 = ∨-introᴿ b=0
+...                    | no b≠0 = let ab=0b : (a * b ≃ 0 * b)
+                                      ab=0b =
+                                        begin
+                                          a * b
+                                        ≃⟨ ab=0 ⟩
+                                          0
+                                        ≃˘⟨ ≃ᶻ-intro refl ⟩  -- why does ≃˘⟨ AA.absorb {{r = ℤ.*-absorptiveᴸ}} ⟩ not work here?
+                                          0 * b
+                                        ∎
+                                  in  ∨-introᴸ ((IntegerCancellation.proof ic) b≠0 ab=0b)
+
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be
 -- integers. We say that n is _greater than or equal to_ m, and write
