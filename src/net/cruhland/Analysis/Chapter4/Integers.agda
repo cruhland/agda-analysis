@@ -12,7 +12,9 @@ open import net.cruhland.axioms.Eq using
 open ≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.models.Function using (_∘_; const; flip)
+open import net.cruhland.axioms.Sign
+  using (Negative; Negativity; Positive; Positivity)
+open import net.cruhland.models.Function using (_∘_; _⟨→⟩_; const; flip)
 open import net.cruhland.models.Literals as Literals
 open import net.cruhland.models.Logic using
   (⊤; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
@@ -23,6 +25,17 @@ module ℕ = PeanoArithmetic peanoArithmetic
 open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (_—_; _≤_; _<_; _>_; ≃ᶻ-intro; ℤ)
+
+instance
+  -- todo: find a way to not need this
+  positivity : Positivity 0
+  positivity = ℤ.positivity
+
+  pos-subst : AA.Substitutive₁ Positive _≃_ _⟨→⟩_
+  pos-subst = Positivity.substitutive positivity
+
+  negativity : Negativity 0
+  negativity = ℤ.negativity
 
 {- 4.1 The integers -}
 
@@ -176,7 +189,7 @@ _ = AA.subst₁ {{r = ℤ.neg-substitutive}}
 -- exactly one of the following three statements is true: (a) x is
 -- zero; (b) x is equal to a positive natural number n; or (c) x is
 -- the negation -n of a positive natural number n.
-_ : ∀ x → AA.ExactlyOneOfThree (ℤ.Negative x) (x ≃ 0) (ℤ.Positive x)
+_ : (x : ℤ) → AA.ExactlyOneOfThree (Negative x) (x ≃ 0) (Positive x)
 _ = ℤ.trichotomy
 
 -- Proposition 4.1.6 (Laws of algebra for integers).
@@ -293,10 +306,6 @@ vanish {x} {y} =
     x
   ∎
 
-Positive-subst : ∀ {a₁ a₂} → a₁ ≃ a₂ → ℤ.Positive a₁ → ℤ.Positive a₂
-Positive-subst a₁≃a₂ record { n = n ; pos = n≄0 ; x≃n = a₁≃n } =
-  record { n = n ; pos = n≄0 ; x≃n = trans (sym a₁≃a₂) a₁≃n }
-
 -- Exercise 4.1.3
 _ : {a : ℤ} → - a ≃ -1 * a
 _ = ℤ.neg-mult
@@ -339,44 +348,38 @@ sub-cancelᴿ {a} {b} {c} =
     a - b
   ∎
 
-+-preserves-pos : ∀ {a b} → ℤ.Positive a → ℤ.Positive b → ℤ.Positive (a + b)
-+-preserves-pos {a} {b}
-  record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
-  record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
-    record { n = aᴺ + bᴺ ; pos = ℕ.+-positive aᴺ≄0 ; x≃n = a+b≃aᴺ+bᴺ }
-  where
-    a+b≃aᴺ+bᴺ =
-      begin
-        a + b
-      ≃⟨ AA.substᴸ a≃aᴺ ⟩
-        (aᴺ as ℤ) + b
-      ≃⟨ AA.substᴿ {A = ℤ} {_⊙_ = _+_} b≃bᴺ ⟩
-        (aᴺ as ℤ) + (bᴺ as ℤ)
-      ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
-        (aᴺ + bᴺ as ℤ)
-      ∎
++-preserves-pos : {a b : ℤ} → Positive a → Positive b → Positive (a + b)
++-preserves-pos a@{a⁺ — a⁻} b@{b⁺ — b⁻} pos[a] pos[b] =
+  let a⁻<a⁺ = ℤ.pos-elim-proj pos[a]
+      b⁻<b⁺ = ℤ.pos-elim-proj pos[b]
+      a⁻+b⁻<a⁺+b⁺ = ℕ.<-compatible-+ a⁻<a⁺ b⁻<b⁺
+   in ℤ.pos-intro-proj a⁻+b⁻<a⁺+b⁺
 
-*-preserves-pos : ∀ {a b} → ℤ.Positive a → ℤ.Positive b → ℤ.Positive (a * b)
-*-preserves-pos {a} {b}
-  record { n = aᴺ ; pos = aᴺ≄0 ; x≃n = a≃aᴺ }
-  record { n = bᴺ ; pos = bᴺ≄0 ; x≃n = b≃bᴺ } =
-    record { n = aᴺ * bᴺ ; pos = AA.nonzero-prod aᴺ≄0 bᴺ≄0 ; x≃n = ab≃aᴺbᴺ }
-  where
-    ab≃aᴺbᴺ =
-      begin
-        a * b
-      ≃⟨ AA.substᴸ a≃aᴺ ⟩
-        (aᴺ as ℤ) * b
-      ≃⟨ AA.substᴿ {b = aᴺ as ℤ} b≃bᴺ ⟩
-        (aᴺ as ℤ) * (bᴺ as ℤ)
-      ≃˘⟨ AA.compat₂ {a = aᴺ} ⟩
-        (aᴺ * bᴺ as ℤ)
-      ∎
+*-preserves-pos : {a b : ℤ} → Positive a → Positive b → Positive (a * b)
+*-preserves-pos {a} {b} pos[a] pos[b] =
+    let aᴺ = ℤ.pos-ℕ pos[a]
+        bᴺ = ℤ.pos-ℕ pos[b]
+        pos[aᴺ] = ℤ.pos-ℕ-pos pos[a]
+        pos[bᴺ] = ℤ.pos-ℕ-pos pos[b]
+        aᴺ≃a = ℤ.pos-ℕ-eq pos[a]
+        bᴺ≃b = ℤ.pos-ℕ-eq pos[b]
+        pos[aᴺbᴺ] = AA.pres pos[aᴺ] pos[bᴺ]
+        aᴺbᴺ≃ab =
+          begin
+            (aᴺ * bᴺ as ℤ)
+          ≃⟨ AA.compat₂ {a = aᴺ} ⟩
+            (aᴺ as ℤ) * (bᴺ as ℤ)
+          ≃⟨ AA.substᴸ aᴺ≃a ⟩
+            a * (bᴺ as ℤ)
+          ≃⟨ AA.substᴿ {b = a} bᴺ≃b ⟩
+            a * b
+          ∎
+     in ℤ.pos-intro-ℕ pos[aᴺbᴺ] aᴺbᴺ≃ab
 
 -- (a)
-<→pos : ∀ {x y} → x < y → ℤ.Positive (y - x)
+<→pos : ∀ {x y} → x < y → Positive (y - x)
 <→pos {x} {y} (ℤ.<-intro (ℤ.≤-intro a y≃x+a) x≄y) =
-    record { n = a ; pos = a≄0 ; x≃n = ≃ᴿ-+ᴸ-toᴿ y≃x+a }
+    ℤ.pos-intro-ℕ (ℕ.Pos-intro-≄0 a≄0) (sym (≃ᴿ-+ᴸ-toᴿ y≃x+a))
   where
     a≄0 : a ≄ 0
     a≄0 a≃0 = x≄y x≃y
@@ -392,23 +395,23 @@ sub-cancelᴿ {a} {b} {c} =
             y
           ∎
 
-pos-diff : ∀ {a b} → a < b ↔ ℤ.Positive (b - a)
+pos-diff : ∀ {a b} → a < b ↔ Positive (b - a)
 pos-diff = ↔-intro <→pos ℤ.pos→<
 
 -- (b) Addition preserves order
 +-preserves-<ᴿ : ∀ {a b c} → a < b → a + c < b + c
 +-preserves-<ᴿ {a} {b} {c} a<b =
-  ℤ.pos→< (Positive-subst (sym (sub-cancelᴿ {b})) (<→pos a<b))
+  ℤ.pos→< (AA.subst₁ (sym (sub-cancelᴿ {b})) (<→pos a<b))
 
 -- (c) Positive multiplication preserves order
-*⁺-preserves-<ᴿ : ∀ {a b c} → ℤ.Positive c → a < b → a * c < b * c
+*⁺-preserves-<ᴿ : ∀ {a b c} → Positive c → a < b → a * c < b * c
 *⁺-preserves-<ᴿ {a} {b} {c} c>0 a<b =
   let [b-a]c>0 = *-preserves-pos (<→pos a<b) c>0
-   in ℤ.pos→< (Positive-subst (ℤ.*-distrib-subᴿ {b}) [b-a]c>0)
+   in ℤ.pos→< (AA.subst₁ (ℤ.*-distrib-subᴿ {b}) [b-a]c>0)
 
 -- (d) Negation reverses order
 neg-reverses-< : ∀ {a b} → a < b → - b < - a
-neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos a<b))
+neg-reverses-< {a} {b} a<b = ℤ.pos→< (AA.subst₁ b-a≃-a-[-b] (<→pos a<b))
   where
     b-a≃-a-[-b] =
       begin
@@ -423,7 +426,7 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (Positive-subst b-a≃-a-[-b] (<→pos 
 <-trans : ∀ {a b c} → a < b → b < c → a < c
 <-trans {a} {b} {c} a<b b<c =
     let 0<b-a+c-b = +-preserves-pos (<→pos a<b) (<→pos b<c)
-     in ℤ.pos→< (Positive-subst b-a+c-b≃c-a 0<b-a+c-b)
+     in ℤ.pos→< (AA.subst₁ b-a+c-b≃c-a 0<b-a+c-b)
   where
     b-a+c-b≃c-a =
       begin

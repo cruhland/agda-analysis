@@ -7,6 +7,7 @@ open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; _^_)
+open import net.cruhland.axioms.Ordering using (_≤_; _<_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as Sign
 open import net.cruhland.models.Function using (const; id)
@@ -22,8 +23,7 @@ module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
     ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
-    ; *-stepᴸ; *-stepᴿ; ^-stepᴿ; ^-zeroᴿ
-    ; +-both-zero; _≤_; _<_; _>_; _<⁺_; ≤-intro; <-intro
+    ; *-stepᴸ; *-stepᴿ; ^-stepᴿ; ^-zeroᴿ; +-both-zero
     )
 
   {- 2.1 The Peano Axioms -}
@@ -209,7 +209,7 @@ module _ (PA : PeanoArithmetic) where
   _ = Sign.Positive
 
   positive-step : ∀ {n} → Sign.Positive (step n)
-  positive-step = ℕ.mkPositive step≄zero
+  positive-step = ℕ.Pos-intro-≄0 step≄zero
 
   -- Proposition 2.2.8. If a is positive and b is a natural number,
   -- then a + b is positive.
@@ -236,7 +236,7 @@ module _ (PA : PeanoArithmetic) where
 
   unique-predecessor : ∀ a → Sign.Positive a → UniquePred a
   unique-predecessor a pos-a =
-    let p@(pred-intro b a≃sb) = pred (Sign.nonzero pos-a)
+    let p@(pred-intro b a≃sb) = pred (Sign.pos≄0 pos-a)
      in upred-intro p (λ b′ a≃sb′ → AA.inject (Eq.trans (Eq.sym a≃sb) a≃sb′))
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
@@ -245,7 +245,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- Using Definition 2.2.11 on some examples
   8>5 : 8 > 5
-  8>5 = <-intro 5≤8 5≄8
+  8>5 = ℕ.<-intro-≤≄ 5≤8 5≄8
     where
       5+3≃8 =
         begin
@@ -263,7 +263,7 @@ module _ (PA : PeanoArithmetic) where
         ≃⟨⟩
           8
         ∎
-      5≤8 = ≤-intro 3 5+3≃8
+      5≤8 = ℕ.≤-intro-diff 5+3≃8
       si = AA.inject
       5≄8 = λ 5≃8 → step≄zero (si (si (si (si (si (Eq.sym 5≃8))))))
 
@@ -271,32 +271,42 @@ module _ (PA : PeanoArithmetic) where
   -- Exercise 2.2.3
 
   -- (a) (Order is reflexive)
-  _ : ∀ {a} → a ≤ a
+  _ : {a : ℕ} → a ≤ a
   _ = Eq.refl {{r = ℕ.≤-reflexive}}
 
   -- (b) (Order is transitive)
-  _ : ∀ {a b c} → a ≤ b → b ≤ c → a ≤ c
+  _ : {a b c : ℕ} → a ≤ b → b ≤ c → a ≤ c
   _ = Eq.trans {{r = ℕ.≤-transitive}}
 
   -- (c) (Order is anti-symmetric)
-  _ : ∀ {a b} → a ≤ b → b ≤ a → a ≃ b
+  _ : {a b : ℕ} → a ≤ b → b ≤ a → a ≃ b
   _ = AA.antisym {{r = ℕ.≤-antisymmetric}}
 
   -- (d) (Addition preserves order)
-  _ : ∀ {a b c} → a ≤ b ↔ a + c ≤ b + c
-  _ = ↔-intro AA.subst₁ AA.cancel
+  _ : {a b c : ℕ} → a ≤ b ↔ a + c ≤ b + c
+  _ = ↔-intro AA.subst₂ AA.isCancel
 
   -- (e)
   a<b↔sa≤b : ∀ {a b} → a < b ↔ step a ≤ b
-  a<b↔sa≤b {a} {b} = ↔-intro (cast {{r = ℕ.<-as-s≤}}) (cast {{r = ℕ.s≤-as-<}})
+  a<b↔sa≤b {a} {b} = ↔-intro ℕ.s≤-from-< ℕ.<-from-s≤
 
   -- (f)
-  <↔<⁺ : ∀ {a b} → a < b ↔ a <⁺ b
-  <↔<⁺ = ↔-intro (cast {{r = ℕ.<-as-<⁺}}) (cast {{r = ℕ.<⁺-as-<}})
+  record _+d⁺≃_ (n m : ℕ) : Set where
+    constructor +d⁺≃-intro
+    field
+      {d} : ℕ
+      pos[d] : Sign.Positive d
+      n+d≃m : n + d ≃ m
+
+  <↔+d⁺≃ : ∀ {a b} → a < b ↔ a +d⁺≃ b
+  <↔+d⁺≃ = ↔-intro <→+d⁺≃ +d⁺≃→<
+    where
+      <→+d⁺≃ = λ a<b → +d⁺≃-intro (ℕ.<-diff-pos a<b) (ℕ.<-elim-diff a<b)
+      +d⁺≃→< = λ { (+d⁺≃-intro pos[d] n+d≃m) → ℕ.<-intro-diff pos[d] n+d≃m }
 
   -- Proposition 2.2.13 (Trichotomy of order for natural numbers).
-  _ : ∀ {a b} → AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b)
-  _ = ℕ.order-trichotomy
+  order-trichotomy : ∀ a b → AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b)
+  order-trichotomy = ℕ.order-trichotomy
 
   -- Proposition 2.2.14
   -- Exercise 2.2.5
@@ -362,13 +372,13 @@ module _ (PA : PeanoArithmetic) where
   _ = AA.assoc {{r = ℕ.*-associative}}
 
   -- Proposition 2.3.6 (Multiplication preserves order).
-  _ : ∀ {a b c} → a < b → c ≄ 0 → a * c < b * c
+  _ : {a b c : ℕ} → a < b → Sign.Positive c → a * c < b * c
   _ = ℕ.*-preserves-<ᴿ
 
   -- Corollary 2.3.7 (Cancellation law).
   _ : {a b c : ℕ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
   _ = λ c≄0 →
-        let instance c≄ⁱ0 = fromWitnessFalse c≄0
+        let instance pos[c] = ℕ.Pos-intro-≄0 c≄0
          in AA.cancel {{r = ℕ.*-cancellativeᴿ}}
 
   -- Proposition 2.3.9 (Euclidean algorithm).
@@ -390,17 +400,17 @@ module _ (PA : PeanoArithmetic) where
         where
           q = 0
           r = 0
-          r<m = <-intro ℕ.0≤n (Eq.¬sym m≄0)
+          r<m = ℕ.<-intro-≤≄ ℕ.≤-zeroᴸ (Eq.sym m≄0)
           n≃mq+r = Eq.sym (Eq.trans AA.ident AA.absorb)
 
       Ps : step-case P
-      Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (r<m as step r ≤ m)
+      Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (ℕ.s≤-from-< r<m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
           sk≃mq+sr = Eq.trans (AA.subst₁ k≃mq+r) AA.fnOpComm
       ... | ∨-introᴿ sr≃m = div-intro (step q) 0 0<m sk≃m[sq]+0
         where
-          0<m = <-intro ℕ.0≤n (Eq.¬sym m≄0)
+          0<m = ℕ.<-intro-≤≄ ℕ.≤-zeroᴸ (Eq.sym m≄0)
 
           sk≃m[sq]+0 =
             begin

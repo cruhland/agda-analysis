@@ -7,9 +7,11 @@ open import net.cruhland.axioms.DecEq using (_≃?_; DecEq)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
+open import net.cruhland.axioms.Ordering using (_<_; LessThan)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Function using (_∘_; const; id)
+open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using
   ( _∧_; ∧-dup; ∧-intro; uncurry
   ; _∨_; ∨-comm; ∨-forceᴸ; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
@@ -24,7 +26,11 @@ open import net.cruhland.models.Setoid using
   )
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
-  open module PA = PeanoArithmetic peanoArithmetic using (ℕ; _<_; _<?_; step)
+  open module PA = PeanoArithmetic peanoArithmetic using (ℕ; _<?_; number; step)
+  instance
+    -- todo: replace these definitions by adding a PA parameter to the module
+    lessThan : LessThan ℕ
+    lessThan = PA.lessThan
 
   module ST = SetTheory ST
   open ST using
