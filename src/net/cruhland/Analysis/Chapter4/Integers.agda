@@ -23,7 +23,7 @@ open import net.cruhland.models.Setoid using (Setoid₀)
 
 module ℕ = PeanoArithmetic peanoArithmetic
 open ℕ using (ℕ)
-import net.cruhland.models.Integers peanoArithmetic as ℤ
+import net.cruhland.models.Integers peanoArithmetic as ℤ hiding (from-Nat)
 open ℤ using (_—_; _≤_; _<_; _>_; ≃ᶻ-intro; ℤ)
 
 instance
@@ -122,8 +122,8 @@ _ = ↔-intro (AA.cancel {{r = ℕ.+-cancellativeᴿ}} ∘ ℤ._≃ᶻ_.elim)
 -- Number typeclass to interpret numeric literals as elements of
 -- ℤ. And we can define a function to convert natural numbers to their
 -- integer equivalent.
-_ : Literals.Number ℤ
-_ = ℤ.number
+_ : Literals.FromLiteral ℤ
+_ = ℤ.from-literal
 
 -- For instance the natural number 3 is now considered to be the same
 -- as the integer 3—0, thus 3 = 3—0.

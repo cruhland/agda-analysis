@@ -21,7 +21,7 @@ module ℕ = PeanoArithmetic peanoArithmetic
 open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)
-import net.cruhland.models.Rationals peanoArithmetic as ℚ
+import net.cruhland.models.Rationals peanoArithmetic as ℚ hiding (from-Nat)
 open ℚ using (_//1; _//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
 
 instance

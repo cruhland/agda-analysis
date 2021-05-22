@@ -22,7 +22,7 @@ open import net.cruhland.models.Logic using
 module _ (PA : PeanoArithmetic) where
   open module ℕ = PeanoArithmetic PA using
     ( ℕ; ind; step; step-case; step≄zero; zero
-    ; case-step; case-zero; case; _IsPred_; number; Pred; pred-intro; pred
+    ; case-step; case-zero; case; _IsPred_; Pred; pred-intro; pred
     ; *-stepᴸ; *-stepᴿ; ^-stepᴿ; ^-zeroᴿ; +-both-zero
     )
 
