@@ -17,7 +17,7 @@ open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro; ↔-elimᴸ)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
-module ℕ = PeanoArithmetic peanoArithmetic
+module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
 open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ
 open ℤ using (ℤ)

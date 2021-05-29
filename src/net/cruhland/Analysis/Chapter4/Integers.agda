@@ -1,6 +1,5 @@
 module net.cruhland.Analysis.Chapter4.Integers where
 
-import Agda.Builtin.FromNeg as FromNeg
 import Agda.Builtin.Nat as Nat
 open import Relation.Binary using (IsEquivalence)
 open import Relation.Nullary.Decidable using (fromWitnessFalse)
@@ -21,7 +20,7 @@ open import net.cruhland.models.Logic using
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 open import net.cruhland.models.Setoid using (Setoid₀)
 
-module ℕ = PeanoArithmetic peanoArithmetic
+module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
 open ℕ using (ℕ)
 import net.cruhland.models.Integers peanoArithmetic as ℤ hiding (from-Nat)
 open ℤ using (_—_; _≤_; _<_; _>_; ≃ᶻ-intro; ℤ)
@@ -122,7 +121,7 @@ _ = ↔-intro (AA.cancel {{r = ℕ.+-cancellativeᴿ}} ∘ ℤ._≃ᶻ_.elim)
 -- Number typeclass to interpret numeric literals as elements of
 -- ℤ. And we can define a function to convert natural numbers to their
 -- integer equivalent.
-_ : Literals.FromLiteral ℤ
+_ : Literals.FromNatLiteral ℤ
 _ = ℤ.from-literal
 
 -- For instance the natural number 3 is now considered to be the same
@@ -270,7 +269,7 @@ _ = _<_
 _ : ℤ → ℤ → Set
 _ = _>_
 
-_ : FromNeg.Negative ℤ
+_ : Literals.FromNegLiteral ℤ
 _ = ℤ.negative
 
 _ : 5 > -3
