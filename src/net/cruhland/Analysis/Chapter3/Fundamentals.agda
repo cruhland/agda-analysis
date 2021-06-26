@@ -3,7 +3,7 @@ open import Level using (_⊔_; Level; 0ℓ) renaming (suc to sℓ)
 open import Relation.Binary using (DecSetoid)
 import Relation.Binary.PropositionalEquality as ≡
 open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
-open import net.cruhland.axioms.DecEq using (_≃?_; DecEq)
+open import net.cruhland.axioms.DecEq using (_≃?_; DecEq_~_)
 open import net.cruhland.axioms.Eq using
   (_≃_; _≄_; refl; sym; trans; module ≃-Reasoning)
 open ≃-Reasoning
@@ -75,7 +75,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   ℕSet = PSet₀ ℕ-Setoid
 
   instance
-    ℕSet-decEq : DecEq ℕSet
+    ℕSet-decEq : DecEq ℕSet ~ ℕSub.decEqConstraint
     ℕSet-decEq = ℕSub.decEq
 
   {- 3.1 Fundamentals -}
