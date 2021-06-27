@@ -224,9 +224,9 @@ _ = let instance _ = ≄ⁱ-derive in
 -- integer a and every non-zero integer b. Thus we can now discard the
 -- // notation, and use the more customary a/b instead of a//b.
 //-redundant :
-  {a b : ℤ} {{b≄ⁱ0 : b ≄ⁱ 0}} {{_ : (b as ℚ) ≄ⁱ 0}} →
-    (a as ℚ) /′ (b as ℚ) ≃ a // b ~ ≄ⁱ-elim b≄ⁱ0
-//-redundant {a} = ℚ.≃₀-intro (AA.assoc {_⊙_ = _*_} {a = a})
+  {a b : ℤ} {{_ : b ≄ⁱ 0}} {{_ : (b as ℚ) ≄ⁱ 0}} →
+  (a as ℚ) /′ (b as ℚ) ≃ a // b ~ ≄ⁱ-elim
+//-redundant {a} = ℚ.≃₀-intro (AA.assoc {a = a})
 
 -- In a similar spirit, we define subtraction on the rationals by the
 -- formula x - y ≔ x + (- y), just as we did with the integers.
