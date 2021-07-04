@@ -1,40 +1,23 @@
 module net.cruhland.Analysis.Chapter4.Integers where
 
-import Agda.Builtin.Nat as Nat
-open import Relation.Binary using (IsEquivalence)
-open import Relation.Nullary.Decidable using (fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_)
-open import net.cruhland.axioms.DecEq using (≃-derive ; ≄-derive)
-open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; Eq; refl; sym; trans; module ≃-Reasoning)
-open ≃-Reasoning
+open import net.cruhland.axioms.DecEq using (DecEq_~_; ≃-derive; ≄-derive)
+open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
+open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
+open import net.cruhland.axioms.Ordering using (_≤_; _<_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.axioms.Sign
-  using (Negative; Negativity; Positive; Positivity)
-open import net.cruhland.models.Function using (_∘_; _⟨→⟩_; const; flip)
+open import net.cruhland.axioms.Sign using (Negative; Positive)
+open import net.cruhland.models.Function using (_∘_)
 open import net.cruhland.models.Literals as Literals
-open import net.cruhland.models.Logic using
-  (⊤; ∧-elimᴿ; _∨_; ∨-introᴸ; ∨-introᴿ; ⊥; ⊥-elim; ¬_; _↔_; ↔-intro)
+open import net.cruhland.models.Logic using (_∨_; _↔_; ↔-intro; ¬_; contra)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
-open import net.cruhland.models.Setoid using (Setoid₀)
 
-module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
+private module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
 open ℕ using (ℕ)
-import net.cruhland.models.Integers peanoArithmetic as ℤ hiding (from-Nat)
-open ℤ using (_—_; _≤_; _<_; _>_; ≃ᶻ-intro; ℤ)
-
-instance
-  -- todo: find a way to not need this
-  positivity : Positivity 0
-  positivity = ℤ.positivity
-
-  pos-subst : AA.Substitutive₁ Positive _≃_ _⟨→⟩_
-  pos-subst = Positivity.substitutive positivity
-
-  negativity : Negativity 0
-  negativity = ℤ.negativity
+open import net.cruhland.models.Integers.NatPairImpl peanoArithmetic as ℤ
+  using (_—_; ℤ)
 
 {- 4.1 The integers -}
 
@@ -59,7 +42,7 @@ _ = ≄-derive
 
 -- Exercise 4.1.1
 _ : Eq ℤ
-_ = ℤ.eq
+_ = DecEq_~_.eq ℤ.decEq
 
 -- Definition 4.1.2. The sum of two integers, (a—b) + (c—d), is
 -- defined by the formula (a—b) + (c—d) ≔ (a + c)—(b + d).
@@ -86,30 +69,31 @@ _ = ≃-derive
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
-_ = AA.subst₂ {{r = ℤ.+-substitutiveᴸ}}
+_ = AA.subst₂ {{r = AA.Substitutive².substitutiveᴸ ℤ.+-substitutive}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
-_ = AA.subst₂ {{r = ℤ.+-substitutiveᴿ}}
+_ = AA.subst₂ {{r = AA.Substitutive².substitutiveᴿ ℤ.+-substitutive}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
-_ = AA.subst₂ {{r = ℤ.*-substitutiveᴸ}}
+_ = AA.subst₂ {{r = AA.Substitutive².substitutiveᴸ ℤ.*-substitutive}}
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
-*-substᴿ {a} = AA.subst₂ {{r = ℤ.*-substitutiveᴿ}} {b = a}
+*-substᴿ {a} =
+  AA.subst₂ {{r = AA.Substitutive².substitutiveᴿ ℤ.*-substitutive}} {b = a}
 
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
 -- (n—0) × (m—0) = nm—0.
 +-compat-ℕ : ∀ {n m} → n — 0 + m — 0 ≃ (n + m) — 0
-+-compat-ℕ {n} = sym (AA.compat₂ {{r = ℤ.+-compatible-ℕ}} {n})
++-compat-ℕ {n} = Eq.sym (AA.compat₂ {{r = ℤ.+-compatible-ℕ}} {n})
 
 *-compat-ℕ : ∀ {n m} → n — 0 * m — 0 ≃ (n * m) — 0
-*-compat-ℕ {n} = sym (AA.compat₂ {{r = ℤ.*-compatible-ℕ}} {n})
+*-compat-ℕ {n} = Eq.sym (AA.compat₂ {{r = ℤ.*-compatible-ℕ}} {n})
 
 -- Furthermore, (n—0) is equal to (m—0) if and only if n = m.
 _ : ∀ {n m} → n — 0 ≃ m — 0 ↔ n ≃ m
-_ = ↔-intro (AA.cancel {{r = ℕ.+-cancellativeᴿ}} ∘ ℤ._≃ᶻ_.elim)
-            (≃ᶻ-intro ∘ AA.substᴸ)
+_ = ↔-intro (AA.cancel {{r = ℕ.+-cancellativeᴿ}} ∘ ℤ._≃₀_.elim)
+            (ℤ.≃₀-intro ∘ AA.substᴸ)
 
 -- Thus we may _identify_ the natural numbers with integers by setting
 -- n ≃ n—0; this does not affect our definitions of addition or
@@ -122,7 +106,7 @@ _ = ↔-intro (AA.cancel {{r = ℕ.+-cancellativeᴿ}} ∘ ℤ._≃ᶻ_.elim)
 -- ℤ. And we can define a function to convert natural numbers to their
 -- integer equivalent.
 _ : Literals.FromNatLiteral ℤ
-_ = ℤ.from-literal
+_ = ℤ.nat-literal
 
 -- For instance the natural number 3 is now considered to be the same
 -- as the integer 3—0, thus 3 = 3—0.
@@ -154,10 +138,10 @@ _ = ≃-derive
 step : ℤ → ℤ
 step x = x + 1
 
-ℤ⁺s≃sℤ⁺ : ∀ {a} → ℤ.ℤ.pos (step a) ≃ ℕ.step (ℤ.ℤ.pos a)
-ℤ⁺s≃sℤ⁺ {a⁺ — _} = sym ℕ.sn≃n+1
+ℤ⁺s≃sℤ⁺ : ∀ {a} → ℤ.pos (step a) ≃ ℕ.step (ℤ.pos a)
+ℤ⁺s≃sℤ⁺ {a⁺ — _} = Eq.sym ℕ.sn≃n+1
 
-ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ.ℤ.neg (step a) ≃ ℤ.ℤ.neg a
+ℤ⁻s≃ℤ⁻ : ∀ {a} → ℤ.neg (step a) ≃ ℤ.neg a
 ℤ⁻s≃ℤ⁻ {_ — a⁻} = AA.identᴿ
 
 -- Definition 4.1.4 (Negation of integers). If (a—b) is an integer, we
@@ -173,7 +157,7 @@ _ : ℕ → ℤ
 _ = λ n → (n as ℤ) {{ℤ.from-ℕ}}
 
 _ : ∀ {n} → - (n as ℤ) ≃ 0 — n
-_ = ≃ᶻ-intro refl
+_ = ℤ.≃₀-intro Eq.refl
 
 -- For instance -(3—5) = (5—3).
 _ : -(3 — 5) ≃ 5 — 3
@@ -200,16 +184,16 @@ _ = ℤ.trichotomy
 +-assoc {x} = AA.assoc {{r = ℤ.+-associative}} {a = x}
 
 _ : {x : ℤ} → 0 + x ≃ x
-_ = AA.ident {{r = ℤ.+-identityᴸ}}
+_ = AA.ident {{r = AA.Identity².identityᴸ ℤ.+-identity}}
 
 _ : {x : ℤ} → x + 0 ≃ x
-_ = AA.ident {{r = ℤ.+-identityᴿ}}
+_ = AA.ident {{r = AA.Identity².identityᴿ ℤ.+-identity}}
 
 +-invᴸ : {x : ℤ} → - x + x ≃ 0
-+-invᴸ {x} = AA.inv {{r = ℤ.+-inverseᴸ}} {a = x}
++-invᴸ {x} = AA.inv {{r = AA.Inverse².inverseᴸ ℤ.neg-inverse}} {a = x}
 
 +-invᴿ : {x : ℤ} → x + - x ≃ 0
-+-invᴿ {x} = AA.inv {{r = ℤ.+-inverseᴿ}} {a = x}
++-invᴿ {x} = AA.inv {{r = AA.Inverse².inverseᴿ ℤ.neg-inverse}} {a = x}
 
 *-comm : {x y : ℤ} → x * y ≃ y * x
 *-comm {x} = AA.comm {a = x}
@@ -218,16 +202,19 @@ _ = AA.ident {{r = ℤ.+-identityᴿ}}
 *-assoc {x} = AA.assoc {a = x}
 
 _ : {x : ℤ} → 1 * x ≃ x
-_ = AA.ident {{r = ℤ.*-identityᴸ}}
+_ = AA.ident {{r = AA.Identity².identityᴸ ℤ.*-identity}}
 
 _ : {x : ℤ} → x * 1 ≃ x
-_ = AA.ident {{r = ℤ.*-identityᴿ}}
+_ = AA.ident {{r = AA.Identity².identityᴿ ℤ.*-identity}}
 
 *-distrib-+ᴸ : {x y z : ℤ} → x * (y + z) ≃ x * y + x * z
-*-distrib-+ᴸ {x} = AA.distrib {{r = ℤ.*-distributive-+ᴸ}} {a = x}
+*-distrib-+ᴸ {x} =
+  AA.distrib {{r = AA.Distributive².distributiveᴸ ℤ.*-distributive}} {a = x}
 
 *-distrib-+ᴿ : {x y z : ℤ} → (y + z) * x ≃ y * x + z * x
-*-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℤ.*-distributive-+ᴿ}} {a = x} {b = y}
+*-distrib-+ᴿ {x} {y} =
+  AA.distrib
+    {{r = AA.Distributive².distributiveᴿ ℤ.*-distributive}} {a = x} {b = y}
 
 -- We now define the operation of _subtraction_ x - y of two integers
 -- by the formula x - y ≔ x + (-y).
@@ -239,7 +226,22 @@ _ = _-_
 -- thing as a - b. Because of this we can now discard the — notation,
 -- and use the familiar operation of subtraction instead.
 natsub : ∀ {a b} → (a as ℤ) - (b as ℤ) ≃ a — b
-natsub {a} = ≃ᶻ-intro (AA.subst₂ (AA.identᴿ {a = a}))
+natsub {a} {b} =
+  begin
+    (a as ℤ) - (b as ℤ)
+  ≃⟨⟩
+    (a — 0) - (b — 0)
+  ≃⟨⟩
+    (a — 0) + -(b — 0)
+  ≃⟨⟩
+    (a — 0) + (0 — b)
+  ≃⟨⟩
+    (a + 0) — (0 + b)
+  ≃⟨ AA.subst₂ {b = 0 + b} (AA.ident {_⊙_ = _+_}) ⟩
+    a — (0 + b)
+  ≃⟨ AA.subst₂ {b = a} AA.ident ⟩
+    a — b
+  ∎
 
 -- Proposition 4.1.8 (Integers have no zero divisors). Let a and b be
 -- integers such that ab = 0. Then either a = 0 or b = 0 (or both).
@@ -252,8 +254,8 @@ _ = AA.zero-prod {{r = ℤ.zero-product}}
 -- Exercise 4.1.6
 _ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
 _ = λ c≄0 →
-      let instance c≄ⁱ0 = fromWitnessFalse c≄0
-       in AA.cancel {{r = ℤ.*-cancellativeᴿ}}
+      let instance c≄ⁱ0 = Eq.≄ⁱ-intro c≄0
+       in AA.cancel {{r = AA.Cancellative².cancellativeᴿ ℤ.*-cancellative}}
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be
 -- integers. We say that n is _greater than or equal to_ m, and write
@@ -270,36 +272,20 @@ _ : ℤ → ℤ → Set
 _ = _>_
 
 _ : Literals.FromNegLiteral ℤ
-_ = ℤ.negative
+_ = ℤ.neg-literal
 
 _ : 5 > -3
-_ = ℤ.<-intro (ℤ.≤-intro 8 ≃-derive) λ ()
+_ = ℤ.<₀-intro (ℤ.≤₀-intro {d = 8} ≃-derive) λ ()
 
 -- Lemma 4.1.11 (Properties of order).
 -- Exercise 4.1.7
-≃ᴿ-+ᴸ-toᴿ : {a b c : ℤ} → a ≃ b + c → a - b ≃ c
-≃ᴿ-+ᴸ-toᴿ {a} {b} {c} a≃b+c =
-  begin
-    a - b
-  ≃⟨ ℤ.sub-substᴸ a≃b+c ⟩
-    b + c - b
-  ≃⟨ ℤ.sub-substᴸ (AA.comm {a = b}) ⟩
-    c + b - b
-  ≃⟨ AA.assoc {a = c} ⟩
-    c + (b - b)
-  ≃⟨ AA.substᴿ {b = c} (AA.inv {a = b}) ⟩
-    c + 0
-  ≃⟨ AA.ident ⟩
-    c
-  ∎
-
 vanish : {x y : ℤ} → x + y - y ≃ x
 vanish {x} {y} =
   begin
     x + y - y
   ≃⟨ AA.assoc {a = x} ⟩
     x + (y - y)
-  ≃⟨ AA.substᴿ {b = x} (AA.inv {a = y}) ⟩
+  ≃⟨ AA.subst₂ {b = x} (ℤ.sub-same≃zero {y}) ⟩
     x + 0
   ≃⟨ AA.ident ⟩
     x
@@ -307,21 +293,21 @@ vanish {x} {y} =
 
 -- Exercise 4.1.3
 _ : {a : ℤ} → - a ≃ -1 * a
-_ = ℤ.neg-mult
+_ = Eq.sym ℤ.neg-mult
 
-sub-distrib : ∀ {a b c} → a - (b + c) ≃ a - b - c
+sub-distrib : {a b c : ℤ} → a - (b + c) ≃ a - b - c
 sub-distrib {a} {b} {c} =
   begin
     a - (b + c)
   ≃⟨⟩
     a + -(b + c)
-  ≃⟨ AA.substᴿ {b = a} ℤ.neg-mult ⟩
+  ≃˘⟨ AA.substᴿ {b = a} ℤ.neg-mult ⟩
     a + -1 * (b + c)
-  ≃⟨ AA.substᴿ {b = a} (AA.distrib {a = -1} {b}) ⟩
+  ≃⟨ AA.substᴿ {b = a} (AA.distrib {_⊕_ = _+_} {a = -1} {b}) ⟩
     a + (-1 * b + -1 * c)
-  ≃˘⟨ AA.substᴿ {b = a} (AA.substᴸ (ℤ.neg-mult {b})) ⟩
+  ≃⟨ AA.substᴿ {b = a} (AA.substᴸ (ℤ.neg-mult {b})) ⟩
     a + (- b + -1 * c)
-  ≃˘⟨ AA.substᴿ {b = a} (AA.substᴿ {b = - b} (ℤ.neg-mult {c})) ⟩
+  ≃⟨ AA.substᴿ {b = a} (AA.substᴿ {b = - b} (ℤ.neg-mult {c})) ⟩
     a + (- b + - c)
   ≃˘⟨ AA.assoc {a = a} ⟩
     a - b - c
@@ -347,70 +333,27 @@ sub-cancelᴿ {a} {b} {c} =
     a - b
   ∎
 
-+-preserves-pos : {a b : ℤ} → Positive a → Positive b → Positive (a + b)
-+-preserves-pos a@{a⁺ — a⁻} b@{b⁺ — b⁻} pos[a] pos[b] =
-  let a⁻<a⁺ = ℤ.pos-elim-proj pos[a]
-      b⁻<b⁺ = ℤ.pos-elim-proj pos[b]
-      a⁻+b⁻<a⁺+b⁺ = ℕ.<-compatible-+ a⁻<a⁺ b⁻<b⁺
-   in ℤ.pos-intro-proj a⁻+b⁻<a⁺+b⁺
-
-*-preserves-pos : {a b : ℤ} → Positive a → Positive b → Positive (a * b)
-*-preserves-pos {a} {b} pos[a] pos[b] =
-    let aᴺ = ℤ.pos-ℕ pos[a]
-        bᴺ = ℤ.pos-ℕ pos[b]
-        pos[aᴺ] = ℤ.pos-ℕ-pos pos[a]
-        pos[bᴺ] = ℤ.pos-ℕ-pos pos[b]
-        aᴺ≃a = ℤ.pos-ℕ-eq pos[a]
-        bᴺ≃b = ℤ.pos-ℕ-eq pos[b]
-        pos[aᴺbᴺ] = AA.pres pos[aᴺ] pos[bᴺ]
-        aᴺbᴺ≃ab =
-          begin
-            (aᴺ * bᴺ as ℤ)
-          ≃⟨ AA.compat₂ {a = aᴺ} ⟩
-            (aᴺ as ℤ) * (bᴺ as ℤ)
-          ≃⟨ AA.substᴸ aᴺ≃a ⟩
-            a * (bᴺ as ℤ)
-          ≃⟨ AA.substᴿ {b = a} bᴺ≃b ⟩
-            a * b
-          ∎
-     in ℤ.pos-intro-ℕ pos[aᴺbᴺ] aᴺbᴺ≃ab
-
 -- (a)
-<→pos : ∀ {x y} → x < y → Positive (y - x)
-<→pos {x} {y} (ℤ.<-intro (ℤ.≤-intro a y≃x+a) x≄y) =
-    ℤ.pos-intro-ℕ (ℕ.Pos-intro-≄0 a≄0) (sym (≃ᴿ-+ᴸ-toᴿ y≃x+a))
-  where
-    a≄0 : a ≄ 0
-    a≄0 a≃0 = x≄y x≃y
-      where
-        x≃y =
-          begin
-            x
-          ≃˘⟨ AA.ident ⟩
-            x + 0
-          ≃˘⟨ AA.substᴿ {b = x} (AA.subst₁ a≃0) ⟩
-            x + (a as ℤ)
-          ≃˘⟨ y≃x+a ⟩
-            y
-          ∎
-
-pos-diff : ∀ {a b} → a < b ↔ Positive (b - a)
-pos-diff = ↔-intro <→pos ℤ.pos→<
+pos-diff : {a b : ℤ} → a < b ↔ Positive (b - a)
+pos-diff = ↔-intro ℤ.pos-from-< ℤ.<-from-pos
 
 -- (b) Addition preserves order
 +-preserves-<ᴿ : ∀ {a b c} → a < b → a + c < b + c
 +-preserves-<ᴿ {a} {b} {c} a<b =
-  ℤ.pos→< (AA.subst₁ (sym (sub-cancelᴿ {b})) (<→pos a<b))
+  ℤ.<-from-pos (AA.subst₁ (Eq.sym (sub-cancelᴿ {b})) (ℤ.pos-from-< a<b))
 
 -- (c) Positive multiplication preserves order
-*⁺-preserves-<ᴿ : ∀ {a b c} → Positive c → a < b → a * c < b * c
-*⁺-preserves-<ᴿ {a} {b} {c} c>0 a<b =
-  let [b-a]c>0 = *-preserves-pos (<→pos a<b) c>0
-   in ℤ.pos→< (AA.subst₁ (ℤ.*-distrib-subᴿ {b}) [b-a]c>0)
+*⁺-preserves-<ᴿ : {a b c : ℤ} → Positive c → a < b → a * c < b * c
+*⁺-preserves-<ᴿ {a} {b} {c} pos[c] a<b =
+  let pos[b-a] = ℤ.pos-from-< a<b
+      pos[[b-a]c] = AA.pres {P = Positive} {_⊙_ = _*_} pos[b-a] pos[c]
+      pos[bc-ac] = AA.subst₁ (AA.distribᴿ {a = c} {b = b} {c = a}) pos[[b-a]c]
+   in ℤ.<-from-pos pos[bc-ac]
 
 -- (d) Negation reverses order
-neg-reverses-< : ∀ {a b} → a < b → - b < - a
-neg-reverses-< {a} {b} a<b = ℤ.pos→< (AA.subst₁ b-a≃-a-[-b] (<→pos a<b))
+neg-reverses-< : {a b : ℤ} → a < b → - b < - a
+neg-reverses-< {a} {b} a<b =
+    ℤ.<-from-pos (AA.subst₁ b-a≃-a-[-b] (ℤ.pos-from-< a<b))
   where
     b-a≃-a-[-b] =
       begin
@@ -422,10 +365,10 @@ neg-reverses-< {a} {b} a<b = ℤ.pos→< (AA.subst₁ b-a≃-a-[-b] (<→pos a<b
       ∎
 
 -- (e) Order is transitive
-<-trans : ∀ {a b c} → a < b → b < c → a < c
+<-trans : {a b c : ℤ} → a < b → b < c → a < c
 <-trans {a} {b} {c} a<b b<c =
-    let 0<b-a+c-b = +-preserves-pos (<→pos a<b) (<→pos b<c)
-     in ℤ.pos→< (AA.subst₁ b-a+c-b≃c-a 0<b-a+c-b)
+    let 0<b-a+c-b = AA.pres (ℤ.pos-from-< a<b) (ℤ.pos-from-< b<c)
+     in ℤ.<-from-pos (AA.subst₁ b-a+c-b≃c-a 0<b-a+c-b)
   where
     b-a+c-b≃c-a =
       begin
@@ -458,28 +401,28 @@ no-ind ind = ¬allP (ind P Pz Ps)
     P x = 0 ≤ x
 
     Pz : P 0
-    Pz = ℤ.≤-intro 0 ≃-derive
+    Pz = ℤ.≤₀-intro {d = 0} ≃-derive
 
     Ps : ∀ {b} → P b → P (step b)
-    Ps {b} (ℤ.≤-intro n (≃ᶻ-intro b⁺+0≃n+b⁻)) =
-        ℤ.≤-intro (ℕ.step n) (≃ᶻ-intro sb⁺+0≃sn+sb⁻)
-      where
-        sb⁺+0≃sn+sb⁻ =
-          begin
-            ℤ.ℤ.pos (step b) + 0
-          ≃⟨ AA.substᴸ (ℤ⁺s≃sℤ⁺ {b}) ⟩
-            ℕ.step (ℤ.ℤ.pos b) + 0
-          ≃⟨⟩
-            ℕ.step (ℤ.ℤ.pos b + 0)
-          ≃⟨ AA.subst₁ b⁺+0≃n+b⁻ ⟩
-            ℕ.step (n + ℤ.ℤ.neg b)
-          ≃⟨ AA.fnOpComm {a = n} ⟩
-            ℕ.step n + ℤ.ℤ.neg b
-          ≃˘⟨ AA.subst₂ (ℤ⁻s≃ℤ⁻ {b}) ⟩
-            ℕ.step n + ℤ.ℤ.neg (step b)
-          ∎
+    Ps {b} (ℤ.≤₀-intro {d = n} 0+n≃b@(ℤ.≃₀-intro b⁺+0≃n+b⁻)) =
+      let 0+sn≃sb =
+            begin
+              0 + (ℕ.step n as ℤ)
+            ≃⟨⟩
+              ℕ.step n — 0
+            ≃⟨ AA.subst₂ ℕ.sn≃n+1 ⟩
+              (n + 1) — 0
+            ≃⟨ AA.compat₂ {a = n} ⟩
+              (n — 0) + (1 — 0)
+            ≃⟨ AA.subst₂ {b = 1 — 0} 0+n≃b ⟩
+              b + 1
+            ≃⟨⟩
+              step b
+            ∎
+       in ℤ.≤₀-intro {d = ℕ.step n} 0+sn≃sb
 
     ¬allP : ¬ (∀ a → P a)
-    ¬allP 0≰a =
-      let ℤ.≤-intro n (≃ᶻ-intro 0≃n+1) = 0≰a -1
-       in ℕ.step≄zero (trans ℕ.sn≃n+1 (sym 0≃n+1))
+    ¬allP 0≤a =
+      let ℤ.≤₀-intro {n} (ℤ.≃₀-intro n+1≃0) = 0≤a -1
+          sn≃0 = Eq.trans ℕ.sn≃n+1 n+1≃0
+       in contra sn≃0 ℕ.step≄zero

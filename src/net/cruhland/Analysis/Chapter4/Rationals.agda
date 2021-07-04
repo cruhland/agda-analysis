@@ -1,39 +1,29 @@
 module net.cruhland.Analysis.Chapter4.Rationals where
 
-open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
+open import Relation.Nullary.Decidable using (False)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_; _value_)
-open import net.cruhland.axioms.DecEq using
-  (_≃?_; ≃-derive; ≄-derive; ≄ⁱ-derive)
-open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; _≄ⁱ_; ≄ⁱ-elim; Eq; ≄ⁱ-intro; refl; sym; module ≃-Reasoning)
-open ≃-Reasoning
+open import net.cruhland.axioms.DecEq
+  using (_≃?_; ≃-derive; ≄-derive; ≄ⁱ-derive)
+open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; _≄ⁱ_; Eq)
+open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.axioms.Sign
-  using (Negative; Negativity; Positive; Positivity; pos≄0)
-open import net.cruhland.models.Function using (_∘_; _⟨→⟩_)
+open import net.cruhland.axioms.Sign using (Negative; Positive; pos≄0)
+open import net.cruhland.models.Function using (_∘_)
 open import net.cruhland.models.Literals
-open import net.cruhland.models.Logic using (_↔_; ↔-intro; ↔-elimᴸ)
+open import net.cruhland.models.Logic using (_↔_; ↔-intro)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
-module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
+private module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
 open ℕ using (ℕ)
-import net.cruhland.models.Integers peanoArithmetic as ℤ
-open ℤ using (ℤ)
-import net.cruhland.models.Rationals peanoArithmetic as ℚ hiding (from-Nat)
+open import net.cruhland.models.Integers.NatPairDefn peanoArithmetic
+  using (integers)
+open import net.cruhland.models.Integers.NatPairImpl peanoArithmetic as ℤ
+  using (ℤ)
+import net.cruhland.models.Rationals peanoArithmetic integers as ℚ
+  hiding (from-Nat)
 open ℚ using (_//1; _//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
-
-instance
-  -- todo: get rid of these instances
-  ℤ-positivity : Positivity 0
-  ℤ-positivity = ℤ.positivity
-
-  ℤ-pos-subst : AA.Substitutive₁ Positive _≃_ _⟨→⟩_
-  ℤ-pos-subst = Positivity.substitutive ℤ-positivity
-
-  ℤ-negativity : Negativity 0
-  ℤ-negativity = ℤ.negativity
 
 {- 4.2 The rationals -}
 
@@ -107,13 +97,13 @@ _ = AA.subst₁ {{r = ℚ.neg-substitutive₁}}
 -- We note that the rational numbers a//1 behave in a manner identical
 -- to the integers a:
 compat-+ : ∀ {a b} → (a //1) + (b //1) ≃ (a + b) //1
-compat-+ {a} = sym (AA.compat₂ {{r = ℚ.+-compatible-ℤ}} {a})
+compat-+ {a} = Eq.sym (AA.compat₂ {{r = ℚ.+-compatible-ℤ}} {a})
 
 compat-* : ∀ {a b} → (a //1) * (b //1) ≃ (a * b) //1
-compat-* {a} = sym (AA.compat₂ {{r = ℚ.*-compatible-ℤ}} {a})
+compat-* {a} = Eq.sym (AA.compat₂ {{r = ℚ.*-compatible-ℤ}} {a})
 
 _ : ∀ {a} → - (a //1) ≃ (- a) //1
-_ = sym (AA.compat₁ {{r = ℚ.neg-compatible-ℤ}})
+_ = Eq.sym (AA.compat₁ {{r = ℚ.neg-compatible-ℤ}})
 
 -- Also, a//1 and b//1 are only equal when a and b are equal.
 _ : ∀ {a b} → a //1 ≃ b //1 ↔ a ≃ b
@@ -127,7 +117,7 @@ _ = ↔-intro
 -- rationals. Thus just as we embedded the natural numbers inside the
 -- integers, we embed the integers inside the rational numbers.
 _ : ∀ {a} → (a as ℚ) ≃ a // 1     -- uses ℚ.from-ℤ for (a as ℚ)
-_ = ℚ.≃₀-intro refl
+_ = ℚ.≃₀-intro Eq.refl
 
 -- In particular, all natural numbers are rational numbers, for
 -- instance 0 is equal to 0//1 and 1 is equal to 1//1.
@@ -198,10 +188,10 @@ _ = AA.ident {{r = ℚ.*-identityᴸ}}
 *-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x * x ⁻¹′ ≃ 1
-_ = AA.inv {{r = ℚ.recip′-inverseᴿ}}
+_ = AA.inv {f = _⁻¹′}
 
 _ : ∀ {x} {{_ : x ≄ⁱ 0}} → x ⁻¹′ * x ≃ 1
-_ = AA.inv {{r = ℚ.recip′-inverseᴸ}}
+_ = AA.inv {f = _⁻¹′}
 
 -- We can now define the _quotient_ x/y of two rational numbers x and
 -- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
@@ -214,9 +204,11 @@ _ = let instance _ = ≄ⁱ-derive in
     (3 // 4) /′ (5 // 6)
   ≃⟨⟩
     (3 // 4) * (6 // 5)
+  ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
+    (3 * 6) // (4 * 5)
   ≃⟨⟩
     18 // 20
-  ≃⟨ ℚ.≃₀-intro refl ⟩
+  ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
     9 // 10
   ∎
 
@@ -225,7 +217,7 @@ _ = let instance _ = ≄ⁱ-derive in
 -- // notation, and use the more customary a/b instead of a//b.
 //-redundant :
   {a b : ℤ} {{_ : b ≄ⁱ 0}} {{_ : (b as ℚ) ≄ⁱ 0}} →
-  (a as ℚ) /′ (b as ℚ) ≃ a // b ~ ≄ⁱ-elim
+  (a as ℚ) /′ (b as ℚ) ≃ a // b ~ Eq.≄ⁱ-elim
 //-redundant {a} = ℚ.≃₀-intro (AA.assoc {a = a})
 
 -- In a similar spirit, we define subtraction on the rationals by the
@@ -245,29 +237,29 @@ _ = ℚ.Negative
 
 alt-negative :
   {a b : ℤ} → Positive a → (b⁺ : Positive b) →
-    let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst₁ (pos≄0 b⁺))
+    let instance b≄ⁱ0 = Eq.≄ⁱ-intro (AA.subst₁ (pos≄0 b⁺))
      in ℚ.Negative ((- a as ℚ) /′ (b as ℚ))
 alt-negative {a} {b} a⁺ b⁺ =
-  let instance b≄ⁱ0 = ≄ⁱ-intro (AA.subst₁ (pos≄0 b⁺))
+  let instance b≄ⁱ0 = Eq.≄ⁱ-intro (AA.subst₁ (pos≄0 b⁺))
       p = (a as ℚ) /′ (b as ℚ)
-      p-pos = record
-        { n-pos = AA.subst₁ (sym AA.ident) a⁺
-        ; d-pos = AA.subst₁ (sym AA.ident) b⁺ }
+      pos[p] = record
+        { n-pos = AA.subst₁ (Eq.sym AA.ident) a⁺
+        ; d-pos = AA.subst₁ (Eq.sym AA.ident) b⁺ }
       [-a]/b≃-p =
         begin
           (- a as ℚ) /′ (b as ℚ)
         ≃⟨⟩
           (- a as ℚ) * (b as ℚ) ⁻¹′
-        ≃⟨ AA.substᴸ {b = (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
+        ≃⟨ AA.subst₂ {b = (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
           (- (a as ℚ)) * (b as ℚ) ⁻¹′
-        ≃˘⟨ AA.fnOpComm {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
+        ≃˘⟨ AA.fnOpComm {AA.handᴸ} {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
           - ((a as ℚ) * (b as ℚ) ⁻¹′)
         ≃⟨⟩
           - ((a as ℚ) /′ (b as ℚ))
         ≃⟨⟩
           - p
         ∎
-   in record { p = p ; p-pos = p-pos ; q≃-p = [-a]/b≃-p }
+   in record { p = p ; p-pos = pos[p] ; q≃-p = [-a]/b≃-p }
 
 -- Thus for instance, every positive integer is a positive rational
 -- number, and every negative integer is a negative rational number,
@@ -279,5 +271,5 @@ alt-negative {a} {b} a⁺ b⁺ =
 ℚ⁻-compat-ℤ⁻ {a} a⁻ = record
   { p = - (a as ℚ)
   ; p-pos = record { n-pos = ℤ.neg-Negative a⁻ ; d-pos = ℤ.1-Positive }
-  ; q≃-p = refl
+  ; q≃-p = Eq.refl
   }

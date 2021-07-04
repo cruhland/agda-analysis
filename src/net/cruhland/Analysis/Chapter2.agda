@@ -284,7 +284,7 @@ module _ (PA : PeanoArithmetic) where
 
   -- (d) (Addition preserves order)
   _ : {a b c : ℕ} → a ≤ b ↔ a + c ≤ b + c
-  _ = ↔-intro AA.subst₂ AA.isCancel
+  _ = ↔-intro AA.subst₂ AA.cancel
 
   -- (e)
   a<b↔sa≤b : ∀ {a b} → a < b ↔ step a ≤ b
