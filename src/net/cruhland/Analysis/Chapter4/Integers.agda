@@ -69,17 +69,17 @@ _ = ≃-derive
 
 -- Lemma 4.1.3 (Addition and multiplication are well-defined).
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
-_ = AA.subst₂ {{r = AA.Substitutive².substitutiveᴸ ℤ.+-substitutive}}
+_ = AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴸ ℤ.+-substitutive}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a + b₁ ≃ a + b₂
-_ = AA.subst₂ {{r = AA.Substitutive².substitutiveᴿ ℤ.+-substitutive}}
+_ = AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴿ ℤ.+-substitutive}}
 
 _ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → b₁ * a ≃ b₂ * a
-_ = AA.subst₂ {{r = AA.Substitutive².substitutiveᴸ ℤ.*-substitutive}}
+_ = AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴸ ℤ.*-substitutive}}
 
 *-substᴿ : {a b₁ b₂ : ℤ} → b₁ ≃ b₂ → a * b₁ ≃ a * b₂
 *-substᴿ {a} =
-  AA.subst₂ {{r = AA.Substitutive².substitutiveᴿ ℤ.*-substitutive}} {b = a}
+  AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴿ ℤ.*-substitutive}} {b = a}
 
 -- The integers n—0 behave in the same way as the natural numbers n;
 -- indeed one can check that (n—0) + (m—0) = (n + m)—0 and
@@ -321,11 +321,11 @@ sub-cancelᴿ {a} {b} {c} =
     a + c - b - c
   ≃⟨⟩
     ((a + c) + - b) + - c
-  ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = _+_} (AA.assoc {a = a}) ⟩
+  ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.assoc {a = a}) ⟩
     (a + (c + - b)) + - c
-  ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = _+_} (AA.substᴿ {b = a} (AA.comm {a = c})) ⟩
+  ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.substᴿ {b = a} (AA.comm {a = c})) ⟩
     (a + (- b + c)) + - c
-  ≃˘⟨ AA.substᴸ {A = ℤ} {_⊙_ = _+_} (AA.assoc {a = a}) ⟩
+  ≃˘⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.assoc {a = a}) ⟩
     ((a + - b) + c) + - c
   ≃⟨⟩
     a - b + c - c
@@ -377,13 +377,14 @@ neg-reverses-< {a} {b} a<b =
         b + (- a + (c - b))
       ≃⟨ AA.substᴿ {b = b} (AA.comm {a = - a}) ⟩
         b + (c - b - a)
-      ≃⟨ AA.substᴿ {b = b} (AA.substᴸ {A = ℤ} {_⊙_ = _+_} (AA.comm {a = c})) ⟩
+      ≃⟨ AA.substᴿ
+           {b = b} (AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.comm {a = c})) ⟩
         b + (- b + c - a)
       ≃⟨ AA.substᴿ {b = b} (AA.assoc {a = - b}) ⟩
         b + (- b + (c - a))
       ≃˘⟨ AA.assoc {a = b} ⟩
         b - b + (c - a)
-      ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = _+_} (AA.inv {a = b}) ⟩
+      ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.inv {a = b}) ⟩
         0 + (c - a)
       ≃⟨ AA.ident ⟩
         c - a
