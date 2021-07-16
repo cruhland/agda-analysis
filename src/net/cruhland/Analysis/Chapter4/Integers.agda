@@ -255,7 +255,7 @@ _ = AA.zero-prod {{r = ℤ.zero-product}}
 _ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
 _ = λ c≄0 →
       let instance c≄ⁱ0 = Eq.≄ⁱ-intro c≄0
-       in AA.cancel {{r = AA.Cancellative².cancellativeᴿ ℤ.*-cancellative}}
+       in AA.cancel {{r = AA.Cancellative²ᶜ.cancellativeᴿ ℤ.*-cancellative}}
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be
 -- integers. We say that n is _greater than or equal to_ m, and write
