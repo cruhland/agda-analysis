@@ -321,11 +321,12 @@ sub-cancelᴿ {a} {b} {c} =
     a + c - b - c
   ≃⟨⟩
     ((a + c) + - b) + - c
-  ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.assoc {a = a}) ⟩
+  ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc₂ _+_} (AA.assoc {a = a}) ⟩
     (a + (c + - b)) + - c
-  ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.substᴿ {b = a} (AA.comm {a = c})) ⟩
+  ≃⟨ AA.substᴸ
+       {A = ℤ} {_⊙_ = AA.tc₂ _+_} (AA.substᴿ {b = a} (AA.comm {a = c})) ⟩
     (a + (- b + c)) + - c
-  ≃˘⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.assoc {a = a}) ⟩
+  ≃˘⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc₂ _+_} (AA.assoc {a = a}) ⟩
     ((a + - b) + c) + - c
   ≃⟨⟩
     a - b + c - c
@@ -378,13 +379,13 @@ neg-reverses-< {a} {b} a<b =
       ≃⟨ AA.substᴿ {b = b} (AA.comm {a = - a}) ⟩
         b + (c - b - a)
       ≃⟨ AA.substᴿ
-           {b = b} (AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.comm {a = c})) ⟩
+           {b = b} (AA.substᴸ {A = ℤ} {_⊙_ = AA.tc₂ _+_} (AA.comm {a = c})) ⟩
         b + (- b + c - a)
       ≃⟨ AA.substᴿ {b = b} (AA.assoc {a = - b}) ⟩
         b + (- b + (c - a))
       ≃˘⟨ AA.assoc {a = b} ⟩
         b - b + (c - a)
-      ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc _+_} (AA.inv {a = b}) ⟩
+      ≃⟨ AA.substᴸ {A = ℤ} {_⊙_ = AA.tc₂ _+_} (AA.inv {a = b}) ⟩
         0 + (c - a)
       ≃⟨ AA.ident ⟩
         c - a
