@@ -1,5 +1,3 @@
-module net.cruhland.Analysis.Chapter4.Integers where
-
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_)
 open import net.cruhland.axioms.DecEq using (DecEq_~_; ≃-derive; ≄-derive)
@@ -11,8 +9,11 @@ open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sign using (Negative; Positive)
 open import net.cruhland.models.Function using (_∘_)
 open import net.cruhland.models.Literals as Literals
-open import net.cruhland.models.Logic using (_∨_; _↔_; ↔-intro; ¬_; contra)
+open import net.cruhland.models.Logic
+  using (_∨_; _↔_; ↔-intro; ¬_; ¬-intro; _↯_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
+
+module net.cruhland.Analysis.Chapter4.Integers where
 
 private module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
 open ℕ using (ℕ)
@@ -252,10 +253,8 @@ _ = AA.zero-prod {{r = ℤ.zero-product}}
 -- Corollary 4.1.9 (Cancellation law for integers). If a, b, c are
 -- integers such that ac = bc and c is non-zero, then a = b.
 -- Exercise 4.1.6
-_ : {a b c : ℤ} → c ≄ 0 → a * c ≃ b * c → a ≃ b
-_ = λ c≄0 →
-      let instance c≄ⁱ0 = Eq.≄ⁱ-intro c≄0
-       in AA.cancel {{r = AA.Cancellative²ᶜ.cancellativeᴿ ℤ.*-cancellative}}
+_ : {a b c : ℤ} {{_ : c ≄ 0}} → a * c ≃ b * c → a ≃ b
+_ = AA.cancel {{r = AA.Cancellative²ᶜ.cancellativeᴿ ℤ.*-cancellative}}
 
 -- Definition 4.1.10 (Ordering of the integers). Let n and m be
 -- integers. We say that n is _greater than or equal to_ m, and write
@@ -275,7 +274,7 @@ _ : Literals.FromNegLiteral ℤ
 _ = ℤ.neg-literal
 
 _ : 5 > -3
-_ = ℤ.<₀-intro (ℤ.≤₀-intro {d = 8} ≃-derive) λ ()
+_ = ℤ.<₀-intro (ℤ.≤₀-intro {d = 8} ≃-derive) ≄-derive
 
 -- Lemma 4.1.11 (Properties of order).
 -- Exercise 4.1.7
@@ -397,7 +396,7 @@ _ = ℤ.order-trichotomy
 
 -- Exercise 4.1.8
 no-ind : ¬ ((P : ℤ → Set) → P 0 → (∀ {b} → P b → P (step b)) → ∀ a → P a)
-no-ind ind = ¬allP (ind P Pz Ps)
+no-ind = ¬-intro λ ind → ind P Pz Ps ↯ ¬allP
   where
     P : ℤ → Set
     P x = 0 ≤ x
@@ -424,7 +423,7 @@ no-ind ind = ¬allP (ind P Pz Ps)
        in ℤ.≤₀-intro {d = ℕ.step n} 0+sn≃sb
 
     ¬allP : ¬ (∀ a → P a)
-    ¬allP 0≤a =
+    ¬allP = ¬-intro λ 0≤a →
       let ℤ.≤₀-intro {n} (ℤ.≃₀-intro n+1≃0) = 0≤a -1
           sn≃0 = Eq.trans ℕ.sn≃n+1 n+1≃0
-       in contra sn≃0 ℕ.step≄zero
+       in sn≃0 ↯ ℕ.step≄zero

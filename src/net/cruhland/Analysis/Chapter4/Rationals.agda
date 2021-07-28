@@ -1,19 +1,18 @@
-module net.cruhland.Analysis.Chapter4.Rationals where
-
-open import Relation.Nullary.Decidable using (False)
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Cast using (_as_; _value_)
-open import net.cruhland.axioms.DecEq
-  using (_≃?_; ≃-derive; ≄-derive; ≄ⁱ-derive)
-open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; _≄ⁱ_; Eq)
+open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
+open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sign using (Negative; Positive; pos≄0)
-open import net.cruhland.models.Function using (_∘_)
+open import net.cruhland.models.Function using (_∘_; it)
 open import net.cruhland.models.Literals
-open import net.cruhland.models.Logic using (_↔_; ↔-intro)
+open import net.cruhland.models.Logic
+  using (_↔_; ↔-intro; False; contrapositive; _↯_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
+
+module net.cruhland.Analysis.Chapter4.Rationals where
 
 private module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
 open ℕ using (ℕ)
@@ -134,7 +133,7 @@ _ = ↔-intro ℚ.q↑≃0 ℚ.q≃0
 
 --  Thus if a and b are non-zero then so is a//b.
 _ : {a b : ℤ} → a ≄ 0 → {b≄0 : b ≄ 0} → a // b ~ b≄0 ≄ 0
-_ = _∘ ℚ.q↑≃0
+_ = λ a≄0 → contrapositive ℚ.q↑≃0 a≄0
 
 -- We now define a new operation on the rationals: reciprocal.
 -- If x = a//b is a non-zero rational (so that a,b ≠ 0) then we
@@ -187,22 +186,22 @@ _ = AA.ident {{r = ℚ.*-identityᴸ}}
 *-distrib-+ᴿ : {x y z : ℚ} → (y + z) * x ≃ y * x + z * x
 *-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
 
-_ : ∀ {x} {{_ : x ≄ⁱ 0}} → x * x ⁻¹′ ≃ 1
+_ : ∀ {x} {{_ : x ≄ 0}} → x * x ⁻¹′ ≃ 1
 _ = AA.inv {f = _⁻¹′}
 
-_ : ∀ {x} {{_ : x ≄ⁱ 0}} → x ⁻¹′ * x ≃ 1
+_ : ∀ {x} {{_ : x ≄ 0}} → x ⁻¹′ * x ≃ 1
 _ = AA.inv {f = _⁻¹′}
 
 -- We can now define the _quotient_ x/y of two rational numbers x and
 -- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
-_ : (x y : ℚ) {{_ : y ≄ⁱ 0}} → ℚ
+_ : (x y : ℚ) {{_ : y ≄ 0}} → ℚ
 _ = _/′_
 
 -- Thus, for instance:
-_ = let instance _ = ≄ⁱ-derive in
+_ = let instance _ = ≄-derive in
   begin
     (3 // 4) /′ (5 // 6)
-  ≃⟨⟩
+  ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
     (3 // 4) * (6 // 5)
   ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
     (3 * 6) // (4 * 5)
@@ -216,8 +215,8 @@ _ = let instance _ = ≄ⁱ-derive in
 -- integer a and every non-zero integer b. Thus we can now discard the
 -- // notation, and use the more customary a/b instead of a//b.
 //-redundant :
-  {a b : ℤ} {{_ : b ≄ⁱ 0}} {{_ : (b as ℚ) ≄ⁱ 0}} →
-  (a as ℚ) /′ (b as ℚ) ≃ a // b ~ Eq.≄ⁱ-elim
+  {a b : ℤ} {{_ : b ≄ 0}} {{_ : (b as ℚ) ≄ 0}} →
+  (a as ℚ) /′ (b as ℚ) ≃ a // b ~ it
 //-redundant {a} = ℚ.≃₀-intro (AA.assoc {a = a})
 
 -- In a similar spirit, we define subtraction on the rationals by the
@@ -236,15 +235,17 @@ _ : ℚ → Set
 _ = ℚ.Negative
 
 alt-negative :
-  {a b : ℤ} → Positive a → (b⁺ : Positive b) →
-    let instance b≄ⁱ0 = Eq.≄ⁱ-intro (AA.subst₁ (pos≄0 b⁺))
+  {a b : ℤ} → Positive a → (pos[b] : Positive b) →
+    let b≄0 = pos≄0 pos[b]
+        instance b:ℚ≄0:ℚ = AA.subst₁ b≄0
      in ℚ.Negative ((- a as ℚ) /′ (b as ℚ))
-alt-negative {a} {b} a⁺ b⁺ =
-  let instance b≄ⁱ0 = Eq.≄ⁱ-intro (AA.subst₁ (pos≄0 b⁺))
+alt-negative {a} {b} pos[a] pos[b] =
+  let b≄0 = pos≄0 pos[b]
+      instance b:ℚ≄0:ℚ = AA.subst₁ b≄0
       p = (a as ℚ) /′ (b as ℚ)
       pos[p] = record
-        { n-pos = AA.subst₁ (Eq.sym AA.ident) a⁺
-        ; d-pos = AA.subst₁ (Eq.sym AA.ident) b⁺ }
+        { n-pos = AA.subst₁ (Eq.sym AA.ident) pos[a]
+        ; d-pos = AA.subst₁ (Eq.sym AA.ident) pos[b] }
       [-a]/b≃-p =
         begin
           (- a as ℚ) /′ (b as ℚ)

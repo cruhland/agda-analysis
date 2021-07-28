@@ -1,29 +1,21 @@
-open import Data.List using ([]; _∷_; _++_; List)
-open import Level using (_⊔_; Level; 0ℓ) renaming (suc to sℓ)
-open import Relation.Binary using (DecSetoid)
+open import Data.List using ([]; _∷_; List)
+open import Level using (_⊔_; Level) renaming (suc to sℓ)
 import Relation.Binary.PropositionalEquality as ≡
-open import Relation.Nullary.Decidable using (toWitness; toWitnessFalse)
 open import net.cruhland.axioms.DecEq using (_≃?_; DecEq_~_)
-open import net.cruhland.axioms.Eq using
-  (_≃_; _≄_; refl; sym; trans; module ≃-Reasoning)
-open ≃-Reasoning
+open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open import net.cruhland.axioms.Ordering using (_<_; LessThan)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
-open import net.cruhland.models.Function using (_∘_; const; id)
-import net.cruhland.models.Literals
-open import net.cruhland.models.Logic using
-  ( _∧_; ∧-dup; ∧-intro; uncurry
-  ; _∨_; ∨-comm; ∨-forceᴸ; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
-  ; _↔_; ↔-elimᴸ; ↔-elimᴿ; ↔-intro
-  ; ⊤; ⊥; ⊥-elim; ⊤-intro
-  ; Dec; dec-map; no; yes
-  )
+open import net.cruhland.models.Function using (_∘_; const)
+open import net.cruhland.models.Logic
+  using ( _∧_; ∧-intro; uncurry; _↔_; ↔-intro
+        ; _∨_; ∨-comm; ∨-forceᴸ; ∨-introᴸ; ∨-introᴿ; ∨-merge; ∨-rec
+        ; ⊤; ⊥; ⊥-elim; ⊤-intro; contrapositive; ¬-intro; _↯_
+        ; Dec; no; toWitness; toWitnessFalse; yes)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
-open import net.cruhland.models.Setoid using
-  ( DecSetoid₀; El; equivalence-id; Π
-  ; Setoid; Setoid₀; SPred₀; SPred-const; SRel₀
-  )
+open import net.cruhland.models.Setoid
+  using ( DecSetoid₀; El; equivalence-id
+        ; Setoid; Setoid₀; SPred₀; SPred-const; SRel₀)
 
 module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open module PA = PeanoArithmetic peanoArithmetic using (ℕ; _<?_; step)
@@ -67,7 +59,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
 
   instance
     ℕ-DecSetoid : DecSetoid₀
-    ℕ-DecSetoid = ≡.decSetoid {A = ℕ} (λ x y → x ≃? y)
+    ℕ-DecSetoid = record { Carrier = ℕ }
 
   open module ℕSub = ST.Subsetᴸ {DS = ℕ-DecSetoid} using (_⊆?_)
 
@@ -168,13 +160,13 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- One can easily verify that this notion of equality is reflexive,
   -- symmetric, and transitive.
   _ : A ≃ A
-  _ = refl
+  _ = Eq.refl
 
   _ : A ≃ B → B ≃ A
-  _ = sym
+  _ = Eq.sym
 
   _ : A ≃ B → B ≃ C → A ≃ C
-  _ = trans
+  _ = Eq.trans
 
   -- The "is an element of" relation _∈_ obeys the axiom of
   -- substitution.
@@ -262,10 +254,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   -- Examples 3.1.9
   -- Exercise 3.1.2
   sa≄∅ : {S : Setoid σ₁ σ₂} (a : El S) → singleton {S = S} a ≄ ∅
-  sa≄∅ a sa≃∅ = x∉∅ (≃-elimᴸ sa≃∅ a∈sa)
+  sa≄∅ a = Eq.≄-intro λ sa≃∅ → let a∈∅ = ≃-elimᴸ sa≃∅ a∈sa in a∈∅ ↯ x∉∅
 
   pab≄∅ : {S : Setoid σ₁ σ₂} (a b : El S) → pair {S = S} a b ≄ ∅
-  pab≄∅ a b pab≃∅ = x∉∅ (≃-elimᴸ pab≃∅ a∈pab)
+  pab≄∅ a b = Eq.≄-intro λ pab≃∅ → let a∈∅ = ≃-elimᴸ pab≃∅ a∈pab in a∈∅ ↯ x∉∅
 
   s∅≄∅ : singleton {S = PSet-Setoid S} ∅ ≄ ∅
   s∅≄∅ = sa≄∅ ∅
@@ -277,21 +269,23 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   p∅s∅≄∅ = pab≄∅ ∅ (singleton ∅)
 
   s∅∉s∅ : singleton ∅ ∉ singleton {S = PSet-Setoid (PSet-Setoid S)} ∅
-  s∅∉s∅ s∅∈s∅ = s∅≄∅ (sym (x∈sa-elim s∅∈s∅))
+  s∅∉s∅ = contrapositive (Eq.sym ∘ x∈sa-elim) s∅≄∅
 
   ss∅≄s∅ :
     singleton {S = PSet-Setoid (PSet-Setoid S)} (singleton ∅) ≄ singleton ∅
-  ss∅≄s∅ ss∅≃s∅ = s∅∉s∅ (≃-elimᴸ ss∅≃s∅ (x∈sa-intro refl))
+  ss∅≄s∅ = Eq.≄-intro λ ss∅≃s∅ →
+    let s∅∈s∅ = ≃-elimᴸ ss∅≃s∅ (x∈sa-intro Eq.refl) in s∅∈s∅ ↯ s∅∉s∅
 
   p∅s∅≄s∅ : pair {S = PSet-Setoid (PSet-Setoid S)} ∅ (singleton ∅) ≄ singleton ∅
-  p∅s∅≄s∅ p∅s∅≃s∅ = s∅∉s∅ (≃-elimᴸ p∅s∅≃s∅ (x∈pab-introᴿ refl))
+  p∅s∅≄s∅ = Eq.≄-intro λ p∅s∅≃s∅ →
+    let s∅∈s∅ = ≃-elimᴸ p∅s∅≃s∅ (x∈pab-introᴿ Eq.refl) in s∅∈s∅ ↯ s∅∉s∅
 
   p∅s∅≄ss∅ :
     let S″ = PSet-Setoid (PSet-Setoid S)
      in pair {S = S″} ∅ (singleton ∅) ≄ singleton (singleton ∅)
-  p∅s∅≄ss∅ p∅s∅≃ss∅ =
-    let ∅∈ss∅ = ≃-elimᴸ p∅s∅≃ss∅ (x∈pab-introᴸ refl)
-     in s∅≄∅ (x∈sa-elim ∅∈ss∅)
+  p∅s∅≄ss∅ = Eq.≄-intro λ p∅s∅≃ss∅ →
+    let s∅≃∅ = x∈sa-elim (≃-elimᴸ p∅s∅≃ss∅ (x∈pab-introᴸ Eq.refl))
+     in s∅≃∅ ↯ s∅≄∅
 
   -- Axiom 3.5 (Pairwise union). Given any two sets A, B, there exists
   -- a set A ∪ B, called the _union_ A ∪ B of A and B, which consists
@@ -645,12 +639,13 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     A∪[X∖A]≃X = ⊆-antisym A∪[X∖A]⊆X X⊆A∪[X∖A]
 
     _ : A ∩ (X ∖ A) ≃ ∅
-    _ = ⊆-antisym (⊆-intro forward) (⊆-intro (⊥-elim ∘ x∉∅))
+    _ = ⊆-antisym (⊆-intro forward) (⊆-intro (_↯ x∉∅))
       where
         forward : ∀ {x} → x ∈ A ∩ (X ∖ A) → x ∈ ∅
         forward x∈A∩[X∖A] =
           let ∧-intro x∈A x∈X∖A = x∈A∩B-elim x∈A∩[X∖A]
-           in ⊥-elim (x∈A∖B-elimᴿ x∈X∖A x∈A)
+              x∉A = x∈A∖B-elimᴿ x∈X∖A
+           in x∈A ↯ x∉A
 
     -- (h) (De Morgan laws)
     X∖[A∪B]⊆[X∖A]∩[X∖B] : X ∖ (A ∪ B) ⊆ X ∖ A ∩ X ∖ B
@@ -659,8 +654,10 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         forward : ∀ {x} → x ∈ X ∖ (A ∪ B) → x ∈ X ∖ A ∩ X ∖ B
         forward x∈X∖[A∪B] =
           let ∧-intro x∈X x∉A∪B = x∈A∖B-elim x∈X∖[A∪B]
-              x∈X∖A = x∈A∖B-intro₂ x∈X (x∉A∪B ∘ x∈A∪B-introᴸ)
-              x∈X∖B = x∈A∖B-intro₂ x∈X (x∉A∪B ∘ x∈A∪B-introᴿ)
+              x∉A = contrapositive x∈A∪B-introᴸ x∉A∪B
+              x∉B = contrapositive x∈A∪B-introᴿ x∉A∪B
+              x∈X∖A = x∈A∖B-intro₂ x∈X x∉A
+              x∈X∖B = x∈A∖B-intro₂ x∈X x∉B
            in x∈A∩B-intro₂ x∈X∖A x∈X∖B
 
     [X∖A]∩[X∖B]⊆X∖[A∪B] : X ∖ A ∩ X ∖ B ⊆ X ∖ (A ∪ B)
@@ -671,7 +668,9 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
           let ∧-intro x∈X∖A x∈X∖B = x∈A∩B-elim x∈[X∖A]∩[X∖B]
               ∧-intro x∈X x∉A = x∈A∖B-elim x∈X∖A
               x∉B = x∈A∖B-elimᴿ x∈X∖B
-           in x∈A∖B-intro₂ x∈X (∨-rec x∉A x∉B ∘ x∈A∪B-elim)
+              x∉A∪B = ¬-intro λ x∈A∪B →
+                ∨-rec (_↯ x∉A) (_↯ x∉B) (x∈A∪B-elim x∈A∪B)
+           in x∈A∖B-intro₂ x∈X x∉A∪B
 
     X∖[A∪B]≃[X∖A]∩[X∖B] : X ∖ (A ∪ B) ≃ X ∖ A ∩ X ∖ B
     X∖[A∪B]≃[X∖A]∩[X∖B] = ⊆-antisym X∖[A∪B]⊆[X∖A]∩[X∖B] [X∖A]∩[X∖B]⊆X∖[A∪B]
@@ -685,7 +684,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         forward {x} x∈X∖[A∩B] with x ∈? A | x ∈? B
         ... | yes x∈A | yes x∈B =
           let ∧-intro x∈X x∉A∩B = x∈A∖B-elim x∈X∖[A∩B]
-           in ⊥-elim (x∉A∩B (x∈A∩B-intro₂ x∈A x∈B))
+              x∈A∩B = x∈A∩B-intro₂ x∈A x∈B
+           in x∈A∩B ↯ x∉A∩B
         ... | yes x∈A | no x∉B =
           x∈A∪B-introᴿ (x∈A∖B-intro₂ (x∈A∖B-elimᴸ x∈X∖[A∩B]) x∉B)
         ... | no x∉A | _ =
@@ -698,10 +698,12 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         backward {x} x∈[X∖A]∪[X∖B] with x∈A∪B-elim x∈[X∖A]∪[X∖B]
         ... | ∨-introᴸ x∈X∖A =
           let ∧-intro x∈X x∉A = x∈A∖B-elim x∈X∖A
-           in x∈A∖B-intro₂ x∈X (x∉A ∘ x∈A∩B-elimᴸ)
+              x∉A∩B = contrapositive x∈A∩B-elimᴸ x∉A
+           in x∈A∖B-intro₂ x∈X x∉A∩B
         ... | ∨-introᴿ x∈X∖B =
           let ∧-intro x∈X x∉B = x∈A∖B-elim x∈X∖B
-           in x∈A∖B-intro₂ x∈X (x∉B ∘ x∈A∩B-elimᴿ)
+              x∉A∩B = contrapositive x∈A∩B-elimᴿ x∉B
+           in x∈A∖B-intro₂ x∈X x∉A∩B
 
     X∖[A∩B]≃[X∖A]∪[X∖B] :
       {{_ : DecMembership A}} {{_ : DecMembership B}} →
@@ -740,14 +742,15 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
     }
 
   step-RR : ReplRel ⟨359⟩ ℕ-Setoid
-  step-RR = record { R = step-R ; R-most = λ _ y≡x z≡x → trans y≡x (sym z≡x) }
+  step-RR =
+    record { R = step-R ; R-most = λ _ y≡x z≡x → Eq.trans y≡x (Eq.sym z≡x) }
 
   instance
     ℕ≡? : {x y : ℕ} → Dec (x ≃ y)
     ℕ≡? {x} {y} = x ≃? y
 
     step-RF : ReplFun step-RR
-    step-RF = record { f = step ; Rxfx = const refl }
+    step-RF = record { f = step ; Rxfx = const Eq.refl }
 
   _ : replacement ⟨359⟩ step-RR ≃ ⟨46A⟩
   _ = toWitness {Q = replacement ⟨359⟩ step-RR ≃? ⟨46A⟩} _
@@ -841,16 +844,19 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
       fwd : ∀ {x} → x ∈ A → x ∈ X ∖ B
       fwd x∈A =
         let x∈X = ⊆-elim (⊆-trans ⊆∪-introᴸ (≃→⊆ᴸ A∪B≃X)) x∈A
-            x∉B = x∉∅ ∘ ∈-substᴿ A∩B≃∅ ∘ x∈A∩B-intro₂ x∈A
+            x∉B = ¬-intro λ x∈B →
+              let x∈A∩B = x∈A∩B-intro₂ x∈A x∈B
+                  x∈∅ = ∈-substᴿ A∩B≃∅ x∈A∩B
+               in x∈∅ ↯ x∉∅
          in x∈A∖B-intro₂ x∈X x∉B
 
       rev : ∀ {x} → x ∈ X ∖ B → x ∈ A
       rev x∈X∖B =
         let ∧-intro x∈X x∉B = x∈A∖B-elim x∈X∖B
-         in ∨-forceᴸ x∉B (x∈A∪B-elim (∈-substᴿ (sym A∪B≃X) x∈X))
+         in ∨-forceᴸ x∉B (x∈A∪B-elim (∈-substᴿ (Eq.sym A∪B≃X) x∈X))
 
   B≃X∖A : {X : PSet₀ S} → A ∪ B ≃ X → A ∩ B ≃ ∅ → B ≃ X ∖ A
-  B≃X∖A A∪B≃X A∩B≃∅ = A≃X∖B (trans ∪-comm A∪B≃X) (trans ∩-comm A∩B≃∅)
+  B≃X∖A A∪B≃X A∩B≃∅ = A≃X∖B (Eq.trans ∪-comm A∪B≃X) (Eq.trans ∩-comm A∩B≃∅)
 
   -- Exercise 3.1.10.
   [A∖B]∩[A∩B] : (A ∖ B) ∩ (A ∩ B) ≃ ∅
@@ -861,7 +867,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         let ∧-intro x∈A∖B x∈A∩B = x∈A∩B-elim x∈[A∖B]∩[A∩B]
             x∈B = x∈A∩B-elimᴿ x∈A∩B
             x∉B = x∈A∖B-elimᴿ x∈A∖B
-         in ⊥-elim (x∉B x∈B)
+         in x∈B ↯ x∉B
 
   [B∖A]∩[A∩B] : (B ∖ A) ∩ (A ∩ B) ≃ ∅
   [B∖A]∩[A∩B] {B = B} {A} = A⊆∅→A≃∅ (⊆-intro fwd)
@@ -871,7 +877,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         let ∧-intro x∈B∖A x∈A∩B = x∈A∩B-elim x∈[B∖A]∩[A∩B]
             x∈A = x∈A∩B-elimᴸ x∈A∩B
             x∉A = x∈A∖B-elimᴿ x∈B∖A
-         in ⊥-elim (x∉A x∈A)
+         in x∈A ↯ x∉A
 
   [A∖B]∩[B∖A] : (A ∖ B) ∩ (B ∖ A) ≃ ∅
   [A∖B]∩[B∖A] {A = A} {B} = A⊆∅→A≃∅ (⊆-intro fwd)
@@ -881,7 +887,7 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
         let ∧-intro x∈A∖B x∈B∖A = x∈A∩B-elim x∈[A∖B]∩[B∖A]
             x∈A = x∈A∖B-elimᴸ x∈A∖B
             x∉A = x∈A∖B-elimᴿ x∈B∖A
-         in ⊥-elim (x∉A x∈A)
+         in x∈A ↯ x∉A
 
   [A∖B]∪[A∩B]∪[B∖A] :
     {{_ : DecMembership A}} {{_ : DecMembership B}} →

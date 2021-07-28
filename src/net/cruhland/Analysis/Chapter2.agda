@@ -1,30 +1,16 @@
-module net.cruhland.Analysis.Chapter2 where
-
-open import Relation.Nullary.Decidable using (False; fromWitnessFalse)
 import net.cruhland.axioms.AbstractAlgebra as AA
-open import net.cruhland.axioms.Cast using (_as_; cast)
-open import net.cruhland.axioms.DecEq using (_≃?_)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; _^_)
 open import net.cruhland.axioms.Ordering using (_≤_; _<_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as Sign
-open import net.cruhland.models.Function using (const; id)
 open import net.cruhland.models.Literals
-open import net.cruhland.models.Logic using
-  ( _∧_; ∧-intro
-  ; _∨_; ∨-forceᴿ; ∨-introᴸ; ∨-introᴿ
-  ; _↔_; ↔-intro
-  ; ⊥-elim; ¬_
-  )
+open import net.cruhland.models.Logic
+  using (_∧_; _∨_; ∨-forceᴿ; ∨-introᴸ; ∨-introᴿ; _↔_; ↔-intro; _↯_)
 
-module _ (PA : PeanoArithmetic) where
-  open module ℕ = PeanoArithmetic PA using
-    ( ℕ; ind; step; step-case; step≄zero; zero
-    ; case-step; case-zero; case; _IsPred_; Pred; pred-intro; pred
-    ; *-stepᴸ; *-stepᴿ; ^-stepᴿ; ^-zeroᴿ; +-both-zero
-    )
+module net.cruhland.Analysis.Chapter2 (PA : PeanoArithmetic) where
+  private open module ℕ = PeanoArithmetic PA using (ℕ; step; zero)
 
   {- 2.1 The Peano Axioms -}
 
@@ -72,11 +58,11 @@ module _ (PA : PeanoArithmetic) where
 
   -- Axiom 2.3. 0 is not the successor of any natural number.
   _ : ∀ {n} → step n ≄ 0
-  _ = step≄zero
+  _ = ℕ.step≄zero
 
   -- Proposition 2.1.6. 4 is not equal to 0.
   4≄0 : 4 ≄ 0
-  4≄0 = step≄zero
+  4≄0 = ℕ.step≄zero
 
   -- Axiom 2.4. Different natural numbers must have different successors.
   _ : ∀ {n m} → step n ≃ step m → n ≃ m
@@ -84,11 +70,11 @@ module _ (PA : PeanoArithmetic) where
 
   -- Proposition 2.1.8. 6 is not equal to 2.
   6≄2 : 6 ≄ 2
-  6≄2 = λ 6≃2 → 4≄0 (AA.inject (AA.inject 6≃2))
+  6≄2 = AA.subst₁ (AA.subst₁ 4≄0)
 
   -- Axiom 2.5 (Principle of mathematical induction).
   _ : (P : ℕ → Set) → P 0 → (∀ {k} → P k → P (step k)) → ∀ n → P n
-  _ = ind
+  _ = ℕ.ind
 
   -- Proposition 2.1.16 (Recursive definitions).
   -- Suppose for each natural number n, we have some function
@@ -124,7 +110,7 @@ module _ (PA : PeanoArithmetic) where
         assign-unique : ∀ {b} → b AssignedTo n → a ≃ b
 
     rec-def : ∀ n → UniqueAssignment n
-    rec-def = ind P Pz Ps
+    rec-def = ℕ.ind P Pz Ps
       where
         P = UniqueAssignment
 
@@ -135,15 +121,19 @@ module _ (PA : PeanoArithmetic) where
             c-unique m≃z (assign-zero _) =
               Eq.refl
             c-unique m≃z (assign-step m≃sm′ b′≔m′) =
-              ⊥-elim (step≄zero (Eq.trans (Eq.sym m≃sm′) m≃z))
+              let sm′≃z = Eq.trans (Eq.sym m≃sm′) m≃z
+                  sm′≄z = ℕ.step≄zero
+               in sm′≃z ↯ sm′≄z
 
-        Ps : step-case P
+        Ps : ℕ.step-case P
         Ps {k} (assign-intro a a≔k unique) =
           assign-intro (f k a) (assign-step Eq.refl a≔k) (f-unique Eq.refl)
             where
               f-unique : ∀ {m} → m ≃ step k → ∀ {b} → b AssignedTo m → f k a ≃ b
               f-unique m≃sk (assign-zero m≃z) =
-                ⊥-elim (step≄zero (Eq.trans (Eq.sym m≃sk) m≃z))
+                let sk≃z = Eq.trans (Eq.sym m≃sk) m≃z
+                    sk≄z = ℕ.step≄zero
+                 in sk≃z ↯ sk≄z
               f-unique m≃sk (assign-step m≃sm′ b′≔m′) =
                 let m′≃k = AA.inject (Eq.trans (Eq.sym m≃sm′) m≃sk)
                     a≃b′ = unique (AssignedTo-substᴿ m′≃k b′≔m′)
@@ -209,7 +199,7 @@ module _ (PA : PeanoArithmetic) where
   _ = Sign.Positive
 
   positive-step : ∀ {n} → Sign.Positive (step n)
-  positive-step = ℕ.Pos-intro-≄0 step≄zero
+  positive-step = ℕ.Pos-intro-≄0 ℕ.step≄zero
 
   -- Proposition 2.2.8. If a is positive and b is a natural number,
   -- then a + b is positive.
@@ -219,7 +209,7 @@ module _ (PA : PeanoArithmetic) where
   -- Corollary 2.2.9. If a and b are natural numbers such that a + b = 0,
   -- then a = 0 and b = 0.
   _ : {a b : ℕ} → a + b ≃ 0 → a ≃ 0 ∧ b ≃ 0
-  _ = +-both-zero
+  _ = ℕ.+-both-zero
 
   -- Lemma 2.2.10. Let a be a positive natural number. Then there exists
   -- exactly one natural number b such that step b = a.
@@ -227,16 +217,16 @@ module _ (PA : PeanoArithmetic) where
   record UniquePred (n : ℕ) : Set where
     constructor upred-intro
     field
-      pred-exists : Pred n
+      pred-exists : ℕ.Pred n
 
-    open Pred pred-exists public
+    open ℕ.Pred pred-exists public
 
     field
-      pred-unique : ∀ m → m IsPred n → pred-value ≃ m
+      pred-unique : ∀ m → m ℕ.IsPred n → pred-value ≃ m
 
   unique-predecessor : ∀ a → Sign.Positive a → UniquePred a
   unique-predecessor a pos-a =
-    let p@(pred-intro b a≃sb) = pred (Sign.pos≄0 pos-a)
+    let p@(ℕ.pred-intro b a≃sb) = ℕ.pred (Sign.pos≄0 pos-a)
      in upred-intro p (λ b′ a≃sb′ → AA.inject (Eq.trans (Eq.sym a≃sb) a≃sb′))
 
   -- Definition 2.2.11 (Ordering of the natural numbers).
@@ -265,7 +255,10 @@ module _ (PA : PeanoArithmetic) where
         ∎
       5≤8 = ℕ.≤-intro-diff 5+3≃8
       si = AA.inject
-      5≄8 = λ 5≃8 → step≄zero (si (si (si (si (si (Eq.sym 5≃8))))))
+      5≄8 = Eq.≄-intro λ 5≃8 →
+        let 3≃0 = si (si (si (si (si (Eq.sym 5≃8)))))
+            3≄0 = ℕ.step≄zero
+         in 3≃0 ↯ 3≄0
 
   -- Proposition 2.2.12 (Basic properties of order for natural numbers).
   -- Exercise 2.2.3
@@ -321,14 +314,14 @@ module _ (PA : PeanoArithmetic) where
     (P : ℕ → Set) → (∀ {n₁ n₂} → n₁ ≃ n₂ → P n₁ → P n₂) → ∀ {n} → P n →
     (∀ {k} → P (step k) → P k) →
     ∀ {m} → m ≤ n → P m
-  backwards-ind P P-subst {n} Pn Pk m≤n = ind Q Qz Qs n Pn m≤n
+  backwards-ind P P-subst {n} Pn Pk m≤n = ℕ.ind Q Qz Qs n Pn m≤n
     where
       Q = λ x → P x → ∀ {y} → y ≤ x → P y
 
       Qz : Q 0
       Qz Pz y≤z = P-subst (Eq.sym (∨-forceᴿ ℕ.n≮0 (ℕ.≤-split y≤z))) Pz
 
-      Qs : step-case Q
+      Qs : ℕ.step-case Q
       Qs Qk Psk y≤sk with ℕ.≤s-split y≤sk
       ... | ∨-introᴸ y≤k = Qk (Pk Psk) y≤k
       ... | ∨-introᴿ y≃sk = P-subst (Eq.sym y≃sk) Psk
@@ -343,10 +336,10 @@ module _ (PA : PeanoArithmetic) where
   0*m = AA.absorb {{r = ℕ.*-absorptiveᴸ}}
 
   1*m : {m : ℕ} → 1 * m ≃ 0 + m
-  1*m {m} = Eq.trans *-stepᴸ (AA.subst₂ 0*m)
+  1*m {m} = Eq.trans ℕ.*-stepᴸ (AA.subst₂ 0*m)
 
   2*m : {m : ℕ} → 2 * m ≃ 0 + m + m
-  2*m {m} = Eq.trans *-stepᴸ (AA.subst₂ 1*m)
+  2*m {m} = Eq.trans ℕ.*-stepᴸ (AA.subst₂ 1*m)
 
   -- Lemma 2.3.2 (Multiplication is commutative).
   -- Exercise 2.3.1
@@ -391,7 +384,7 @@ module _ (PA : PeanoArithmetic) where
       n≃mq+r : n ≃ m * q + r
 
   euclid : ∀ n m → m ≄ 0 → n DividedBy m
-  euclid n m m≄0 = ind P Pz Ps n
+  euclid n m m≄0 = ℕ.ind P Pz Ps n
     where
       P = _DividedBy m
 
@@ -403,7 +396,7 @@ module _ (PA : PeanoArithmetic) where
           r<m = ℕ.<-intro-≤≄ ℕ.≤-zeroᴸ (Eq.sym m≄0)
           n≃mq+r = Eq.sym (Eq.trans AA.ident AA.absorb)
 
-      Ps : step-case P
+      Ps : ℕ.step-case P
       Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (ℕ.s≤-from-< r<m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
@@ -421,7 +414,7 @@ module _ (PA : PeanoArithmetic) where
               m * q + step r
             ≃⟨ AA.subst₂ sr≃m ⟩
               m * q + m
-            ≃˘⟨ *-stepᴿ ⟩
+            ≃˘⟨ ℕ.*-stepᴿ ⟩
               m * step q
             ≃˘⟨ AA.ident ⟩
               m * step q + 0
@@ -433,13 +426,13 @@ module _ (PA : PeanoArithmetic) where
 
   -- Examples 2.3.12
   x^0≃1 : {x : ℕ} → x ^ 0 ≃ 1
-  x^0≃1 = ^-zeroᴿ
+  x^0≃1 = ℕ.^-zeroᴿ
 
   x^1≃x : {x : ℕ} → x ^ 1 ≃ x
   x^1≃x {x} =
     begin
       x ^ 1
-    ≃⟨ ^-stepᴿ ⟩
+    ≃⟨ ℕ.^-stepᴿ ⟩
       x ^ 0 * x
     ≃⟨ AA.subst₂ x^0≃1 ⟩
       1 * x
@@ -451,7 +444,7 @@ module _ (PA : PeanoArithmetic) where
   x^2≃xx {x} =
     begin
       x ^ 2
-    ≃⟨ ^-stepᴿ ⟩
+    ≃⟨ ℕ.^-stepᴿ ⟩
       x ^ 1 * x
     ≃⟨ AA.subst₂ x^1≃x ⟩
       x * x
@@ -461,7 +454,7 @@ module _ (PA : PeanoArithmetic) where
   x^3≃xxx {x} =
     begin
       x ^ 3
-    ≃⟨ ^-stepᴿ ⟩
+    ≃⟨ ℕ.^-stepᴿ ⟩
       x ^ 2 * x
     ≃⟨ AA.subst₂ x^2≃xx ⟩
       x * x * x
@@ -473,7 +466,7 @@ module _ (PA : PeanoArithmetic) where
       2 * x
     ≃⟨⟩
       step 1 * x
-    ≃⟨ *-stepᴸ ⟩
+    ≃⟨ ℕ.*-stepᴸ ⟩
       1 * x + x
     ≃⟨ AA.subst₂ AA.ident ⟩
       x + x
