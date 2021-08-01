@@ -1,5 +1,5 @@
 import net.cruhland.axioms.AbstractAlgebra as AA
-open import net.cruhland.axioms.Cast using (_as_; _value_)
+open import net.cruhland.axioms.Cast using (_as_)
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
@@ -14,15 +14,15 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter4.Rationals where
 
-private module ℕ = PeanoArithmetic peanoArithmetic hiding (nat-literal)
-open ℕ using (ℕ)
+private open module ℕ = PeanoArithmetic peanoArithmetic using (ℕ)
+
 open import net.cruhland.models.Integers.NatPairDefn peanoArithmetic
   using (integers)
 open import net.cruhland.models.Integers.NatPairImpl peanoArithmetic as ℤ
   using (ℤ)
-import net.cruhland.models.Rationals peanoArithmetic integers as ℚ
-  hiding (from-Nat)
-open ℚ using (_//1; _//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
+
+open import net.cruhland.models.Rationals peanoArithmetic integers as ℚ
+  using (_//1; _//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
 
 {- 4.2 The rationals -}
 
@@ -120,10 +120,10 @@ _ = ℚ.≃₀-intro Eq.refl
 
 -- In particular, all natural numbers are rational numbers, for
 -- instance 0 is equal to 0//1 and 1 is equal to 1//1.
-_ : ((ℕ value 0) as ℚ) ≃ 0 // 1
+_ : 0 ≃ 0 // 1
 _ = ≃-derive
 
-_ : ((ℕ value 1) as ℚ) ≃ 1 // 1
+_ : 1 ≃ 1 // 1
 _ = ≃-derive
 
 -- Observe that a rational number a//b is equal to 0 = 0//1 if and
