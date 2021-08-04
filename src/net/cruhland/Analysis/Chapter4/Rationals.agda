@@ -187,10 +187,10 @@ _ = AA.ident {{r = ℚ.*-identityᴸ}}
 *-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
 
 _ : ∀ {x} {{_ : x ≄ 0}} → x * x ⁻¹′ ≃ 1
-_ = AA.inv {f = _⁻¹′}
+_ = AA.inv {invert = _⁻¹′}
 
 _ : ∀ {x} {{_ : x ≄ 0}} → x ⁻¹′ * x ≃ 1
-_ = AA.inv {f = _⁻¹′}
+_ = AA.inv {invert = _⁻¹′}
 
 -- We can now define the _quotient_ x/y of two rational numbers x and
 -- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
