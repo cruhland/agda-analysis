@@ -3,7 +3,7 @@ open import net.cruhland.axioms.Cast using (_as_)
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
+open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_; _⁻¹; _/_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sign using (Negative; Positive; pos≄0)
 open import net.cruhland.models.Function using (_∘_; it)
@@ -21,8 +21,8 @@ open import net.cruhland.models.Integers.NatPairDefn peanoArithmetic
 open import net.cruhland.models.Integers.NatPairImpl peanoArithmetic as ℤ
   using (ℤ)
 
-open import net.cruhland.models.Rationals peanoArithmetic integers as ℚ
-  using (_//1; _//_; _//_~_; _⁻¹; _⁻¹′; _/′_; ℚ)
+open import net.cruhland.models.Rationals.IntPairImpl peanoArithmetic integers
+  as ℚ using (ℚ; _//_)
 
 {- 4.2 The rationals -}
 
@@ -34,26 +34,29 @@ open import net.cruhland.models.Rationals peanoArithmetic integers as ℚ
 _ : Set
 _ = ℚ
 
-_ : (a b : ℤ) {{_ : False (b ≃? 0)}} → ℚ
+_ : (a b : ℤ) {{_ : b ≄ 0}} → ℚ
 _ = _//_
 
 _ : ℚ → ℚ → Set
-_ = _≃_
+_ = _≃_ {{ℚ.eq}}
 
 _ :
-  ∀ {a b c d} {{_ : False (b ≃? 0)}} {{_ : False (d ≃? 0)}} →
+  ∀ {a b c d} {{_ : b ≄ 0}} {{_ : d ≄ 0}} →
     a // b ≃ c // d ↔ a * d ≃ c * b
 _ = ↔-intro ℚ._≃₀_.elim ℚ.≃₀-intro
 
 -- Thus for instance 3//4 = 6//8 = -3//-4, but 3//4 ≠ 4//3.
-_ : 3 // 4 ≃ 6 // 8
-_ = ≃-derive
+module _ where
+  instance _ = ≄-derive
 
-_ : 6 // 8 ≃ -3 // -4
-_ = ≃-derive
+  _ : 3 // 4 ≃ 6 // 8
+  _ = ≃-derive
 
-_ : 3 // 4 ≄ 4 // 3
-_ = ≄-derive
+  _ : 6 // 8 ≃ -3 // -4
+  _ = ≃-derive
+
+  _ : 3 // 4 ≄ 4 // 3
+  _ = ≄-derive
 
 -- This is a valid definition of equality.
 -- Exercise 4.2.1
@@ -75,7 +78,7 @@ _ : ℚ → ℚ → ℚ
 _ = _*_ {{ℚ.star}}
 
 _ : ℚ → ℚ
-_ = -_ {{ℚ.dashᴸ}}
+_ = -_ {{ℚ.neg-dash}}
 
 -- Lemma 4.2.3
 _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
@@ -91,24 +94,25 @@ _ = AA.subst₂ {{r = ℚ.*-substitutiveᴸ}}
 *-substᴿ {a} = AA.subst₂ {{r = ℚ.*-substitutiveᴿ}} {b = a}
 
 _ : {a₁ a₂ : ℚ} → a₁ ≃ a₂ → - a₁ ≃ - a₂
-_ = AA.subst₁ {{r = ℚ.neg-substitutive₁}}
+_ = AA.subst₁ {{r = ℚ.neg-substitutive}}
 
 -- We note that the rational numbers a//1 behave in a manner identical
 -- to the integers a:
-compat-+ : ∀ {a b} → (a //1) + (b //1) ≃ (a + b) //1
+compat-+ : ∀ {a b} → (a // 1) + (b // 1) ≃ (a + b) // 1
 compat-+ {a} = Eq.sym (AA.compat₂ {{r = ℚ.+-compatible-ℤ}} {a})
 
-compat-* : ∀ {a b} → (a //1) * (b //1) ≃ (a * b) //1
+compat-* : ∀ {a b} → (a // 1) * (b // 1) ≃ (a * b) // 1
 compat-* {a} = Eq.sym (AA.compat₂ {{r = ℚ.*-compatible-ℤ}} {a})
 
-_ : ∀ {a} → - (a //1) ≃ (- a) //1
+_ : ∀ {a} → - (a // 1) ≃ (- a) // 1
 _ = Eq.sym (AA.compat₁ {{r = ℚ.neg-compatible-ℤ}})
 
 -- Also, a//1 and b//1 are only equal when a and b are equal.
-_ : ∀ {a b} → a //1 ≃ b //1 ↔ a ≃ b
-_ = ↔-intro
-  (AA.inject {{r = ℚ.from-ℤ-injective}})
-  (AA.subst₁ {{r = ℚ.from-ℤ-substitutive₁}})
+_ : ∀ {a b} → a // 1 ≃ b // 1 ↔ a ≃ b
+_ = ↔-intro fwd rev
+  where
+    fwd = AA.inject {{r = ℚ.from-ℤ-injective}}
+    rev = AA.subst₁ {{r = ℚ.from-ℤ-substitutive}}
 
 -- Because of this, we will identify a with a//1 for each integer a:
 -- a ≡ a//1; the above identities then guarantee that the arithmetic
@@ -128,25 +132,25 @@ _ = ≃-derive
 
 -- Observe that a rational number a//b is equal to 0 = 0//1 if and
 -- only if a × 1 = b × 0, i.e., if the numerator a is equal to 0.
-_ : ∀ {q} → q ≃ 0 ↔ ℚ.n q ≃ 0
-_ = ↔-intro ℚ.q↑≃0 ℚ.q≃0
+_ : {q : ℚ} → q ≃ 0 ↔ ℚ.numerator q ≃ 0
+_ = ↔-intro ℚ.q↑≃0-from-q≃0 ℚ.q≃0-from-q↑≃0
 
 --  Thus if a and b are non-zero then so is a//b.
-_ : {a b : ℤ} → a ≄ 0 → {b≄0 : b ≄ 0} → a // b ~ b≄0 ≄ 0
-_ = λ a≄0 → contrapositive ℚ.q↑≃0 a≄0
+_ : {a b : ℤ} → a ≄ 0 → {{_ : b ≄ 0}} → a // b ≄ 0
+_ = λ a≄0 → contrapositive ℚ.q↑≃0-from-q≃0 a≄0
 
 -- We now define a new operation on the rationals: reciprocal.
 -- If x = a//b is a non-zero rational (so that a,b ≠ 0) then we
 -- define the _reciprocal_ x⁻¹ of x to be the rational number
 -- x⁻¹ ≔ b//a.
-_ : {q : ℚ} → q ≄ 0 → ℚ
-_ = _⁻¹
+_ : (q : ℚ) {{_ : q ≄ 0}} → ℚ
+_ = _⁻¹ {{ℚ.reciprocal}}
 
 -- It is easy to check that this operation is consistent with our
 -- notion of equality: if two rational numbers a//b, a′//b′ are equal,
 -- then their reciprocals are also equal.
-_ : {q₁ q₂ : ℚ} (q₁≄0 : q₁ ≄ 0) (q₂≄0 : q₂ ≄ 0) → q₁ ≃ q₂ → q₁≄0 ⁻¹ ≃ q₂≄0 ⁻¹
-_ = ℚ.recip-subst
+_ : {q₁ q₂ : ℚ} {{_ : q₁ ≄ 0}} {{_ : q₂ ≄ 0}} → q₁ ≃ q₂ → q₁ ⁻¹ ≃ q₂ ⁻¹
+_ = AA.subst₁ {{ℚ.recip-substitutive}}
 
 -- Proposition 4.2.4 (Laws of algebra for rationals)
 -- Exercise 4.2.3
@@ -181,96 +185,86 @@ _ : {x : ℚ} → 1 * x ≃ x
 _ = AA.ident {{r = ℚ.*-identityᴸ}}
 
 *-distrib-+ᴸ : {x y z : ℚ} → x * (y + z) ≃ x * y + x * z
-*-distrib-+ᴸ {x} = AA.distrib {{r = ℚ.*-distributive-+ᴸ}} {x}
+*-distrib-+ᴸ {x} = AA.distrib {{r = ℚ.*-distributiveᴸ}} {x}
 
 *-distrib-+ᴿ : {x y z : ℚ} → (y + z) * x ≃ y * x + z * x
-*-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
+*-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributiveᴿ}} {x} {y}
 
-_ : ∀ {x} {{_ : x ≄ 0}} → x * x ⁻¹′ ≃ 1
-_ = AA.inv {invert = _⁻¹′}
+_ : {q : ℚ} {{_ : q ≄ 0}} → q * q ⁻¹ ≃ 1
+_ = AA.inv {invert = _⁻¹} {{r = ℚ.*-inverseᴿ}}
 
-_ : ∀ {x} {{_ : x ≄ 0}} → x ⁻¹′ * x ≃ 1
-_ = AA.inv {invert = _⁻¹′}
+_ : {q : ℚ} {{_ : q ≄ 0}} → q ⁻¹ * q ≃ 1
+_ = AA.inv {invert = _⁻¹} {{r = ℚ.*-inverseᴸ}}
 
 -- We can now define the _quotient_ x/y of two rational numbers x and
 -- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
 _ : (x y : ℚ) {{_ : y ≄ 0}} → ℚ
-_ = _/′_
+_ = _/_ {{ℚ.div-ℚ}}
 
 -- Thus, for instance:
-_ = let instance _ = ≄-derive in
-  begin
-    (3 // 4) /′ (5 // 6)
-  ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
-    (3 // 4) * (6 // 5)
-  ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
-    (3 * 6) // (4 * 5)
-  ≃⟨⟩
-    18 // 20
-  ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
-    9 // 10
-  ∎
+_ =
+  let instance _ = ≄-derive
+   in begin
+        (3 // 4) / (5 // 6)
+      ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
+        (3 // 4) * (6 // 5)
+      ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
+        (3 * 6) // (4 * 5)
+      ≃⟨⟩
+        18 // 20
+      ≃⟨ ℚ.≃₀-intro Eq.refl ⟩
+        9 // 10
+      ∎
 
 -- Using this formula, it is easy to see that a/b = a//b for every
 -- integer a and every non-zero integer b. Thus we can now discard the
 -- // notation, and use the more customary a/b instead of a//b.
-//-redundant :
-  {a b : ℤ} {{_ : b ≄ 0}} {{_ : (b as ℚ) ≄ 0}} →
-  (a as ℚ) /′ (b as ℚ) ≃ a // b ~ it
-//-redundant {a} = ℚ.≃₀-intro (AA.assoc {a = a})
+_ : {a b : ℤ} {{_ : b ≄ 0}} → a / b ≃ a // b
+_ = ℚ.a/b≃a//b
 
 -- In a similar spirit, we define subtraction on the rationals by the
 -- formula x - y ≔ x + (- y), just as we did with the integers.
 _ : ℚ → ℚ → ℚ
-_ = _-_ {{r = ℚ.dash₂}}
+_ = _-_ {{r = ℚ.sub-dash}}
 
 -- Definition 4.2.6. A rational number x is said to be _positive_ iff
 -- we have x = a/b for some positive integers a and b. It is said to
--- be _negative_ iff we have x = -y for some positive rational y
--- (i.e., x = (- a)/b for some positive integers a and b).
+-- be _negative_ iff we have x = -y for some positive rational y.
 _ : ℚ → Set
-_ = ℚ.Positive
+_ = Positive {{r = ℚ.positivity}}
 
 _ : ℚ → Set
-_ = ℚ.Negative
+_ = Negative {{r = ℚ.negativity}}
 
+-- (i.e., x = (- a)/b for some positive integers a and b)
 alt-negative :
   {a b : ℤ} → Positive a → (pos[b] : Positive b) →
-    let b≄0 = pos≄0 pos[b]
-        instance b:ℚ≄0:ℚ = AA.subst₁ b≄0
-     in ℚ.Negative ((- a as ℚ) /′ (b as ℚ))
+  let instance b≄0 = pos≄0 pos[b] in Negative ((- a) / b)
 alt-negative {a} {b} pos[a] pos[b] =
-  let b≄0 = pos≄0 pos[b]
-      instance b:ℚ≄0:ℚ = AA.subst₁ b≄0
-      p = (a as ℚ) /′ (b as ℚ)
-      pos[p] = record
-        { n-pos = AA.subst₁ (Eq.sym AA.ident) pos[a]
-        ; d-pos = AA.subst₁ (Eq.sym AA.ident) pos[b] }
-      [-a]/b≃-p =
-        begin
-          (- a as ℚ) /′ (b as ℚ)
-        ≃⟨⟩
-          (- a as ℚ) * (b as ℚ) ⁻¹′
-        ≃⟨ AA.subst₂ {b = (b as ℚ) ⁻¹′} (AA.compat₁ {a = a}) ⟩
-          (- (a as ℚ)) * (b as ℚ) ⁻¹′
-        ≃˘⟨ AA.fnOpComm {AA.handᴸ} {a = a as ℚ} {b = (b as ℚ) ⁻¹′} ⟩
-          - ((a as ℚ) * (b as ℚ) ⁻¹′)
-        ≃⟨⟩
-          - ((a as ℚ) /′ (b as ℚ))
-        ≃⟨⟩
-          - p
-        ∎
-   in record { p = p ; p-pos = pos[p] ; q≃-p = [-a]/b≃-p }
+  let instance
+        b≄0 = pos≄0 pos[b]
+      pos[a/b] = ℚ.Positive₀-intro pos[a] pos[b] Eq.refl
+      [-a]/b≃-[a/b] = Eq.sym (AA.fnOpCommᴸ {a = a})
+   in ℚ.Negative₀-intro pos[a/b] [-a]/b≃-[a/b]
 
 -- Thus for instance, every positive integer is a positive rational
 -- number, and every negative integer is a negative rational number,
 -- so our new definition is consistent with our old one.
-ℚ⁺-compat-ℤ⁺ : {a : ℤ} → Positive a → ℚ.Positive (a as ℚ)
-ℚ⁺-compat-ℤ⁺ a⁺ = record { n-pos = a⁺ ; d-pos = ℤ.1-Positive }
+pos[ℚ]-from-pos[ℤ] : {a : ℤ} → Positive a → Positive (a as ℚ)
+pos[ℚ]-from-pos[ℤ] {a} pos[a] =
+  let a:ℚ≃a/1 =
+        begin
+          (a as ℚ)
+        ≃⟨⟩
+          a // 1
+        ≃˘⟨ ℚ.a/b≃a//b ⟩
+          a / 1
+        ∎
+   in ℚ.Positive₀-intro pos[a] ℤ.1-Positive a:ℚ≃a/1
 
-ℚ⁻-compat-ℤ⁻ : {a : ℤ} → Negative a → ℚ.Negative (a as ℚ)
-ℚ⁻-compat-ℤ⁻ {a} a⁻ = record
-  { p = - (a as ℚ)
-  ; p-pos = record { n-pos = ℤ.neg-Negative a⁻ ; d-pos = ℤ.1-Positive }
-  ; q≃-p = Eq.refl
-  }
+neg[ℚ]-from-neg[ℤ] : {a : ℤ} → Negative a → Negative (a as ℚ)
+neg[ℚ]-from-neg[ℤ] {a} neg[a] =
+  let pos[-a] = ℤ.neg-Negative neg[a]
+      pos[-a:ℚ] = pos[ℚ]-from-pos[ℤ] pos[-a]
+      -[-a:ℚ]≃a:ℚ = Eq.sym AA.inv-involutive
+   in ℚ.Negative₀-intro pos[-a:ℚ] -[-a:ℚ]≃a:ℚ

@@ -400,7 +400,7 @@ module net.cruhland.Analysis.Chapter2 (PA : PeanoArithmetic) where
       Ps {k} (div-intro q r r<m k≃mq+r) with ℕ.≤-split (ℕ.s≤-from-< r<m)
       ... | ∨-introᴸ sr<m = div-intro q (step r) sr<m sk≃mq+sr
         where
-          sk≃mq+sr = Eq.trans (AA.subst₁ k≃mq+r) AA.fnOpComm
+          sk≃mq+sr = Eq.trans (AA.subst₁ k≃mq+r) AA.fnOpCommᴿ
       ... | ∨-introᴿ sr≃m = div-intro (step q) 0 0<m sk≃m[sq]+0
         where
           0<m = ℕ.<-intro-≤≄ ℕ.≤-zeroᴸ (Eq.sym m≄0)
@@ -410,7 +410,7 @@ module net.cruhland.Analysis.Chapter2 (PA : PeanoArithmetic) where
               step k
             ≃⟨ AA.subst₁ k≃mq+r ⟩
               step (m * q + r)
-            ≃⟨ AA.fnOpComm ⟩
+            ≃⟨ AA.fnOpCommᴿ ⟩
               m * q + step r
             ≃⟨ AA.subst₂ sr≃m ⟩
               m * q + m
