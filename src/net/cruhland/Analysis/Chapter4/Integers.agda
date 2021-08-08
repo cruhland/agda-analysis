@@ -6,7 +6,7 @@ open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
 open import net.cruhland.axioms.Ordering using (_≤_; _<_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.axioms.Sign using (Negative; Positive)
+import net.cruhland.axioms.Sign as S
 open import net.cruhland.models.Function using (_∘_)
 open import net.cruhland.models.Literals as Literals
 open import net.cruhland.models.Logic
@@ -172,8 +172,8 @@ _ = AA.subst₁ {{r = ℤ.neg-substitutive}}
 -- exactly one of the following three statements is true: (a) x is
 -- zero; (b) x is equal to a positive natural number n; or (c) x is
 -- the negation -n of a positive natural number n.
-_ : (x : ℤ) → AA.ExactlyOneOfThree (Negative x) (x ≃ 0) (Positive x)
-_ = ℤ.trichotomy
+_ : (x : ℤ) → AA.ExactlyOneOfThree (x ≃ 0) (S.Positive x) (S.Negative x)
+_ = S.trichotomy {{r = ℤ.sign-trichotomy}}
 
 -- Proposition 4.1.6 (Laws of algebra for integers).
 -- Exercise 4.1.4
@@ -333,7 +333,7 @@ sub-cancelᴿ {a} {b} {c} =
   ∎
 
 -- (a)
-pos-diff : {a b : ℤ} → a < b ↔ Positive (b - a)
+pos-diff : {a b : ℤ} → a < b ↔ S.Positive (b - a)
 pos-diff = ↔-intro ℤ.pos-from-< ℤ.<-from-pos
 
 -- (b) Addition preserves order
@@ -342,10 +342,10 @@ pos-diff = ↔-intro ℤ.pos-from-< ℤ.<-from-pos
   ℤ.<-from-pos (AA.subst₁ (Eq.sym (sub-cancelᴿ {b})) (ℤ.pos-from-< a<b))
 
 -- (c) Positive multiplication preserves order
-*⁺-preserves-<ᴿ : {a b c : ℤ} → Positive c → a < b → a * c < b * c
+*⁺-preserves-<ᴿ : {a b c : ℤ} → S.Positive c → a < b → a * c < b * c
 *⁺-preserves-<ᴿ {a} {b} {c} pos[c] a<b =
   let pos[b-a] = ℤ.pos-from-< a<b
-      pos[[b-a]c] = AA.pres {P = Positive} {_⊙_ = _*_} pos[b-a] pos[c]
+      pos[[b-a]c] = AA.pres {P = S.Positive} {_⊙_ = _*_} pos[b-a] pos[c]
       pos[bc-ac] = AA.subst₁ (AA.distribᴿ {a = c} {b = b} {c = a}) pos[[b-a]c]
    in ℤ.<-from-pos pos[bc-ac]
 

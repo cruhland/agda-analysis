@@ -5,7 +5,7 @@ open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_; _⁻¹; _/_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
-open import net.cruhland.axioms.Sign using (Negative; Positive; pos≄0)
+import net.cruhland.axioms.Sign as S
 open import net.cruhland.models.Function using (_∘_; it)
 open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic
@@ -231,18 +231,18 @@ _ = _-_ {{r = ℚ.sub-dash}}
 -- we have x = a/b for some positive integers a and b. It is said to
 -- be _negative_ iff we have x = -y for some positive rational y.
 _ : ℚ → Set
-_ = Positive {{r = ℚ.positivity}}
+_ = S.Positive {{r = ℚ.positivity}}
 
 _ : ℚ → Set
-_ = Negative {{r = ℚ.negativity}}
+_ = S.Negative {{r = ℚ.negativity}}
 
 -- (i.e., x = (- a)/b for some positive integers a and b)
 alt-negative :
-  {a b : ℤ} → Positive a → (pos[b] : Positive b) →
-  let instance b≄0 = pos≄0 pos[b] in Negative ((- a) / b)
+  {a b : ℤ} → S.Positive a → (pos[b] : S.Positive b) →
+  let instance b≄0 = S.pos≄0 pos[b] in S.Negative ((- a) / b)
 alt-negative {a} {b} pos[a] pos[b] =
   let instance
-        b≄0 = pos≄0 pos[b]
+        b≄0 = S.pos≄0 pos[b]
       pos[a/b] = ℚ.Positive₀-intro pos[a] pos[b] Eq.refl
       [-a]/b≃-[a/b] = Eq.sym (AA.fnOpCommᴸ {a = a})
    in ℚ.Negative₀-intro pos[a/b] [-a]/b≃-[a/b]
@@ -250,7 +250,7 @@ alt-negative {a} {b} pos[a] pos[b] =
 -- Thus for instance, every positive integer is a positive rational
 -- number, and every negative integer is a negative rational number,
 -- so our new definition is consistent with our old one.
-pos[ℚ]-from-pos[ℤ] : {a : ℤ} → Positive a → Positive (a as ℚ)
+pos[ℚ]-from-pos[ℤ] : {a : ℤ} → S.Positive a → S.Positive (a as ℚ)
 pos[ℚ]-from-pos[ℤ] {a} pos[a] =
   let a:ℚ≃a/1 =
         begin
@@ -262,7 +262,7 @@ pos[ℚ]-from-pos[ℤ] {a} pos[a] =
         ∎
    in ℚ.Positive₀-intro pos[a] ℤ.1-Positive a:ℚ≃a/1
 
-neg[ℚ]-from-neg[ℤ] : {a : ℤ} → Negative a → Negative (a as ℚ)
+neg[ℚ]-from-neg[ℤ] : {a : ℤ} → S.Negative a → S.Negative (a as ℚ)
 neg[ℚ]-from-neg[ℤ] {a} neg[a] =
   let pos[-a] = ℤ.neg-Negative neg[a]
       pos[-a:ℚ] = pos[ℚ]-from-pos[ℤ] pos[-a]
