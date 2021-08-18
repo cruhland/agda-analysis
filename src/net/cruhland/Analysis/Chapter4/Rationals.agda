@@ -268,3 +268,10 @@ neg[ℚ]-from-neg[ℤ] {a} neg[a] =
       pos[-a:ℚ] = pos[ℚ]-from-pos[ℤ] pos[-a]
       -[-a:ℚ]≃a:ℚ = Eq.sym AA.inv-involutive
    in ℚ.Negative₀-intro pos[-a:ℚ] -[-a:ℚ]≃a:ℚ
+
+-- Lemma 4.2.7 (Trichotomy of rationals). Let x be a rational
+-- number. Then exactly one of the following three statements is true:
+-- (a) x is equal to 0. (b) x is a positive rational number. (c) x is
+-- a negative rational number.
+_ : (x : ℚ) → AA.ExactlyOneOfThree (x ≃ 0) (S.Positive x) (S.Negative x)
+_ = S.trichotomy {{r = ℚ.sign-trichotomy}}
