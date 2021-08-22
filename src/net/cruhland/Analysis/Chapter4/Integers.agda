@@ -15,7 +15,8 @@ open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter4.Integers where
 
-private open module ℕ = PeanoArithmetic peanoArithmetic using (ℕ)
+private
+  open module ℕ = PeanoArithmetic peanoArithmetic using (ℕ)
 open import net.cruhland.models.Integers.NatPairImpl peanoArithmetic as ℤ
   using (_—_; ℤ)
 

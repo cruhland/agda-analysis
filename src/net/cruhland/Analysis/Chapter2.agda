@@ -10,7 +10,8 @@ open import net.cruhland.models.Logic
   using (_∧_; _∨_; ∨-forceᴿ; ∨-introᴸ; ∨-introᴿ; _↔_; ↔-intro; _↯_)
 
 module net.cruhland.Analysis.Chapter2 (PA : PeanoArithmetic) where
-  private open module ℕ = PeanoArithmetic PA using (ℕ; step; zero)
+  private
+    open module ℕ = PeanoArithmetic PA using (ℕ; step; zero)
 
   {- 2.1 The Peano Axioms -}
 
