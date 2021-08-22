@@ -4,7 +4,7 @@ open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_; _⁻¹; _/_)
-open import net.cruhland.axioms.Ordering using (_≤_; _<_; _≥_; _>_)
+open import net.cruhland.axioms.Ordering as Ord using (_≤_; _<_; _≥_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as S
 open import net.cruhland.models.Function using (_∘_; id; it)
@@ -294,3 +294,12 @@ _ = ↔-intro id id
 
 _ : {x y : ℚ} → x ≤ y ↔ x < y ∨ x ≃ y
 _ = ↔-intro id id
+
+-- Exercise 4.2.5
+-- Proposition 4.2.9 (Basic properties of order on the rationals). Let
+-- x, y, z be rational numbers. Then the following properties hold.
+
+-- (a) (Order trichotomy) Exactly one of the three statements x = y,
+-- x < y, or x > y is true.
+_ : (x y : ℚ) → AA.ExactlyOneOfThree (x ≃ y) (x < y) (x > y)
+_ = Ord.trichotomy {{r = ℚ.order-trichotomy}}
