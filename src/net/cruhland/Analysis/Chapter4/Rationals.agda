@@ -4,12 +4,13 @@ open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_; _⁻¹; _/_)
+open import net.cruhland.axioms.Ordering using (_≤_; _<_; _≥_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as S
-open import net.cruhland.models.Function using (_∘_; it)
+open import net.cruhland.models.Function using (_∘_; id; it)
 open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic
-  using (_↔_; ↔-intro; False; contrapositive; _↯_)
+  using (_∨_; _↔_; ↔-intro; False; contrapositive; _↯_)
 open import net.cruhland.models.Peano.Unary using (peanoArithmetic)
 
 module net.cruhland.Analysis.Chapter4.Rationals where
@@ -185,10 +186,10 @@ _ : {x : ℚ} → 1 * x ≃ x
 _ = AA.ident {{r = ℚ.*-identityᴸ}}
 
 *-distrib-+ᴸ : {x y z : ℚ} → x * (y + z) ≃ x * y + x * z
-*-distrib-+ᴸ {x} = AA.distrib {{r = ℚ.*-distributiveᴸ}} {x}
+*-distrib-+ᴸ {x} = AA.distrib {{r = ℚ.*-distributive-+ᴸ}} {x}
 
 *-distrib-+ᴿ : {x y z : ℚ} → (y + z) * x ≃ y * x + z * x
-*-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributiveᴿ}} {x} {y}
+*-distrib-+ᴿ {x} {y} = AA.distrib {{r = ℚ.*-distributive-+ᴿ}} {x} {y}
 
 _ : {q : ℚ} {{_ : q ≄ 0}} → q * q ⁻¹ ≃ 1
 _ = AA.inv {invert = _⁻¹} {{r = ℚ.*-inverseᴿ}}
@@ -275,3 +276,20 @@ neg[ℚ]-from-neg[ℤ] {a} neg[a] =
 -- a negative rational number.
 _ : (x : ℚ) → AA.ExactlyOneOfThree (x ≃ 0) (S.Positive x) (S.Negative x)
 _ = S.trichotomy {{r = ℚ.sign-trichotomy}}
+
+-- Definition 4.2.8 (Ordering of the rationals). Let x and y be
+-- rational numbers. We say that x > y iff x - y is a positive
+-- rational number, and x < y iff x - y is a negative rational
+-- number. We write x ≥ y iff either x > y or x = y, and similarly
+-- define x ≤ y.
+_ : {x y : ℚ} → x > y ↔ S.Positive (x - y)
+_ = ↔-intro id id
+
+_ : {x y : ℚ} → x < y ↔ S.Negative (x - y)
+_ = ↔-intro id id
+
+_ : {x y : ℚ} → x ≥ y ↔ x > y ∨ x ≃ y
+_ = ↔-intro id id
+
+_ : {x y : ℚ} → x ≤ y ↔ x < y ∨ x ≃ y
+_ = ↔-intro id id

@@ -3,7 +3,7 @@ open import Level using (_⊔_; Level) renaming (suc to sℓ)
 import Relation.Binary.PropositionalEquality as ≡
 open import net.cruhland.axioms.DecEq using (_≃?_; DecEq_~_)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
-open import net.cruhland.axioms.Ordering using (_<_; LessThan)
+open import net.cruhland.axioms.Ordering as Ord using (_<_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 open import net.cruhland.axioms.Sets using (SetTheory)
 open import net.cruhland.models.Function using (_∘_; const)
@@ -21,8 +21,8 @@ module net.cruhland.Analysis.Chapter3.Fundamentals (ST : SetTheory) where
   open module PA = PeanoArithmetic peanoArithmetic using (ℕ; _<?_; step)
   instance
     -- todo: replace these definitions by adding a PA parameter to the module
-    lessThan : LessThan ℕ
-    lessThan = PA.lessThan
+    lessThan : Ord.LessThan ℕ
+    lessThan = Ord.StrictOrder.lt PA.strictOrder
 
   module ST = SetTheory ST
   open ST using

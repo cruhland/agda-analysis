@@ -2,7 +2,7 @@ import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; _^_)
-open import net.cruhland.axioms.Ordering using (_≤_; _<_; _>_)
+open import net.cruhland.axioms.Ordering as Ord using (_≤_; _<_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as Sign
 open import net.cruhland.models.Literals
@@ -235,7 +235,7 @@ module net.cruhland.Analysis.Chapter2 (PA : PeanoArithmetic) where
 
   -- Using Definition 2.2.11 on some examples
   8>5 : 8 > 5
-  8>5 = ℕ.<-intro-≤≄ 5≤8 5≄8
+  8>5 = Ord.<-flip (ℕ.<-intro-≤≄ 5≤8 5≄8)
     where
       5+3≃8 =
         begin
