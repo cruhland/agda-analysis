@@ -303,3 +303,7 @@ _ = ↔-intro id id
 -- x < y, or x > y is true.
 _ : (x y : ℚ) → AA.ExactlyOneOfThree (x ≃ y) (x < y) (x > y)
 _ = Ord.trichotomy {{r = ℚ.order-trichotomy}}
+
+-- (b) (Order is anti-symmetric) One has x < y if and only if y > x.
+<↔> : {x y : ℚ} → x < y ↔ y > x
+<↔> {x} {y} = ↔-intro (Ord.<-flip {x = x}) (Ord.>-flip {x = y})
