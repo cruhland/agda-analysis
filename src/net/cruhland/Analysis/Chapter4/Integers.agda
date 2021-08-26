@@ -4,7 +4,7 @@ open import net.cruhland.axioms.DecEq using (DecEq_~_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
 open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
-open import net.cruhland.axioms.Ordering using (_≤_; _<_; _>_)
+open import net.cruhland.axioms.Ordering as Ord using (_≤_; _<_; _>_)
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as S
 open import net.cruhland.models.Function using (_∘_)
@@ -391,8 +391,8 @@ neg-reverses-< {a} {b} a<b =
       ∎
 
 -- (f) Order trichotomy
-_ : ∀ a b → AA.ExactlyOneOfThree (a < b) (a ≃ b) (a > b)
-_ = ℤ.order-trichotomy
+_ : ∀ a b → AA.ExactlyOneOfThree (a ≃ b) (a < b) (a > b)
+_ = Ord.trichotomy {{r = ℤ.order-trichotomy}}
 
 -- Exercise 4.1.8
 no-ind : ¬ ((P : ℤ → Set) → P 0 → (∀ {b} → P b → P (step b)) → ∀ a → P a)

@@ -307,3 +307,7 @@ _ = Ord.trichotomy {{r = ℚ.order-trichotomy}}
 -- (b) (Order is anti-symmetric) One has x < y if and only if y > x.
 <↔> : {x y : ℚ} → x < y ↔ y > x
 <↔> {x} {y} = ↔-intro (Ord.<-flip {x = x}) (Ord.>-flip {x = y})
+
+-- (c) (Order is transitive) If x < y and y < z, then x < z.
+<-trans : {x y z : ℚ} → x < y → y < z → x < z
+<-trans {x} = Eq.trans {{r = ℚ.<-transitive}} {x}
