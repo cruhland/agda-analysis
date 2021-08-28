@@ -316,3 +316,9 @@ _ = Ord.trichotomy {{r = ℚ.order-trichotomy}}
 +-pres-< : {x y z : ℚ} → x < y → x + z < y + z
 +-pres-< {x} =
   AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴸ ℚ.<-substitutive-+}} {a₁ = x}
+
+-- (e) (Positive multiplication preserves order) If x < y and z is
+-- positive, then xz < yz.
+*-pres-< : {x y z : ℚ} {{_ : S.Positive z}} → x < y → x * z < y * z
+*-pres-< {x} =
+  AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴸ ℚ.<-substitutive-*}} {a₁ = x}
