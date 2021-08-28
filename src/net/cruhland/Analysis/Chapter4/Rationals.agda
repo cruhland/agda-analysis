@@ -311,3 +311,8 @@ _ = Ord.trichotomy {{r = ℚ.order-trichotomy}}
 -- (c) (Order is transitive) If x < y and y < z, then x < z.
 <-trans : {x y z : ℚ} → x < y → y < z → x < z
 <-trans {x} = Eq.trans {{r = ℚ.<-transitive}} {x}
+
+-- (d) (Addition preserves order) If x < y, then x + z < y + z.
++-pres-< : {x y z : ℚ} → x < y → x + z < y + z
++-pres-< {x} =
+  AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴸ ℚ.<-substitutive-+}} {a₁ = x}
