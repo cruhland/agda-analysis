@@ -82,6 +82,7 @@ _ = _*_ {{ℚ.star}}
 _ : ℚ → ℚ
 _ = -_ {{ℚ.neg-dash}}
 
+-- Exercise 4.2.2
 -- Lemma 4.2.3
 _ : {a b₁ b₂ : ℚ} → b₁ ≃ b₂ → b₁ + a ≃ b₂ + a
 _ = AA.subst₂ {{r = ℚ.+-substitutiveᴸ}}
@@ -154,8 +155,8 @@ _ = _⁻¹ {{ℚ.reciprocal}}
 _ : {q₁ q₂ : ℚ} {{_ : q₁ ≄ 0}} {{_ : q₂ ≄ 0}} → q₁ ≃ q₂ → q₁ ⁻¹ ≃ q₂ ⁻¹
 _ = AA.subst₁ {{ℚ.recip-substitutive}}
 
--- Proposition 4.2.4 (Laws of algebra for rationals)
 -- Exercise 4.2.3
+-- Proposition 4.2.4 (Laws of algebra for rationals)
 +-comm : {x y : ℚ} → x + y ≃ y + x
 +-comm {x} = AA.comm {{r = ℚ.+-commutative}} {x}
 
@@ -271,6 +272,7 @@ neg[ℚ]-from-neg[ℤ] {a} neg[a] =
       -[-a:ℚ]≃a:ℚ = Eq.sym AA.inv-involutive
    in ℚ.Negative₀-intro pos[-a:ℚ] -[-a:ℚ]≃a:ℚ
 
+-- Exercise 4.2.4
 -- Lemma 4.2.7 (Trichotomy of rationals). Let x be a rational
 -- number. Then exactly one of the following three statements is true:
 -- (a) x is equal to 0. (b) x is a positive rational number. (c) x is
@@ -314,11 +316,15 @@ _ = Ord.trichotomy {{r = ℚ.order-trichotomy}}
 
 -- (d) (Addition preserves order) If x < y, then x + z < y + z.
 +-pres-< : {x y z : ℚ} → x < y → x + z < y + z
-+-pres-< {x} =
-  AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴸ ℚ.<-substitutive-+}} {a₁ = x}
++-pres-< {x} = AA.subst₂ {{r = ℚ.<-substitutive-+ᴸ}} {a₁ = x}
 
 -- (e) (Positive multiplication preserves order) If x < y and z is
 -- positive, then xz < yz.
-*-pres-< : {x y z : ℚ} {{_ : S.Positive z}} → x < y → x * z < y * z
-*-pres-< {x} =
-  AA.subst₂ {{r = AA.Substitutive²ᶜ.substitutiveᴸ ℚ.<-substitutive-*}} {a₁ = x}
+*-pos-pres-< : {x y z : ℚ} {{_ : S.Positive z}} → x < y → x * z < y * z
+*-pos-pres-< {x} = AA.subst₂ {{r = ℚ.<-substitutive-*-posᴸ}} {a₁ = x}
+
+-- Exercise 4.2.6
+-- Show that if x, y, z are rational numbers such that x < y and z is
+-- _negative_, then xz > yz.
+*-neg-flip-< : {x y z : ℚ} {{_ : S.Negative z}} → x < y → x * z > y * z
+*-neg-flip-< {x} = AA.subst₂ {{r = ℚ.<-substitutive-*-negᴸ}} {a₁ = x}
