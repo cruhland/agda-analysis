@@ -196,8 +196,8 @@ _ = AA.ident {{r = ℚ.*-identityᴸ}}
 _ : {q : ℚ} {{_ : q ≄ 0}} → q * q ⁻¹ ≃ 1
 _ = AA.inv {invert = _⁻¹} {{r = ℚ.*-inverseᴿ}}
 
-_ : {q : ℚ} {{_ : q ≄ 0}} → q ⁻¹ * q ≃ 1
-_ = AA.inv {invert = _⁻¹} {{r = ℚ.*-inverseᴸ}}
+*-invᴸ : {q : ℚ} {{_ : q ≄ 0}} → q ⁻¹ * q ≃ 1
+*-invᴸ {q} = AA.inv {invert = _⁻¹} {{r = ℚ.*-inverseᴸ}} {q}
 
 -- We can now define the _quotient_ x/y of two rational numbers x and
 -- y, _provided that_ y is non-zero, by the formula x/y ≔ x × y⁻¹.
