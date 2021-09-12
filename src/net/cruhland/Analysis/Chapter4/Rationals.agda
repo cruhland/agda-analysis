@@ -3,8 +3,9 @@ open import net.cruhland.axioms.Cast using (_as_)
 open import net.cruhland.axioms.DecEq using (_≃?_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_; _⁻¹; _/_)
-open import net.cruhland.axioms.Ordering as Ord using (_≤_; _<_; _≥_; _>_)
+open import net.cruhland.axioms.Operators
+  using (_+_; _*_; -_; _-_; _⁻¹; _/_; _<_; _>_; _≤_; _≥_)
+import net.cruhland.axioms.Ordering as Ord
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as S
 open import net.cruhland.models.Function using (_∘_; id; it)
@@ -308,7 +309,7 @@ _ = Ord.trichotomy {{r = ℚ.order-trichotomy}}
 
 -- (b) (Order is anti-symmetric) One has x < y if and only if y > x.
 <↔> : {x y : ℚ} → x < y ↔ y > x
-<↔> {x} {y} = ↔-intro (Ord.<-flip {x = x}) (Ord.>-flip {x = y})
+<↔> {x} {y} = ↔-intro (Ord.lt-flip {x = x}) (Ord.gt-flip {x = y})
 
 -- (c) (Order is transitive) If x < y and y < z, then x < z.
 <-trans : {x y z : ℚ} → x < y → y < z → x < z

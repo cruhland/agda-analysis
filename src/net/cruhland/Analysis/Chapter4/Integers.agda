@@ -3,8 +3,9 @@ open import net.cruhland.axioms.Cast using (_as_)
 open import net.cruhland.axioms.DecEq using (DecEq_~_; ≃-derive; ≄-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_; Eq)
 open Eq.≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_; _*_; -_; _-_)
-open import net.cruhland.axioms.Ordering as Ord using (_≤_; _<_; _>_)
+open import net.cruhland.axioms.Operators
+  using (_+_; _*_; -_; _-_; _≤_; _<_; _>_)
+import net.cruhland.axioms.Ordering as Ord
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as S
 open import net.cruhland.models.Function using (_∘_)
@@ -274,7 +275,7 @@ _ : Literals.FromNegLiteral ℤ
 _ = ℤ.neg-literal
 
 _ : 5 > -3
-_ = ℤ.<₀-intro (ℤ.≤₀-intro {d = 8} ≃-derive) ≄-derive
+_ = Ord.≤≄-intro (ℤ.≤₀-intro {d = 8} ≃-derive) ≄-derive
 
 -- Lemma 4.1.11 (Properties of order).
 -- Exercise 4.1.7

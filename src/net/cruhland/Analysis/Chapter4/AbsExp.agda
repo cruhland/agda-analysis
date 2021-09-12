@@ -1,7 +1,6 @@
 open import net.cruhland.axioms.DecEq using (≃-derive)
 open import net.cruhland.axioms.Eq as Eq using (_≃_)
-open import net.cruhland.axioms.Operators using (-_; _-_)
-open import net.cruhland.axioms.Ordering using (_≥_)
+open import net.cruhland.axioms.Operators using (_+_; -_; _-_; _≤_; _≥_)
 import net.cruhland.axioms.Sign as S
 open import net.cruhland.models.Literals
 open import net.cruhland.models.Logic using (_↔_; ↔-intro)
@@ -52,3 +51,8 @@ abs≥0 {x} = ℚ.abs≥0 {x}
 -- Also, |x| = 0 if and only if x is 0.
 abs[x]≃0↔x≃0 : {x : ℚ} → ℚ.abs x ≃ 0 ↔ x ≃ 0
 abs[x]≃0↔x≃0 {x} = ↔-intro (ℚ.q≃0-from-abs[q]≃0 {x}) ℚ.abs[q]≃0-from-q≃0
+
+-- (b) (Triangle inequality for absolute value)
+-- We have |x + y| ≤ |x| + |y|.
+abs-triangle : {x y : ℚ} → ℚ.abs (x + y) ≤ ℚ.abs x + ℚ.abs y
+abs-triangle {x} {y} = ℚ.abs-triangle {x} {y}

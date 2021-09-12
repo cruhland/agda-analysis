@@ -1,8 +1,8 @@
 import net.cruhland.axioms.AbstractAlgebra as AA
 open import net.cruhland.axioms.Eq as Eq using (_≃_; _≄_)
 open Eq.≃-Reasoning
-open import net.cruhland.axioms.Operators using (_+_; _*_; _^_)
-open import net.cruhland.axioms.Ordering as Ord using (_≤_; _<_; _>_)
+open import net.cruhland.axioms.Operators using (_+_; _*_; _^_; _≤_; _<_; _>_)
+import net.cruhland.axioms.Ordering as Ord
 open import net.cruhland.axioms.Peano using (PeanoArithmetic)
 import net.cruhland.axioms.Sign as Sign
 open import net.cruhland.models.Literals
@@ -236,7 +236,7 @@ module net.cruhland.Analysis.Chapter2 (PA : PeanoArithmetic) where
 
   -- Using Definition 2.2.11 on some examples
   8>5 : 8 > 5
-  8>5 = Ord.<-flip (ℕ.<-intro-≤≄ 5≤8 5≄8)
+  8>5 = Ord.lt-flip (ℕ.<-intro-≤≄ 5≤8 5≄8)
     where
       5+3≃8 =
         begin
@@ -263,18 +263,20 @@ module net.cruhland.Analysis.Chapter2 (PA : PeanoArithmetic) where
 
   -- Proposition 2.2.12 (Basic properties of order for natural numbers).
   -- Exercise 2.2.3
+  lte = Ord.NonStrict².lte ℕ.nonStrictOrder
 
   -- (a) (Order is reflexive)
   _ : {a : ℕ} → a ≤ a
-  _ = Eq.refl {{r = ℕ.≤-reflexive}}
+  _ = Eq.refl {{r = Ord.NonStrict.reflexive lte}}
+
 
   -- (b) (Order is transitive)
   _ : {a b c : ℕ} → a ≤ b → b ≤ c → a ≤ c
-  _ = Eq.trans {{r = ℕ.≤-transitive}}
+  _ = Eq.trans {{r = Ord.NonStrict.transitive lte}}
 
   -- (c) (Order is anti-symmetric)
   _ : {a b : ℕ} → a ≤ b → b ≤ a → a ≃ b
-  _ = AA.antisym {{r = ℕ.≤-antisymmetric}}
+  _ = AA.antisym {{r = Ord.NonStrict.antisymmetric lte}}
 
   -- (d) (Addition preserves order)
   _ : {a b c : ℕ} → a ≤ b ↔ a + c ≤ b + c
